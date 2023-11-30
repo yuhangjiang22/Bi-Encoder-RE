@@ -131,6 +131,7 @@ class AlbertForRelationApprox(BertPreTrainedModel):
         rep = self.dropout(rep)
         logits = self.classifier(rep)
 
+
         if labels is not None:
             loss_fct = CrossEntropyLoss()
             active_loss = (sub_obj_masks.view(-1) == 1)
