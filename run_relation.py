@@ -13,17 +13,28 @@ import sys
 import numpy as np
 import torch
 from torch.utils.data import DataLoader, TensorDataset
-from collections import Counter
-
-from torch.nn import CrossEntropyLoss
+# from collections import Counter
+#
+# from torch.nn import CrossEntropyLoss
 
 from transformers.file_utils import PYTORCH_PRETRAINED_BERT_CACHE, WEIGHTS_NAME, CONFIG_NAME
-from relation.models import BertForRelation, AlbertForRelation
+# from relation.models import BertForRelation, AlbertForRelation
 from transformers import AutoTokenizer
 from transformers import AdamW, get_linear_schedule_with_warmup
 
 from relation.utils import generate_relation_data, decode_sample_id
 from shared.const import task_rel_labels, task_ner_labels
+from relation.config import BEFREConfig
+from relation.modified_model import BEFRE
+
+
+id2description = {0: "There's no relations between the compound @subject@ and gene @object@ .",
+                1: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as an upregulator, activator, or indirect upregulator in its interactions .",
+                2: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as a downregulator, inhibitor, or indirect downregulator in its interactions .",
+                3: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as an agonist, agonist activator, or agonist inhibitor in its interactions .",
+                4: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as an antagonist in its interactions .",
+                5: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as a substrate, product of, or substrate product of in its interactions ."}
+tokenized_id2description = {key: value.split() for key, value in id2description.items()}
 
 CLS = "[CLS]"
 SEP = "[SEP]"
@@ -57,7 +68,7 @@ def add_marker_tokens(tokenizer, ner_labels):
     tokenizer.add_tokens(new_tokens)
     logger.info('# vocab after adding markers: %d'%len(tokenizer))
 
-def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, special_tokens, unused_tokens=True):
+def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, special_tokens, tokenized_id2description, unused_tokens=False):
     """
     Loads a data file into a list of `InputBatch`s.
     unused_tokens: whether use [unused1] [unused2] as special tokens
@@ -103,13 +114,19 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
             for sub_token in tokenizer.tokenize(token):
                 tokens.append(sub_token)
             if i == example['subj_end']:
+                sub_idx_end = len(tokens)
                 tokens.append(SUBJECT_END_NER)
             if i == example['obj_end']:
+                obj_idx_end = len(tokens)
                 tokens.append(OBJECT_END_NER)
         tokens.append(SEP)
 
+        subject = tokens[sub_idx:sub_idx_end + 1]
+        object = tokens[obj_idx:obj_idx_end + 1]
+
         num_tokens += len(tokens)
         max_tokens = max(max_tokens, len(tokens))
+
 
         if len(tokens) > max_seq_length:
             tokens = tokens[:max_seq_length]
@@ -120,6 +137,7 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         else:
             num_fit_examples += 1
 
+
         segment_ids = [0] * len(tokens)
         input_ids = tokenizer.convert_tokens_to_ids(tokens)
         input_mask = [1] * len(input_ids)
@@ -128,9 +146,53 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         input_mask += padding
         segment_ids += padding
         label_id = label2id[example['relation']]
+
         assert len(input_ids) == max_seq_length
         assert len(input_mask) == max_seq_length
         assert len(segment_ids) == max_seq_length
+
+        descriptions_input_ids = []
+        descriptions_input_mask = []
+        descriptions_type_ids = []
+        descriptions_sub_idx = []
+        descriptions_obj_idx = []
+
+        for _, description_tokens in tokenized_id2description.items():
+
+            description_tokens = [CLS] + description_tokens
+            description_tokens = [subject if word == '@subject@' else word for word in description_tokens]
+            description_tokens = [object if word == '@object@' else word for word in description_tokens]
+            description_tokens = [item for sublist in description_tokens for item in
+                                  (sublist if isinstance(sublist, list) else [sublist])]
+            description_tokens.append(SEP)
+
+            des_sub_idx = description_tokens.index(SUBJECT_START_NER)
+            des_obj_idx = description_tokens.index(OBJECT_START_NER)
+            descriptions_sub_idx.append(des_sub_idx)
+            descriptions_obj_idx.append(des_obj_idx)
+
+            if len(description_tokens) > max_seq_length:
+                tokens = tokens[:max_seq_length]
+                if sub_idx >= max_seq_length:
+                    sub_idx = 0
+                if obj_idx >= max_seq_length:
+                    obj_idx = 0
+
+            description_input_ids = tokenizer.convert_tokens_to_ids(description_tokens)
+            description_type_ids = [0] * len(description_tokens)
+            description_input_mask = [1] * len(description_input_ids)
+            padding = [0] * (max_seq_length - len(description_input_ids))
+            description_input_ids += padding
+            description_input_mask += padding
+            description_type_ids += padding
+
+            assert len(description_input_ids) == max_seq_length
+            assert len(description_input_mask) == max_seq_length
+            assert len(description_type_ids) == max_seq_length
+
+            descriptions_input_ids.append(description_input_ids)
+            descriptions_input_mask.append(description_input_mask)
+            descriptions_type_ids.append(description_type_ids)
 
         if num_shown_examples < 20:
             if (ex_index < 5) or (label_id > 0):
@@ -151,7 +213,12 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                               segment_ids=segment_ids,
                               label_id=label_id,
                               sub_idx=sub_idx,
-                              obj_idx=obj_idx))
+                              obj_idx=obj_idx,
+                              descriptions_input_ids=descriptions_input_ids,
+                              descriptions_input_mask=descriptions_input_mask,
+                              descriptions_type_ids=descriptions_type_ids,
+                              descriptions_sub_idx=descriptions_sub_idx,
+                              descriptions_obj_idx=descriptions_obj_idx))
     logger.info("Average #tokens: %.2f" % (num_tokens * 1.0 / len(examples)))
     logger.info("Max #tokens: %d"%max_tokens)
     logger.info("%d (%.2f %%) examples can fit max_seq_length = %d" % (num_fit_examples,
@@ -188,42 +255,60 @@ def compute_f1(preds, labels, e2e_ngold):
         return {'precision': prec, 'recall': e2e_recall, 'f1': e2e_f1, 'task_recall': recall, 'task_f1': f1, 
         'n_correct': n_correct, 'n_pred': n_pred, 'n_gold': e2e_ngold, 'task_ngold': n_gold}
 
-
-def evaluate(model, device, eval_dataloader, eval_label_ids, num_labels, e2e_ngold=None, verbose=True):
+def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_size, seq_len, e2e_ngold=None):
     model.eval()
-    eval_loss = 0
+    # eval_loss = 0
     nb_eval_steps = 0
     preds = []
-    for input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx in eval_dataloader:
+    for input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx in eval_dataloader:
         input_ids = input_ids.to(device)
         input_mask = input_mask.to(device)
         segment_ids = segment_ids.to(device)
-        label_ids = label_ids.to(device)
+        # label_ids = label_ids.to(device)
         sub_idx = sub_idx.to(device)
         obj_idx = obj_idx.to(device)
+        descriptions_input_ids = descriptions_input_ids.reshape(batch_size * num_labels, seq_len)
+        descriptions_input_mask = descriptions_input_mask.reshape(batch_size * num_labels, seq_len)
+        descriptions_type_ids = descriptions_type_ids.reshape(batch_size * num_labels, seq_len)
+        descriptions_sub_idx = descriptions_sub_idx.reshape(batch_size * num_labels)
+        descriptions_obj_idx = descriptions_obj_idx.reshape(batch_size * num_labels)
+        descriptions_input_ids = descriptions_input_ids.to(device)
+        descriptions_input_mask = descriptions_input_mask.to(device)
+        descriptions_type_ids = descriptions_type_ids.to(device)
+        descriptions_sub_idx = descriptions_sub_idx.to(device)
+        descriptions_obj_idx = descriptions_obj_idx.to(device)
         with torch.no_grad():
-            logits = model(input_ids, segment_ids, input_mask, labels=None, sub_idx=sub_idx, obj_idx=obj_idx)
-        loss_fct = CrossEntropyLoss()
-        tmp_eval_loss = loss_fct(logits.view(-1, num_labels), label_ids.view(-1))
-        eval_loss += tmp_eval_loss.mean().item()
+            scores = model(input_ids,
+                           input_mask,
+                           segment_ids,
+                           labels=None,
+                           sub_idx=sub_idx,
+                           obj_idx=obj_idx,
+                           descriptions_input_ids=descriptions_input_ids,
+                           descriptions_input_mask=descriptions_input_mask,
+                           descriptions_type_ids=descriptions_type_ids,
+                           descriptions_sub_idx=descriptions_sub_idx,
+                           descriptions_obj_idx=descriptions_obj_idx,
+                           return_dict=True)
+
+        # loss_fct = CrossEntropyLoss()
+        # tmp_eval_loss = loss_fct(logits.view(-1, num_labels), label_ids.view(-1))
+        # eval_loss += tmp_eval_loss.mean().item()
         nb_eval_steps += 1
         if len(preds) == 0:
-            preds.append(logits.detach().cpu().numpy())
+            preds.append(scores.detach().cpu().numpy())
         else:
             preds[0] = np.append(
-                preds[0], logits.detach().cpu().numpy(), axis=0)
+                preds[0], scores.detach().cpu().numpy(), axis=0)
 
-    eval_loss = eval_loss / nb_eval_steps
-    logits = preds[0]
+    # eval_loss = eval_loss / nb_eval_steps
+    # scores = preds[0]
     preds = np.argmax(preds[0], axis=1)
     result = compute_f1(preds, eval_label_ids.numpy(), e2e_ngold=e2e_ngold)
     result['accuracy'] = simple_accuracy(preds, eval_label_ids.numpy())
-    result['eval_loss'] = eval_loss
-    if verbose:
-        logger.info("***** Eval results *****")
-        for key in sorted(result.keys()):
-            logger.info("  %s = %s", key, str(result[key]))
-    return preds, result, logits
+    # result['eval_loss'] = eval_loss
+
+    return preds, result
 
 def print_pred_json(eval_data, eval_examples, preds, id2label, output_file):
     rels = dict()
@@ -264,11 +349,18 @@ def save_trained_model(output_dir, model, tokenizer):
     tokenizer.save_vocabulary(output_dir)
 
 def main(args):
-    if 'albert' in args.model:
-        RelationModel = AlbertForRelation
-        args.add_new_tokens = True
-    else:
-        RelationModel = BertForRelation
+    # if 'albert' in args.model:
+    #     RelationModel = AlbertForRelation
+    #     args.add_new_tokens = True
+    # else:
+    #     RelationModel = BertForRelation
+    config = BEFREConfig(
+        pretrained_model_name_or_path=args.model,
+        cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE),
+        revision=None,
+        use_auth_token=True,
+        hidden_dropout_prob=0.1,
+    )
 
     device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
     n_gpu = torch.cuda.device_count()
@@ -352,7 +444,28 @@ def main(args):
         all_label_ids = torch.tensor([f.label_id for f in train_features], dtype=torch.long)
         all_sub_idx = torch.tensor([f.sub_idx for f in train_features], dtype=torch.long)
         all_obj_idx = torch.tensor([f.obj_idx for f in train_features], dtype=torch.long)
-        train_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_label_ids, all_sub_idx, all_obj_idx)
+
+        all_descriptions_input_ids = torch.tensor([f.descriptions_input_ids for f in train_features],
+                                                   dtype=torch.long)
+        all_descriptions_input_mask = torch.tensor([f.descriptions_input_mask for f in train_features],
+                                                   dtype=torch.long)
+        all_descriptions_type_ids = torch.tensor([f.descriptions_type_ids for f in train_features],
+                                                   dtype=torch.long)
+        all_descriptions_sub_idx = torch.tensor([f.descriptions_sub_idx for f in train_features], dtype=torch.long)
+        all_descriptions_obj_idx = torch.tensor([f.descriptions_obj_idx for f in train_features], dtype=torch.long)
+
+        train_data = TensorDataset(all_input_ids,
+                                   all_input_mask,
+                                   all_segment_ids,
+                                   all_label_ids,
+                                   all_sub_idx,
+                                   all_obj_idx,
+                                   all_descriptions_input_ids,
+                                   all_descriptions_input_mask,
+                                   all_descriptions_type_ids,
+                                   all_descriptions_sub_idx,
+                                   all_descriptions_obj_idx)
+
         train_dataloader = DataLoader(train_data, batch_size=args.train_batch_size)
         train_batches = [batch for batch in train_dataloader]
 
@@ -367,12 +480,13 @@ def main(args):
         eval_step = max(1, len(train_batches) // args.eval_per_epoch)
         
         lr = args.learning_rate
-        model = RelationModel.from_pretrained(
-            args.model, cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE), num_rel_labels=num_labels)
+        model = BEFRE(config)
+        # model = RelationModel.from_pretrained(
+        #     args.model, cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE), num_rel_labels=num_labels)
         if hasattr(model, 'bert'):
             model.bert.resize_token_embeddings(len(tokenizer))
-        elif hasattr(model, 'albert'):
-            model.albert.resize_token_embeddings(len(tokenizer))
+        # elif hasattr(model, 'albert'):
+        #     model.albert.resize_token_embeddings(len(tokenizer))
         else:
             raise TypeError("Unknown model class")
 
@@ -403,8 +517,8 @@ def main(args):
                 random.shuffle(train_batches)
             for step, batch in enumerate(train_batches):
                 batch = tuple(t.to(device) for t in batch)
-                input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx = batch
-                loss = model(input_ids, segment_ids, input_mask, label_ids, sub_idx, obj_idx)
+                input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx= batch
+                loss = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx, return_dict=True)
                 if n_gpu > 1:
                     loss = loss.mean()
 
@@ -460,7 +574,7 @@ def main(args):
             eval_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_label_ids, all_sub_idx, all_obj_idx)
             eval_dataloader = DataLoader(eval_data, batch_size=args.eval_batch_size)
             eval_label_ids = all_label_ids
-        model = RelationModel.from_pretrained(args.output_dir, num_rel_labels=num_labels)
+        model = BEFRE(config)
         model.to(device)
         preds, result, logits = evaluate(model, device, eval_dataloader, eval_label_ids, num_labels, e2e_ngold=eval_nrel)
 
