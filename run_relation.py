@@ -86,7 +86,7 @@ def add_marker_tokens(tokenizer, ner_labels):
     tokenizer.add_tokens(new_tokens)
     logger.info('# vocab after adding markers: %d'%len(tokenizer))
 
-def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, special_tokens, tokenized_id2description, unused_tokens=False):
+def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, special_tokens, tokenized_id2description, unused_tokens=True):
     """
     Loads a data file into a list of `InputBatch`s.
     unused_tokens: whether use [unused1] [unused2] as special tokens
