@@ -34,6 +34,7 @@ id2description = {0: "There's no relations between the compound @subject@ and ge
                 3: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as an agonist, agonist activator, or agonist inhibitor in its interactions .",
                 4: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as an antagonist in its interactions .",
                 5: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as a substrate, product of, or substrate product of in its interactions ."}
+
 tokenized_id2description = {key: value.split() for key, value in id2description.items()}
 
 CLS = "[CLS]"
@@ -432,7 +433,7 @@ def main(args):
 
     if args.do_eval and (args.do_train or not(args.eval_test)):
         eval_features = convert_examples_to_features(
-            eval_examples, label2id, args.max_seq_length, tokenizer, special_tokens, unused_tokens=not(args.add_new_tokens))
+            eval_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description, unused_tokens=not(args.add_new_tokens))
         logger.info("***** Dev *****")
         logger.info("  Num examples = %d", len(eval_examples))
         logger.info("  Batch size = %d", args.eval_batch_size)
@@ -450,7 +451,7 @@ def main(args):
 
     if args.do_train:
         train_features = convert_examples_to_features(
-            train_examples, label2id, args.max_seq_length, tokenizer, special_tokens, unused_tokens=not(args.add_new_tokens))
+            train_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description, unused_tokens=not(args.add_new_tokens))
         if args.train_mode == 'sorted' or args.train_mode == 'random_sorted':
             train_features = sorted(train_features, key=lambda f: np.sum(f.input_mask))
         else:
@@ -576,7 +577,7 @@ def main(args):
             eval_dataset = test_dataset
             eval_examples = test_examples
             eval_features = convert_examples_to_features(
-                test_examples, label2id, args.max_seq_length, tokenizer, special_tokens, unused_tokens=not(args.add_new_tokens))
+                test_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description, unused_tokens=not(args.add_new_tokens))
             eval_nrel = test_nrel
             logger.info(special_tokens)
             logger.info("***** Test *****")
