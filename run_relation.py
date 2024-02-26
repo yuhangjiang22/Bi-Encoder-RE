@@ -47,13 +47,30 @@ logger = logging.getLogger(__name__)
 class InputFeatures(object):
     """A single set of features of data."""
 
-    def __init__(self, input_ids, input_mask, segment_ids, label_id, sub_idx, obj_idx):
+    def __init__(self,
+                 input_ids,
+                 input_mask,
+                 segment_ids,
+                 label_id,
+                 sub_idx,
+                 obj_idx,
+                 descriptions_input_ids,
+                 descriptions_input_mask,
+                 descriptions_type_ids,
+                 descriptions_sub_idx,
+                 descriptions_obj_idx):
+
         self.input_ids = input_ids
         self.input_mask = input_mask
         self.segment_ids = segment_ids
         self.label_id = label_id
         self.sub_idx = sub_idx
         self.obj_idx = obj_idx
+        self.descriptions_input_ids = descriptions_input_ids
+        self.descriptions_input_mask = descriptions_input_mask
+        self.descriptions_type_ids = descriptions_type_ids
+        self.descriptions_sub_idx = descriptions_sub_idx
+        self.descriptions_obj_idx = descriptions_obj_idx
 
 def add_marker_tokens(tokenizer, ner_labels):
     new_tokens = ['<SUBJ_START>', '<SUBJ_END>', '<OBJ_START>', '<OBJ_END>']
