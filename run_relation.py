@@ -501,12 +501,8 @@ def main(args):
         model = BEFRE(config)
         # model = RelationModel.from_pretrained(
         #     args.model, cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE), num_rel_labels=num_labels)
-        if hasattr(model, 'bert'):
-            model.bert.resize_token_embeddings(len(tokenizer))
-        # elif hasattr(model, 'albert'):
-        #     model.albert.resize_token_embeddings(len(tokenizer))
-        else:
-            raise TypeError("Unknown model class")
+        model.input_encoder.resize_token_embeddings(len(tokenizer))
+        model.description_encoder.resize_token_embeddings(len(tokenizer))
 
         model.to(device)
         if n_gpu > 1:
