@@ -285,6 +285,7 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
         # label_ids = label_ids.to(device)
         sub_idx = sub_idx.to(device)
         obj_idx = obj_idx.to(device)
+
         descriptions_input_ids = descriptions_input_ids.reshape(batch_size * num_labels, seq_len)
         descriptions_input_mask = descriptions_input_mask.reshape(batch_size * num_labels, seq_len)
         descriptions_type_ids = descriptions_type_ids.reshape(batch_size * num_labels, seq_len)
@@ -295,6 +296,7 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
         descriptions_type_ids = descriptions_type_ids.to(device)
         descriptions_sub_idx = descriptions_sub_idx.to(device)
         descriptions_obj_idx = descriptions_obj_idx.to(device)
+
         with torch.no_grad():
             scores = model(input_ids,
                            input_mask,
@@ -443,7 +445,28 @@ def main(args):
         all_label_ids = torch.tensor([f.label_id for f in eval_features], dtype=torch.long)
         all_sub_idx = torch.tensor([f.sub_idx for f in eval_features], dtype=torch.long)
         all_obj_idx = torch.tensor([f.obj_idx for f in eval_features], dtype=torch.long)
-        eval_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_label_ids, all_sub_idx, all_obj_idx)
+
+        all_descriptions_input_ids = torch.tensor([f.descriptions_input_ids for f in eval_features],
+                                                  dtype=torch.long)
+        all_descriptions_input_mask = torch.tensor([f.descriptions_input_mask for f in eval_features],
+                                                   dtype=torch.long)
+        all_descriptions_type_ids = torch.tensor([f.descriptions_type_ids for f in eval_features],
+                                                 dtype=torch.long)
+        all_descriptions_sub_idx = torch.tensor([f.descriptions_sub_idx for f in eval_features], dtype=torch.long)
+        all_descriptions_obj_idx = torch.tensor([f.descriptions_obj_idx for f in eval_features], dtype=torch.long)
+
+        eval_data = TensorDataset(all_input_ids,
+                                   all_input_mask,
+                                   all_segment_ids,
+                                   all_label_ids,
+                                   all_sub_idx,
+                                   all_obj_idx,
+                                   all_descriptions_input_ids,
+                                   all_descriptions_input_mask,
+                                   all_descriptions_type_ids,
+                                   all_descriptions_sub_idx,
+                                   all_descriptions_obj_idx)
+
         eval_dataloader = DataLoader(eval_data, batch_size=args.eval_batch_size)
         eval_label_ids = all_label_ids
     with open(os.path.join(args.output_dir, 'special_tokens.json'), 'w') as f:
@@ -590,9 +613,31 @@ def main(args):
             all_label_ids = torch.tensor([f.label_id for f in eval_features], dtype=torch.long)
             all_sub_idx = torch.tensor([f.sub_idx for f in eval_features], dtype=torch.long)
             all_obj_idx = torch.tensor([f.obj_idx for f in eval_features], dtype=torch.long)
-            eval_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_label_ids, all_sub_idx, all_obj_idx)
+
+            all_descriptions_input_ids = torch.tensor([f.descriptions_input_ids for f in train_features],
+                                                      dtype=torch.long)
+            all_descriptions_input_mask = torch.tensor([f.descriptions_input_mask for f in train_features],
+                                                       dtype=torch.long)
+            all_descriptions_type_ids = torch.tensor([f.descriptions_type_ids for f in train_features],
+                                                     dtype=torch.long)
+            all_descriptions_sub_idx = torch.tensor([f.descriptions_sub_idx for f in train_features], dtype=torch.long)
+            all_descriptions_obj_idx = torch.tensor([f.descriptions_obj_idx for f in train_features], dtype=torch.long)
+
+            eval_data = TensorDataset(all_input_ids,
+                                       all_input_mask,
+                                       all_segment_ids,
+                                       all_label_ids,
+                                       all_sub_idx,
+                                       all_obj_idx,
+                                       all_descriptions_input_ids,
+                                       all_descriptions_input_mask,
+                                       all_descriptions_type_ids,
+                                       all_descriptions_sub_idx,
+                                       all_descriptions_obj_idx)
+
             eval_dataloader = DataLoader(eval_data, batch_size=args.eval_batch_size)
             eval_label_ids = all_label_ids
+
         model = BEFRE.from_pretrained(args.output_dir)
         model.to(device)
         preds, result = evaluate(model, device, eval_dataloader, eval_label_ids, num_labels, e2e_ngold=eval_nrel)
