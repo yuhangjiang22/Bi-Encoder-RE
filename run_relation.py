@@ -286,11 +286,11 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
         sub_idx = sub_idx.to(device)
         obj_idx = obj_idx.to(device)
 
-        descriptions_input_ids = descriptions_input_ids.reshape(batch_size * num_labels, seq_len)
-        descriptions_input_mask = descriptions_input_mask.reshape(batch_size * num_labels, seq_len)
-        descriptions_type_ids = descriptions_type_ids.reshape(batch_size * num_labels, seq_len)
-        descriptions_sub_idx = descriptions_sub_idx.reshape(batch_size * num_labels)
-        descriptions_obj_idx = descriptions_obj_idx.reshape(batch_size * num_labels)
+        descriptions_input_ids = descriptions_input_ids.squeeze(0)
+        descriptions_input_mask = descriptions_input_mask.squeeze(0)
+        descriptions_type_ids = descriptions_type_ids.squeeze(0)
+        descriptions_sub_idx = descriptions_sub_idx.squeeze(0)
+        descriptions_obj_idx = descriptions_obj_idx.squeeze(0)
         descriptions_input_ids = descriptions_input_ids.to(device)
         descriptions_input_mask = descriptions_input_mask.to(device)
         descriptions_type_ids = descriptions_type_ids.to(device)
@@ -581,7 +581,7 @@ def main(args):
                                 time.time() - start_time, tr_loss / nb_tr_steps))
                     save_model = False
                     if args.do_eval:
-                        preds, result, logits = evaluate(model, device, eval_dataloader, eval_label_ids, num_labels, args.eval_batch_size, args.max_seq_length, e2e_ngold=eval_nrel)
+                        preds, result = evaluate(model, device, eval_dataloader, eval_label_ids, num_labels, args.eval_batch_size, args.max_seq_length, e2e_ngold=eval_nrel)
                         model.train()
                         result['global_step'] = global_step
                         result['epoch'] = epoch
