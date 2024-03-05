@@ -1,47 +1,17 @@
 import logging
-import os
-import sys
-from dataclasses import dataclass, field
-from typing import Optional, List
-import datasets
-from datasets import load_dataset
-
-import transformers
-from transformers import (
-    AutoTokenizer,
-    HfArgumentParser,
-    PreTrainedTokenizerFast,
-    TrainingArguments,
-    EarlyStoppingCallback,
-    set_seed,
-)
-from transformers.trainer_utils import get_last_checkpoint
-from relation.config import BEFREConfig
-from relation.modified_model import BEFRE
-
-import argparse
-import logging
-import os
 import random
-import time
 import json
-import sys
-
-import numpy as np
 import torch
 from torch.utils.data import DataLoader, TensorDataset
-from collections import Counter
-
-from torch.nn import CrossEntropyLoss
-
 from transformers.file_utils import PYTORCH_PRETRAINED_BERT_CACHE, WEIGHTS_NAME, CONFIG_NAME
 from transformers import AutoTokenizer
 from transformers import AdamW, get_linear_schedule_with_warmup
-
 from relation.utils import generate_relation_data, decode_sample_id
 from shared.const import task_rel_labels, task_ner_labels
 import os
-os.chdir('Bi-Encoder-RE')
+import numpy as np
+from relation.modified_model import BEFRE, BEFREConfig
+# os.chdir('Bi-Encoder-RE')
 
 
 last_checkpoint = None
@@ -67,7 +37,6 @@ tokenizer = AutoTokenizer.from_pretrained(
 config = BEFREConfig(
         pretrained_model_name_or_path='bert-base-uncased',
         cache_dir=None,
-        revision=None,
         use_auth_token=True,
         hidden_dropout_prob=0.1,
     )
@@ -211,8 +180,10 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                 sub_idx = 0
             if obj_idx >= max_seq_length:
                 obj_idx = 0
+
         else:
             num_fit_examples += 1
+
 
 
         segment_ids = [0] * len(tokens)
@@ -427,7 +398,7 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, e2e_ngo
     return preds, result
 
 train_file = 'chemprot/train.json'
-train_dataset, train_examples, train_nrel = generate_relation_data(train_file, use_gold=True, context_window=250)
+train_dataset, train_examples, train_nrel = generate_relation_data(train_file, use_gold=True, context_window=100)
 
 label_list = ['no_relation'] + task_rel_labels['chemprot_5']
 
@@ -480,5 +451,48 @@ descriptions_type_ids = descriptions_type_ids.reshape(batch_size*num_labels, seq
 descriptions_sub_idx = descriptions_sub_idx.reshape(batch_size*num_labels)
 descriptions_obj_idx = descriptions_obj_idx.reshape(batch_size*num_labels)
 
-results = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx, return_dict=True)
+results = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx)
+
+results = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx)
+
+device = 'cpu'
+model.train()
+
+train_batches = train_batches[:2]
+global_step = 0
+tr_loss = 0
+nb_tr_examples = 0
+nb_tr_steps = 0
+param_optimizer = list(model.named_parameters())
+no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
+optimizer_grouped_parameters = [
+    {'params': [p for n, p in param_optimizer
+                if not any(nd in n for nd in no_decay)], 'weight_decay': 0.01},
+    {'params': [p for n, p in param_optimizer
+                if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
+]
+optimizer = AdamW(optimizer_grouped_parameters, lr=0.1, correct_bias=True)
+scheduler = get_linear_schedule_with_warmup(optimizer, int(1 * 0.1), 1)
+for step, batch in enumerate(train_batches):
+    batch = tuple(t.to(device) for t in batch)
+    input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx = batch
+    descriptions_input_ids = descriptions_input_ids.reshape(batch_size * num_labels, seq_len)
+    descriptions_input_mask = descriptions_input_mask.reshape(batch_size * num_labels, seq_len)
+    descriptions_type_ids = descriptions_type_ids.reshape(batch_size * num_labels, seq_len)
+    descriptions_sub_idx = descriptions_sub_idx.reshape(batch_size * num_labels)
+    descriptions_obj_idx = descriptions_obj_idx.reshape(batch_size * num_labels)
+    loss = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids,
+                 descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx,
+                 return_dict=True)
+
+    loss.backward()
+
+    tr_loss += loss.item()
+    nb_tr_examples += input_ids.size(0)
+    nb_tr_steps += 1
+
+    optimizer.step()
+    scheduler.step()
+    optimizer.zero_grad()
+    global_step += 1
 

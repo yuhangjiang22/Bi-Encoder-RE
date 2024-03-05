@@ -3,6 +3,8 @@ from torch import nn
 import numpy as np
 from typing import List
 from transformers import PreTrainedModel, AutoConfig, AutoModel
+from transformers import PretrainedConfig
+
 
 def contrastive_loss(
     scores: torch.FloatTensor,
@@ -17,24 +19,45 @@ def contrastive_loss(
 
 BertLayerNorm = torch.nn.LayerNorm
 
+class BEFREConfig(PretrainedConfig):
+
+    def __init__(
+        self,
+        pretrained_model_name_or_path=None,
+        cache_dir=None,
+        use_auth_token=False,
+        hidden_dropout_prob=0.1,
+        max_span_width=30,
+        use_span_width_embedding=False,
+        linear_size=128,
+        init_temperature=0.07,
+        **kwargs,
+    ):
+        super().__init__(**kwargs)
+        self.pretrained_model_name_or_path=pretrained_model_name_or_path
+        self.cache_dir=cache_dir
+        self.use_auth_token=use_auth_token
+        self.hidden_dropout_prob=hidden_dropout_prob
+        self.max_span_width = max_span_width
+        self.use_span_width_embedding = use_span_width_embedding
+        self.linear_size = linear_size
+        self.init_temperature = init_temperature
+
 class BEFRE(PreTrainedModel):
+
+    config_class = BEFREConfig
 
     def __init__(self, config):
         super(BEFRE, self).__init__(config)
 
         hf_config = AutoConfig.from_pretrained(
             pretrained_model_name_or_path=config.pretrained_model_name_or_path,
-            # cache_dir=config.cache_dir,
-            # revision=config.revision,
-            # use_auth_token=config.use_auth_token,
-            # hidden_dropout_prob=config.hidden_dropout_prob,
         )
         self.hf_config = hf_config
         self.config.pruned_heads = hf_config.pruned_heads
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
         self.layer_norm = BertLayerNorm(hf_config.hidden_size * 2)
         self.logit_scale = torch.nn.Parameter(torch.ones([]) * np.log(1 / config.init_temperature))
-        # self.description_logit_scale = torch.nn.Parameter(torch.ones([]) * np.log(1 / config.init_temperature))
         self.post_init()
 
         self.input_encoder = AutoModel.from_pretrained(

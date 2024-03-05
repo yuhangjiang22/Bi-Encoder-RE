@@ -24,8 +24,8 @@ from transformers import AdamW, get_linear_schedule_with_warmup
 
 from relation.utils import generate_relation_data, decode_sample_id
 from shared.const import task_rel_labels, task_ner_labels
-from relation.config import BEFREConfig
-from relation.modified_model import BEFRE
+# from relation.config import BEFREConfig
+from relation.modified_model import BEFRE, BEFREConfig
 
 
 id2description = {0: "There's no relations between the compound @subject@ and gene @object@ .",
@@ -532,6 +532,11 @@ def main(args):
             for step, batch in enumerate(train_batches):
                 batch = tuple(t.to(device) for t in batch)
                 input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx= batch
+                descriptions_input_ids = descriptions_input_ids.reshape(args.train_batch_size * num_labels, args.max_seq_len)
+                descriptions_input_mask = descriptions_input_mask.reshape(args.train_batch_size * num_labels, args.max_seq_len)
+                descriptions_type_ids = descriptions_type_ids.reshape(args.train_batch_size * num_labels, args.max_seq_len)
+                descriptions_sub_idx = descriptions_sub_idx.reshape(args.train_batch_size * num_labels)
+                descriptions_obj_idx = descriptions_obj_idx.reshape(args.train_batch_size * num_labels)
                 loss = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx, return_dict=True)
                 if n_gpu > 1:
                     loss = loss.mean()
@@ -588,9 +593,9 @@ def main(args):
             eval_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_label_ids, all_sub_idx, all_obj_idx)
             eval_dataloader = DataLoader(eval_data, batch_size=args.eval_batch_size)
             eval_label_ids = all_label_ids
-        model = BEFRE(config)
+        model = BEFRE.from_pretrained(args.output_dir)
         model.to(device)
-        preds, result, logits = evaluate(model, device, eval_dataloader, eval_label_ids, num_labels, e2e_ngold=eval_nrel)
+        preds, result = evaluate(model, device, eval_dataloader, eval_label_ids, num_labels, e2e_ngold=eval_nrel)
 
         logger.info('*** Evaluation Results ***')
         for key in sorted(result.keys()):
