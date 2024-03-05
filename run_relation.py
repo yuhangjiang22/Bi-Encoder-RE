@@ -583,7 +583,15 @@ def main(args):
                                 time.time() - start_time, tr_loss / nb_tr_steps))
                     save_model = False
                     if args.do_eval:
-                        preds, result = evaluate(model, device, eval_dataloader, eval_label_ids, num_labels, args.eval_batch_size, args.max_seq_length, e2e_ngold=eval_nrel)
+                        preds, result = evaluate(model=model,
+                                                 device=device,
+                                                 eval_dataloader=eval_dataloader,
+                                                 eval_label_ids=eval_label_ids,
+                                                 num_labels=num_labels,
+                                                 batch_size=args.eval_batch_size,
+                                                 seq_len=args.max_seq_length,
+                                                 e2e_ngold=eval_nrel,
+                                                 )
                         model.train()
                         result['global_step'] = global_step
                         result['epoch'] = epoch
@@ -642,7 +650,15 @@ def main(args):
 
         model = BEFRE.from_pretrained(args.output_dir)
         model.to(device)
-        preds, result = evaluate(model, device, eval_dataloader, eval_label_ids, num_labels, args.eval_batch_size, args.max_seq_length, e2e_ngold=eval_nrel)
+        preds, result = evaluate(model=model,
+                                 device=device,
+                                 eval_dataloader=eval_dataloader,
+                                 eval_label_ids=eval_label_ids,
+                                 num_labels=num_labels,
+                                 batch_size=args.eval_batch_size,
+                                 seq_len=args.max_seq_length,
+                                 e2e_ngold=eval_nrel,
+                                 )
 
         logger.info('*** Evaluation Results ***')
         for key in sorted(result.keys()):
