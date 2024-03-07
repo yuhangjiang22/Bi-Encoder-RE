@@ -555,13 +555,14 @@ def main(args):
             if args.train_mode == 'random' or args.train_mode == 'random_sorted':
                 random.shuffle(train_batches)
             for step, batch in enumerate(train_batches):
+                batch_size, _ = batch[0].size()
                 batch = tuple(t.to(device) for t in batch)
                 input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx= batch
-                descriptions_input_ids = descriptions_input_ids.reshape(args.train_batch_size * num_labels, args.max_seq_length)
-                descriptions_input_mask = descriptions_input_mask.reshape(args.train_batch_size * num_labels, args.max_seq_length)
-                descriptions_type_ids = descriptions_type_ids.reshape(args.train_batch_size * num_labels, args.max_seq_length)
-                descriptions_sub_idx = descriptions_sub_idx.reshape(args.train_batch_size * num_labels)
-                descriptions_obj_idx = descriptions_obj_idx.reshape(args.train_batch_size * num_labels)
+                descriptions_input_ids = descriptions_input_ids.reshape(batch_size * num_labels, args.max_seq_length)
+                descriptions_input_mask = descriptions_input_mask.reshape(batch_size * num_labels, args.max_seq_length)
+                descriptions_type_ids = descriptions_type_ids.reshape(batch_size * num_labels, args.max_seq_length)
+                descriptions_sub_idx = descriptions_sub_idx.reshape(batch_size * num_labels)
+                descriptions_obj_idx = descriptions_obj_idx.reshape(batch_size * num_labels)
                 loss = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx, return_dict=True)
                 if n_gpu > 1:
                     loss = loss.mean()
