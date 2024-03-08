@@ -507,7 +507,7 @@ def main(args):
 
         train_dataloader = DataLoader(train_data, batch_size=args.train_batch_size)
         train_batches = [batch for batch in train_dataloader]
-        train_batches = train_batches[:500]
+        # train_batches = train_batches[:500]
 
         num_train_optimization_steps = len(train_dataloader) * args.num_train_epochs
 
