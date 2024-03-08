@@ -31,11 +31,11 @@ last_checkpoint = None
 data_files = {}
 
 tokenizer = AutoTokenizer.from_pretrained(
-        'bert-base-uncased',
+        'microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract',
     )
 
 config = BEFREConfig(
-        pretrained_model_name_or_path='bert-base-uncased',
+        pretrained_model_name_or_path='microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract',
         cache_dir=None,
         use_auth_token=True,
         hidden_dropout_prob=0.1,

@@ -1,5 +1,5 @@
 """
-This code is based on the file in SpanBERT repo: https://github.com/facebookresearch/SpanBERT/blob/master/code/run_tacred.py
+This code is based on the file in PURE repo: https://github.com/princeton-nlp/PURE/blob/main/run_relation.py
 """
 
 import argparse
@@ -363,11 +363,7 @@ def save_trained_model(output_dir, model, tokenizer):
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
     logger.info('Saving model to %s'%output_dir)
-    model_to_save = model.module if hasattr(model, 'module') else model
-    output_model_file = os.path.join(output_dir, WEIGHTS_NAME)
-    output_config_file = os.path.join(output_dir, CONFIG_NAME)
-    torch.save(model_to_save.state_dict(), output_model_file)
-    model_to_save.config.to_json_file(output_config_file)
+    model.save_pretrained(output_dir)
     tokenizer.save_vocabulary(output_dir)
 
 def main(args):
@@ -511,6 +507,7 @@ def main(args):
 
         train_dataloader = DataLoader(train_data, batch_size=args.train_batch_size)
         train_batches = [batch for batch in train_dataloader]
+        train_batches = train_batches[:500]
 
         num_train_optimization_steps = len(train_dataloader) * args.num_train_epochs
 
