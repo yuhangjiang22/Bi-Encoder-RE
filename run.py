@@ -456,9 +456,9 @@ results = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx,
 results = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx)
 
 device = 'cpu'
-model.train()
 
-train_batches = train_batches[:2]
+model.train()
+train_batches = train_batches[:100]
 global_step = 0
 tr_loss = 0
 nb_tr_examples = 0
@@ -484,6 +484,7 @@ for step, batch in enumerate(train_batches):
     loss = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids,
                  descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx,
                  return_dict=True)
+    print(loss)
 
     loss.backward()
 

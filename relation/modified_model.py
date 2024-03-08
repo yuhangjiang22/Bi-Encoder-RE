@@ -4,6 +4,7 @@ import numpy as np
 from typing import List
 from transformers import PreTrainedModel, AutoConfig, AutoModel
 from transformers import PretrainedConfig
+from torch.nn import CrossEntropyLoss
 
 
 def contrastive_loss(
@@ -161,7 +162,9 @@ class BEFRE(PreTrainedModel):
         scores = self.logit_scale.exp() * scores
 
         if labels is not None:
-            loss = contrastive_loss(scores, labels)
+            # loss = contrastive_loss(scores, labels)
+            loss_fct = CrossEntropyLoss()
+            loss = loss_fct(scores, labels)
             return loss
         else:
             return scores
