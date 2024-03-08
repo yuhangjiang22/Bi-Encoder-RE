@@ -25,7 +25,7 @@ from transformers import AdamW, get_linear_schedule_with_warmup
 from relation.utils import generate_relation_data, decode_sample_id
 from shared.const import task_rel_labels, task_ner_labels
 # from relation.config import BEFREConfig
-from relation.modified_model import BEFRE, BEFREConfig
+from relation.test_model import BEFRE, BEFREConfig
 
 
 id2description = {0: "There's no relations between the compound @subject@ and gene @object@ .",
