@@ -62,6 +62,7 @@ class BEFRE(PreTrainedModel):
         self.layer_norm = BertLayerNorm(hf_config.hidden_size * 2)
         self.logit_scale = torch.nn.Parameter(torch.ones([]) * np.log(1 / config.init_temperature))
         self.post_init()
+        self.num_labels = config.num_labels
         self.classifier = nn.Linear(hf_config.hidden_size * 2, config.num_labels)
 
         self.input_encoder = AutoModel.from_pretrained(
@@ -110,15 +111,15 @@ class BEFRE(PreTrainedModel):
     ):
         return_dict = return_dict if return_dict is not None else self.hf_config.use_return_dict
 
-        description_outputs = self.description_encoder(
-            descriptions_input_ids,
-            attention_mask=descriptions_input_mask,
-            token_type_ids=descriptions_type_ids,
-            return_dict=return_dict,
-        )
-
-        # batch_size*num_types x seq_length x hidden_size
-        description_sequence_output = description_outputs[0]
+        # description_outputs = self.description_encoder(
+        #     descriptions_input_ids,
+        #     attention_mask=descriptions_input_mask,
+        #     token_type_ids=descriptions_type_ids,
+        #     return_dict=return_dict,
+        # )
+        #
+        # # batch_size*num_types x seq_length x hidden_size
+        # description_sequence_output = description_outputs[0]
 
         outputs = self.input_encoder(
             input_ids,
@@ -130,8 +131,8 @@ class BEFRE(PreTrainedModel):
         sequence_output = outputs[0]
         batch_size, seq_length, _ = sequence_output.size()
         # batch_size*num_types x seq_length x hidden_size
-        batch_size_times_num_types, des_seq_length, _ = description_sequence_output.size()
-        num_types = int(batch_size_times_num_types / batch_size)
+        # batch_size_times_num_types, des_seq_length, _ = description_sequence_output.size()
+        # num_types = int(batch_size_times_num_types / batch_size)
 
         sub_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(sequence_output, sub_idx)])
         obj_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(sequence_output, obj_idx)])
@@ -141,38 +142,38 @@ class BEFRE(PreTrainedModel):
         # batch_size x hidden_size*2
         rep = self.dropout(rep)
 
-        des_sub_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(description_sequence_output, descriptions_sub_idx)])
-        des_obj_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(description_sequence_output, descriptions_obj_idx)])
-        des_rep = torch.cat((des_sub_output, des_obj_output), dim=1)
-        des_rep = self.layer_norm(des_rep)
-
-        # batch_size*num_types x hidden_size*2
-        des_rep = self.dropout(des_rep)
-
-        results = []
-        for i in range(batch_size):
-
-            vec_input = rep[i]
-
-            # Extract the corresponding num_types vectors from des_rep
-            vec_des = des_rep[i * num_types:(i + 1) * num_types]
-
-            # Calculate the dot product of each input rep with description rep
-            dot_products = torch.matmul(vec_des, vec_input)
-            results.append(dot_products)
-
-        scores = torch.stack(results)
-        scores = self.logit_scale.exp() * scores
+        # des_sub_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(description_sequence_output, descriptions_sub_idx)])
+        # des_obj_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(description_sequence_output, descriptions_obj_idx)])
+        # des_rep = torch.cat((des_sub_output, des_obj_output), dim=1)
+        # des_rep = self.layer_norm(des_rep)
+        #
+        # # batch_size*num_types x hidden_size*2
+        # des_rep = self.dropout(des_rep)
+        #
+        # results = []
+        # for i in range(batch_size):
+        #
+        #     vec_input = rep[i]
+        #
+        #     # Extract the corresponding num_types vectors from des_rep
+        #     vec_des = des_rep[i * num_types:(i + 1) * num_types]
+        #
+        #     # Calculate the dot product of each input rep with description rep
+        #     dot_products = torch.matmul(vec_des, vec_input)
+        #     results.append(dot_products)
+        #
+        # scores = torch.stack(results)
+        # scores = self.logit_scale.exp() * scores
         logits = self.classifier(rep)
 
         if labels is not None:
             # loss = contrastive_loss(scores, labels)
             loss_fct = CrossEntropyLoss()
             # loss = loss_fct(scores, labels)
-            loss = loss_fct(logits.view(-1, num_types), labels.view(-1))
+            loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
             return loss
         else:
-            return scores
+            return logits
 
 
 
