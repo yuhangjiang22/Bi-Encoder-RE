@@ -507,7 +507,8 @@ def main(args):
 
         train_dataloader = DataLoader(train_data, batch_size=args.train_batch_size)
         train_batches = [batch for batch in train_dataloader]
-        # train_batches = train_batches[:500]
+        if args.train_num_examples:
+            train_batches = train_batches[:args.train_num_examples]
 
         num_train_optimization_steps = len(train_dataloader) * args.num_train_epochs
 
@@ -712,6 +713,8 @@ if __name__ == "__main__":
 
     parser.add_argument('--add_new_tokens', action='store_true', 
                         help="Whether to add new tokens as marker tokens instead of using [unusedX] tokens.")
+    parser.add_argument('--train_num_examples', type=int, default=None,
+                        help="How many training instances to train")
 
     args = parser.parse_args()
     main(args)
