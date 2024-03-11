@@ -25,6 +25,7 @@ from transformers import AdamW, get_linear_schedule_with_warmup
 from relation.utils import generate_relation_data, decode_sample_id
 from shared.const import task_rel_labels, task_ner_labels
 # from relation.config import BEFREConfig
+from relation.modified_model import BEFRE, BEFREConfig
 from relation.test_model import BEFRE, BEFREConfig
 
 
@@ -372,6 +373,11 @@ def main(args):
     #     args.add_new_tokens = True
     # else:
     #     RelationModel = BertForRelation
+    if args.train_befre:
+        from relation.modified_model import BEFRE, BEFREConfig
+    else:
+        from relation.test_model import BEFRE, BEFREConfig
+
     config = BEFREConfig(
         pretrained_model_name_or_path=args.model,
         cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE),
@@ -715,6 +721,8 @@ if __name__ == "__main__":
                         help="Whether to add new tokens as marker tokens instead of using [unusedX] tokens.")
     parser.add_argument('--train_num_examples', type=int, default=None,
                         help="How many training instances to train")
+    parser.add_argument('--train_befre', action='store_true',
+                        help="Train PURE of BEFRE.")
 
     args = parser.parse_args()
     main(args)
