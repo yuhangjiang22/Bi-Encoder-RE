@@ -29,12 +29,19 @@ from relation.modified_model import BEFRE, BEFREConfig
 from relation.test_model import BEFRE, BEFREConfig
 
 
+# id2description = {0: "There's no relations between the compound @subject@ and gene @object@ .",
+#                 1: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as an upregulator, activator, or indirect upregulator in its interactions .",
+#                 2: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as a downregulator, inhibitor, or indirect downregulator in its interactions .",
+#                 3: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as an agonist, agonist activator, or agonist inhibitor in its interactions .",
+#                 4: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as an antagonist in its interactions .",
+#                 5: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as a substrate, product of, or substrate product of in its interactions ."}
 id2description = {0: "There's no relations between the compound @subject@ and gene @object@ .",
-                1: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as an upregulator, activator, or indirect upregulator in its interactions .",
-                2: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as a downregulator, inhibitor, or indirect downregulator in its interactions .",
-                3: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as an agonist, agonist activator, or agonist inhibitor in its interactions .",
-                4: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as an antagonist in its interactions .",
-                5: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as a substrate, product of, or substrate product of in its interactions ."}
+                1: "@subject@ engages @object@ , with upregulator , activator , or indirect upregulator .",
+                2: "@subject@ is proved to associate with @object@ , in downregulator , inhibitor , or indirect downregulator .",
+                3: "@subject@ engages @object@ , with agonist , agonist activator , or agonist inhibitor .",
+                4: "@subject@ engages @object@ , manifesting as an antagonist in the interactions .",
+                5: "The compound @subject@ has been identified to interact with the gene @object@ , manifesting as a substrate , product of , or substrate product of in its interactions ."}
+
 
 tokenized_id2description = {key: value.split() for key, value in id2description.items()}
 
