@@ -75,6 +75,14 @@ id2description = {0: "There are no relations between the compound @subject@ and 
 
 tokenized_id2description = {key: value.lower().split() for key, value in id2description.items()}
 
+def add_description_words(tokenizer, tokenized_id2description):
+    unk_words = []
+    for k, v in tokenized_id2description.items():
+        for w in v:
+            if w not in tokenizer.vocab:
+                unk_words.append(w)
+    tokenizer.add_tokens(unk_words)
+
 CLS = "[CLS]"
 SEP = "[SEP]"
 
@@ -480,6 +488,7 @@ def main(args):
     num_labels = len(label_list)
 
     tokenizer = AutoTokenizer.from_pretrained(args.model, do_lower_case=args.do_lower_case)
+    add_description_words(tokenizer, tokenized_id2description)
     if args.add_new_tokens:
         add_marker_tokens(tokenizer, task_ner_labels[args.task])
 

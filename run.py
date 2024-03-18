@@ -101,17 +101,53 @@ def add_marker_tokens(tokenizer, ner_labels):
     for label in ner_labels:
         new_tokens.append('<SUBJ=%s>'%label)
         new_tokens.append('<OBJ=%s>'%label)
+    new_tokens = [token.lower() for token in new_tokens]
     tokenizer.add_tokens(new_tokens)
     logger.info('# vocab after adding markers: %d'%len(tokenizer))
 
-id2description = {0: "There's no relations between the compound @subject@ and gene @object@ .",
-                1: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as an upregulator, activator, or indirect upregulator in its interactions .",
-                2: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as a downregulator, inhibitor, or indirect downregulator in its interactions .",
-                3: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as an agonist, agonist activator, or agonist inhibitor in its interactions .",
-                4: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as an antagonist in its interactions .",
-                5: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as a substrate, product of, or substrate product of in its interactions ."}
+# id2description = {0: "there are no relations between the compound @subject@ and gene @object@ .",
+#                 1: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an upregulator , activator , or indirect upregulator in its interactions .",
+#                 2: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a downregulator , inhibitor , or indirect downregulator in its interactions .",
+#                 3: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an agonist , agonist activator , or agonist inhibitor in its interactions .",
+#                 4: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an antagonist in its interactions .",
+#                 5: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a substrate , product of, or substrate product of in its interactions ."}
 
-tokenized_id2description = {key: value.split() for key, value in id2description.items()}
+id2description = {0: "There are no relations between the compound @subject@ and gene @object@ .",
+                  1: '@subject@ initiates or enhances the activity of @object@ through direct or indirect means . An '
+                     'upregulator ,'
+                     'activator , or indirect upregulator serves as the mechanism that increases the function , '
+                     'expression , or activity'
+                     'of the @object@',
+                  2: "@subject@ interacts with the gene @object@ , resulting in a decrease in the gene's "
+                     "activity or expression . This interaction can occur through direct inhibition , acting as a "
+                     "downregulator , or through indirect means , where the compound causes a reduction in the gene's "
+                     "function or expression without directly binding to it . Such mechanisms are crucial in "
+                     "understanding genetic regulation and can have significant implications in fields like "
+                     "pharmacology and gene therapy .",
+                  3: "@subject@ interacts with the gene @object@ in a manner that modulates its activity positively ( "
+                     "as an agonist or agonist activator ) or negatively ( as an agonist inhibitor ) . An agonist "
+                     "interaction typically increases the gene's activity or the activity of proteins expressed by "
+                     "the gene , whereas an agonist activator enhances this effect further . Conversely , an agonist "
+                     "inhibitor would paradoxically bind in a manner that initially mimics an agonist's action but "
+                     "ultimately inhibits the gene's activity or its downstream effects .",
+                  4: "@subject@ interacts with the gene @object@ by acting as an antagonist . This means that the "
+                     "compound blocks or diminishes the gene's normal activity or the activity of the protein product "
+                     "expressed by the gene . Antagonist interactions are significant in the regulation of biological "
+                     "pathways and have wide-ranging implications in therapeutic interventions , where they can be "
+                     "used to modulate the effects of genes involved in disease processes .",
+                  5: "@subject@ engages with the gene @object@ in a manner where it acts as a substrate , is a product "
+                     "of, or both a substrate and product within the gene's associated biochemical pathways ."}
+
+tokenized_id2description = {key: value.lower().split() for key, value in id2description.items()}
+
+def add_description_words(tokenizer, tokenized_id2description):
+    unk_words = []
+    for k, v in tokenized_id2description.items():
+        for w in v:
+            if w not in tokenizer.vocab:
+                unk_words.append(w)
+    tokenizer.add_tokens(unk_words)
+
 
 
 def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, special_tokens, tokenized_id2description, unused_tokens=False):
@@ -125,7 +161,7 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
             if unused_tokens:
                 special_tokens[w] = "[unused%d]" % (len(special_tokens) + 1)
             else:
-                special_tokens[w] = ('<' + w + '>')
+                special_tokens[w] = ('<' + w + '>').lower()
         return special_tokens[w]
 
     num_tokens = 0
@@ -408,6 +444,7 @@ num_labels = len(label_list)
 
 # tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
 add_marker_tokens(tokenizer, task_ner_labels['chemprot_5'])
+add_description_words(tokenizer, tokenized_id2description)
 
 special_tokens = {}
 seq_len = 250
