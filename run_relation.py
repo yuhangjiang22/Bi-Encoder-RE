@@ -38,40 +38,40 @@ from relation.test_model import BEFRE, BEFREConfig
 # been identified to engage with the gene @object@ , manifesting as a substrate, product of, or substrate product of
 # in its interactions ."}
 
-# id2description = {0: "there are no relations between the compound @subject@ and gene @object@ .",
-#                   1: "@subject@ engages @object@ , with upregulator , activator , or indirect upregulator .",
-#                   2: "@subject@ is proved to be associated with @object@ , in downregulator , inhibitor , or indirect "
-#                      "downregulator .",
-#                   3: "@subject@ interacts with @object@ , in agonist , agonist activator , or agonist inhibitor .",
-#                   4: "@subject@ is engaging @object@ , manifesting as an antagonist in the interactions .",
-#                   5: "the compound @subject@ has been identified to interact with the gene @object@ , as a "
-#                      "substrate , product of , or substrate product of in its interactions ."}
+id2description = {0: "there are no relations between the compound @subject@ and gene @object@ .",
+                  1: "@subject@ engages @object@ , with upregulator , activator , or indirect upregulator .",
+                  2: "@subject@ is proved to be associated with @object@ , in downregulator , inhibitor , or indirect "
+                     "downregulator .",
+                  3: "@subject@ interacts with @object@ , in agonist , agonist activator , or agonist inhibitor .",
+                  4: "@subject@ is engaging @object@ , manifesting as an antagonist in the interactions .",
+                  5: "the compound @subject@ has been identified to interact with the gene @object@ , as a "
+                     "substrate , product of , or substrate product of in its interactions ."}
 
-id2description = {0: "There are no relations between the compound @subject@ and gene @object@ .",
-                  1: '@subject@ initiates or enhances the activity of @object@ through direct or indirect means . An '
-                     'upregulator ,'
-                     'activator , or indirect upregulator serves as the mechanism that increases the function , '
-                     'expression , or activity'
-                     'of the @object@',
-                  2: "@subject@ interacts with the gene @object@ , resulting in a decrease in the gene's "
-                     "activity or expression . This interaction can occur through direct inhibition , acting as a "
-                     "downregulator , or through indirect means , where the compound causes a reduction in the gene's "
-                     "function or expression without directly binding to it . Such mechanisms are crucial in "
-                     "understanding genetic regulation and can have significant implications in fields like "
-                     "pharmacology and gene therapy .",
-                  3: "@subject@ interacts with the gene @object@ in a manner that modulates its activity positively ( "
-                     "as an agonist or agonist activator ) or negatively ( as an agonist inhibitor ) . An agonist "
-                     "interaction typically increases the gene's activity or the activity of proteins expressed by "
-                     "the gene , whereas an agonist activator enhances this effect further . Conversely , an agonist "
-                     "inhibitor would paradoxically bind in a manner that initially mimics an agonist's action but "
-                     "ultimately inhibits the gene's activity or its downstream effects .",
-                  4: "@subject@ interacts with the gene @object@ by acting as an antagonist . This means that the "
-                     "compound blocks or diminishes the gene's normal activity or the activity of the protein product "
-                     "expressed by the gene . Antagonist interactions are significant in the regulation of biological "
-                     "pathways and have wide-ranging implications in therapeutic interventions , where they can be "
-                     "used to modulate the effects of genes involved in disease processes .",
-                  5: "@subject@ engages with the gene @object@ in a manner where it acts as a substrate , is a product "
-                     "of, or both a substrate and product within the gene's associated biochemical pathways ."}
+# id2description = {0: "There are no relations between the compound @subject@ and gene @object@ .",
+#                   1: '@subject@ initiates or enhances the activity of @object@ through direct or indirect means . An '
+#                      'upregulator ,'
+#                      'activator , or indirect upregulator serves as the mechanism that increases the function , '
+#                      'expression , or activity'
+#                      'of the @object@',
+#                   2: "@subject@ interacts with the gene @object@ , resulting in a decrease in the gene's "
+#                      "activity or expression . This interaction can occur through direct inhibition , acting as a "
+#                      "downregulator , or through indirect means , where the compound causes a reduction in the gene's "
+#                      "function or expression without directly binding to it . Such mechanisms are crucial in "
+#                      "understanding genetic regulation and can have significant implications in fields like "
+#                      "pharmacology and gene therapy .",
+#                   3: "@subject@ interacts with the gene @object@ in a manner that modulates its activity positively ( "
+#                      "as an agonist or agonist activator ) or negatively ( as an agonist inhibitor ) . An agonist "
+#                      "interaction typically increases the gene's activity or the activity of proteins expressed by "
+#                      "the gene , whereas an agonist activator enhances this effect further . Conversely , an agonist "
+#                      "inhibitor would paradoxically bind in a manner that initially mimics an agonist's action but "
+#                      "ultimately inhibits the gene's activity or its downstream effects .",
+#                   4: "@subject@ interacts with the gene @object@ by acting as an antagonist . This means that the "
+#                      "compound blocks or diminishes the gene's normal activity or the activity of the protein product "
+#                      "expressed by the gene . Antagonist interactions are significant in the regulation of biological "
+#                      "pathways and have wide-ranging implications in therapeutic interventions , where they can be "
+#                      "used to modulate the effects of genes involved in disease processes .",
+#                   5: "@subject@ engages with the gene @object@ in a manner where it acts as a substrate , is a product "
+#                      "of, or both a substrate and product within the gene's associated biochemical pathways ."}
 
 tokenized_id2description = {key: value.lower().split() for key, value in id2description.items()}
 
