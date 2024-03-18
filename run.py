@@ -125,7 +125,7 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
             if unused_tokens:
                 special_tokens[w] = "[unused%d]" % (len(special_tokens) + 1)
             else:
-                special_tokens[w] = ('<' + w + '>').lower()
+                special_tokens[w] = ('<' + w + '>')
         return special_tokens[w]
 
     num_tokens = 0
@@ -406,7 +406,7 @@ label2id = {label: i for i, label in enumerate(label_list)}
 id2label = {i: label for i, label in enumerate(label_list)}
 num_labels = len(label_list)
 
-tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
+# tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
 add_marker_tokens(tokenizer, task_ner_labels['chemprot_5'])
 
 special_tokens = {}
