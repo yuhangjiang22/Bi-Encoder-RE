@@ -802,4 +802,6 @@ if __name__ == "__main__":
                         help="Train PURE of BEFRE.")
 
     args = parser.parse_args()
+    print('lr: ', args.learning_rate)
+    print('batch size: ', args.train_batch_size)
     main(args)
