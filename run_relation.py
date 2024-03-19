@@ -28,26 +28,28 @@ from shared.const import task_rel_labels, task_ner_labels
 from relation.modified_model import BEFRE, BEFREConfig
 from relation.test_model import BEFRE, BEFREConfig
 
-# id2description = {0: "There's no relations between the compound @subject@ and gene @object@ .", 1: "The compound
-# @subject@ has been identified to engage with the gene @object@ , manifesting as an upregulator, activator,
-# or indirect upregulator in its interactions .", 2: "The compound @subject@ has been identified to engage with the
-# gene @object@ , manifesting as a downregulator, inhibitor, or indirect downregulator in its interactions .",
-# 3: "The compound @subject@ has been identified to engage with the gene @object@ , manifesting as an agonist,
-# agonist activator, or agonist inhibitor in its interactions .", 4: "The compound @subject@ has been identified to
-# engage with the gene @object@ , manifesting as an antagonist in its interactions .", 5: "The compound @subject@ has
-# been identified to engage with the gene @object@ , manifesting as a substrate, product of, or substrate product of
-# in its interactions ."}
-
 id2description = {0: "there are no relations between the compound @subject@ and gene @object@ .",
-                  1: "@subject@ engages @object@ , with upregulator , activator , or indirect upregulator .",
-                  2: "@subject@ is proved to be associated with @object@ , in downregulator , inhibitor , or indirect "
-                     "downregulator .",
-                  3: "@subject@ interacts with @object@ , in agonist , agonist activator , or agonist inhibitor .",
-                  4: "@subject@ is engaging @object@ , manifesting as an antagonist in the interactions .",
-                  5: "the compound @subject@ has been identified to interact with the gene @object@ , as a "
-                     "substrate , product of , or substrate product of in its interactions ."}
+                  1: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+                     "upregulator, activator,or indirect upregulator in its interactions .",
+                  2: "the compound @subject@ has been identified to engage with thegene @object@ , manifesting as a "
+                     "downregulator, inhibitor, or indirect downregulator in its interactions .",
+                  3: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+                     "agonist, agonist activator, or agonist inhibitor in its interactions .",
+                  4: "the compound @subject@ has been identified toengage with the gene @object@ , manifesting as an "
+                     "antagonist in its interactions .",
+                  5: "the compound @subject@ hasbeen identified to engage with the gene @object@ , manifesting as a "
+                     "substrate, product of, or substrate product ofin its interactions ."}
 
-# id2description = {0: "There are no relations between the compound @subject@ and gene @object@ .",
+# id2description = {0: "there are no relations between the compound @subject@ and gene @object@ .",
+#                   1: "@subject@ engages @object@ , with upregulator , activator , or indirect upregulator .",
+#                   2: "@subject@ is proved to be associated with @object@ , in downregulator , inhibitor , or indirect "
+#                      "downregulator .",
+#                   3: "@subject@ interacts with @object@ , in agonist , agonist activator , or agonist inhibitor .",
+#                   4: "@subject@ is engaging @object@ , manifesting as an antagonist in the interactions .",
+#                   5: "the compound @subject@ has been identified to interact with the gene @object@ , as a "
+#                      "substrate , product of , or substrate product of in its interactions ."}
+
+# id2description = {0: "there are no relations between the compound @subject@ and gene @object@ .",
 #                   1: '@subject@ initiates or enhances the activity of @object@ through direct or indirect means . An '
 #                      'upregulator ,'
 #                      'activator , or indirect upregulator serves as the mechanism that increases the function , '

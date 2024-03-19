@@ -449,7 +449,7 @@ add_description_words(tokenizer, tokenized_id2description)
 special_tokens = {}
 seq_len = 250
 train_features = convert_examples_to_features(
-            train_examples, label2id, seq_len, tokenizer, special_tokens, tokenized_id2description)
+            train_examples, label2id, seq_len, tokenizer, special_tokens, tokenized_id2description, unused_tokens=True)
 
 all_input_ids = torch.tensor([f.input_ids for f in train_features], dtype=torch.long)
 all_input_mask = torch.tensor([f.input_mask for f in train_features], dtype=torch.long)
