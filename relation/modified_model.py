@@ -162,9 +162,9 @@ class BEFRE(PreTrainedModel):
         scores = self.logit_scale.exp() * scores
 
         if labels is not None:
-            # loss = contrastive_loss(scores, labels)
-            loss_fct = CrossEntropyLoss()
-            loss = loss_fct(scores, labels)
+            loss = contrastive_loss(scores, labels)
+            # loss_fct = CrossEntropyLoss()
+            # loss = loss_fct(scores, labels)
             return loss
         else:
             return scores
