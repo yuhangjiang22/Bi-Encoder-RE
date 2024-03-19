@@ -440,7 +440,7 @@ def main(args):
         cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE),
         revision=None,
         use_auth_token=True,
-        hidden_dropout_prob=0.3,
+        hidden_dropout_prob=args.drop_out,
     )
 
     device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
@@ -802,6 +802,8 @@ if __name__ == "__main__":
                         help="How many training instances to train")
     parser.add_argument('--train_befre', action='store_true',
                         help="Train PURE of BEFRE.")
+    parser.add_argument('--drop_out', type=float, default=0.1,
+                        help="hidden drop out rate.")
 
     args = parser.parse_args()
     print('lr: ', args.learning_rate)
