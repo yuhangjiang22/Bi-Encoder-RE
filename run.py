@@ -11,10 +11,12 @@ from shared.const import task_rel_labels, task_ner_labels
 import os
 import numpy as np
 from relation.modified_model import BEFRE, BEFREConfig
+
 # os.chdir('Bi-Encoder-RE')
 
 
-last_checkpoint = None
+checkpoint = 'microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract'
+checkpoint_PURE = 'rel_model'
 # if os.path.isdir(training_args.output_dir) and training_args.do_train and not training_args.overwrite_output_dir:
 #         last_checkpoint = get_last_checkpoint(training_args.output_dir)
 #         if last_checkpoint is None and len(os.listdir(training_args.output_dir)) > 0:
@@ -31,15 +33,15 @@ last_checkpoint = None
 data_files = {}
 
 tokenizer = AutoTokenizer.from_pretrained(
-        'microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract',
-    )
+    checkpoint_PURE
+)
 
 config = BEFREConfig(
-        pretrained_model_name_or_path='microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract',
-        cache_dir=None,
-        use_auth_token=True,
-        hidden_dropout_prob=0.1,
-    )
+    pretrained_model_name_or_path=checkpoint_PURE,
+    cache_dir=None,
+    use_auth_token=True,
+    hidden_dropout_prob=0.1,
+)
 
 model = BEFRE(config)
 
@@ -67,7 +69,6 @@ class InputFeatures(object):
                  descriptions_type_ids,
                  descriptions_sub_idx,
                  descriptions_obj_idx):
-
         self.input_ids = input_ids
         self.input_mask = input_mask
         self.segment_ids = segment_ids
@@ -79,6 +80,7 @@ class InputFeatures(object):
         self.descriptions_type_ids = descriptions_type_ids
         self.descriptions_sub_idx = descriptions_sub_idx
         self.descriptions_obj_idx = descriptions_obj_idx
+
 
 # class InputFeatures(object):
 #     """A single set of features of data."""
@@ -94,51 +96,58 @@ class InputFeatures(object):
 def add_marker_tokens(tokenizer, ner_labels):
     new_tokens = ['<SUBJ_START>', '<SUBJ_END>', '<OBJ_START>', '<OBJ_END>']
     for label in ner_labels:
-        new_tokens.append('<SUBJ_START=%s>'%label)
-        new_tokens.append('<SUBJ_END=%s>'%label)
-        new_tokens.append('<OBJ_START=%s>'%label)
-        new_tokens.append('<OBJ_END=%s>'%label)
+        new_tokens.append('<SUBJ_START=%s>' % label)
+        new_tokens.append('<SUBJ_END=%s>' % label)
+        new_tokens.append('<OBJ_START=%s>' % label)
+        new_tokens.append('<OBJ_END=%s>' % label)
     for label in ner_labels:
-        new_tokens.append('<SUBJ=%s>'%label)
-        new_tokens.append('<OBJ=%s>'%label)
+        new_tokens.append('<SUBJ=%s>' % label)
+        new_tokens.append('<OBJ=%s>' % label)
     new_tokens = [token.lower() for token in new_tokens]
     tokenizer.add_tokens(new_tokens)
-    logger.info('# vocab after adding markers: %d'%len(tokenizer))
+    logger.info('# vocab after adding markers: %d' % len(tokenizer))
 
-# id2description = {0: "there are no relations between the compound @subject@ and gene @object@ .",
-#                 1: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an upregulator , activator , or indirect upregulator in its interactions .",
-#                 2: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a downregulator , inhibitor , or indirect downregulator in its interactions .",
-#                 3: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an agonist , agonist activator , or agonist inhibitor in its interactions .",
-#                 4: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an antagonist in its interactions .",
-#                 5: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a substrate , product of, or substrate product of in its interactions ."}
 
-id2description = {0: "There are no relations between the compound @subject@ and gene @object@ .",
-                  1: '@subject@ initiates or enhances the activity of @object@ through direct or indirect means . An '
-                     'upregulator ,'
-                     'activator , or indirect upregulator serves as the mechanism that increases the function , '
-                     'expression , or activity'
-                     'of the @object@',
-                  2: "@subject@ interacts with the gene @object@ , resulting in a decrease in the gene's "
-                     "activity or expression . This interaction can occur through direct inhibition , acting as a "
-                     "downregulator , or through indirect means , where the compound causes a reduction in the gene's "
-                     "function or expression without directly binding to it . Such mechanisms are crucial in "
-                     "understanding genetic regulation and can have significant implications in fields like "
-                     "pharmacology and gene therapy .",
-                  3: "@subject@ interacts with the gene @object@ in a manner that modulates its activity positively ( "
-                     "as an agonist or agonist activator ) or negatively ( as an agonist inhibitor ) . An agonist "
-                     "interaction typically increases the gene's activity or the activity of proteins expressed by "
-                     "the gene , whereas an agonist activator enhances this effect further . Conversely , an agonist "
-                     "inhibitor would paradoxically bind in a manner that initially mimics an agonist's action but "
-                     "ultimately inhibits the gene's activity or its downstream effects .",
-                  4: "@subject@ interacts with the gene @object@ by acting as an antagonist . This means that the "
-                     "compound blocks or diminishes the gene's normal activity or the activity of the protein product "
-                     "expressed by the gene . Antagonist interactions are significant in the regulation of biological "
-                     "pathways and have wide-ranging implications in therapeutic interventions , where they can be "
-                     "used to modulate the effects of genes involved in disease processes .",
-                  5: "@subject@ engages with the gene @object@ in a manner where it acts as a substrate , is a product "
-                     "of, or both a substrate and product within the gene's associated biochemical pathways ."}
+id2description = {0: "there are no relations between the compound @subject@ and gene @object@ .",
+                  1: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+                     "upregulator , activator , or indirect upregulator in its interactions .",
+                  2: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
+                     "downregulator , inhibitor , or indirect downregulator in its interactions .",
+                  3: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+                     "agonist , agonist activator , or agonist inhibitor in its interactions .",
+                  4: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+                     "antagonist in its interactions .",
+                  5: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
+                     "substrate , product of, or substrate product of in its interactions ."}
+
+# id2description = {0: "There are no relations between the compound @subject@ and gene @object@ .",
+#                   1: '@subject@ initiates or enhances the activity of @object@ through direct or indirect means . An '
+#                      'upregulator ,'
+#                      'activator , or indirect upregulator serves as the mechanism that increases the function , '
+#                      'expression , or activity'
+#                      'of the @object@',
+#                   2: "@subject@ interacts with the gene @object@ , resulting in a decrease in the gene's "
+#                      "activity or expression . This interaction can occur through direct inhibition , acting as a "
+#                      "downregulator , or through indirect means , where the compound causes a reduction in the gene's "
+#                      "function or expression without directly binding to it . Such mechanisms are crucial in "
+#                      "understanding genetic regulation and can have significant implications in fields like "
+#                      "pharmacology and gene therapy .",
+#                   3: "@subject@ interacts with the gene @object@ in a manner that modulates its activity positively ( "
+#                      "as an agonist or agonist activator ) or negatively ( as an agonist inhibitor ) . An agonist "
+#                      "interaction typically increases the gene's activity or the activity of proteins expressed by "
+#                      "the gene , whereas an agonist activator enhances this effect further . Conversely , an agonist "
+#                      "inhibitor would paradoxically bind in a manner that initially mimics an agonist's action but "
+#                      "ultimately inhibits the gene's activity or its downstream effects .",
+#                   4: "@subject@ interacts with the gene @object@ by acting as an antagonist . This means that the "
+#                      "compound blocks or diminishes the gene's normal activity or the activity of the protein product "
+#                      "expressed by the gene . Antagonist interactions are significant in the regulation of biological "
+#                      "pathways and have wide-ranging implications in therapeutic interventions , where they can be "
+#                      "used to modulate the effects of genes involved in disease processes .",
+#                   5: "@subject@ engages with the gene @object@ in a manner where it acts as a substrate , is a product "
+#                      "of, or both a substrate and product within the gene's associated biochemical pathways ."}
 
 tokenized_id2description = {key: value.lower().split() for key, value in id2description.items()}
+
 
 def add_description_words(tokenizer, tokenized_id2description):
     unk_words = []
@@ -149,8 +158,8 @@ def add_description_words(tokenizer, tokenized_id2description):
     tokenizer.add_tokens(unk_words)
 
 
-
-def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, special_tokens, tokenized_id2description, unused_tokens=False):
+def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, special_tokens,
+                                 tokenized_id2description, unused_tokens=False):
     """
     Loads a data file into a list of `InputBatch`s.
     unused_tokens: whether use [unused1] [unused2] as special tokens
@@ -181,10 +190,10 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         SUBJECT_NER = get_special_token("SUBJ=%s" % example['subj_type'])
         OBJECT_NER = get_special_token("OBJ=%s" % example['obj_type'])
 
-        SUBJECT_START_NER = get_special_token("SUBJ_START=%s"%example['subj_type'])
-        SUBJECT_END_NER = get_special_token("SUBJ_END=%s"%example['subj_type'])
-        OBJECT_START_NER = get_special_token("OBJ_START=%s"%example['obj_type'])
-        OBJECT_END_NER = get_special_token("OBJ_END=%s"%example['obj_type'])
+        SUBJECT_START_NER = get_special_token("SUBJ_START=%s" % example['subj_type'])
+        SUBJECT_END_NER = get_special_token("SUBJ_END=%s" % example['subj_type'])
+        OBJECT_START_NER = get_special_token("OBJ_START=%s" % example['obj_type'])
+        OBJECT_END_NER = get_special_token("OBJ_END=%s" % example['obj_type'])
 
         for i, token in enumerate(example['token']):
             if i == example['subj_start']:
@@ -209,7 +218,6 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         num_tokens += len(tokens)
         max_tokens = max(max_tokens, len(tokens))
 
-
         if len(tokens) > max_seq_length:
             tokens = tokens[:max_seq_length]
             if sub_idx >= max_seq_length:
@@ -219,8 +227,6 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
 
         else:
             num_fit_examples += 1
-
-
 
         segment_ids = [0] * len(tokens)
         input_ids = tokenizer.convert_tokens_to_ids(tokens)
@@ -284,7 +290,7 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                 logger.info("*** Example ***")
                 logger.info("guid: %s" % (example['id']))
                 logger.info("tokens: %s" % " ".join(
-                        [str(x) for x in tokens]))
+                    [str(x) for x in tokens]))
                 logger.info("input_ids: %s" % " ".join([str(x) for x in input_ids]))
                 logger.info("input_mask: %s" % " ".join([str(x) for x in input_mask]))
                 logger.info("segment_ids: %s" % " ".join([str(x) for x in segment_ids]))
@@ -292,25 +298,28 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                 logger.info("sub_idx, obj_idx: %d, %d" % (sub_idx, obj_idx))
 
         features.append(
-                InputFeatures(input_ids=input_ids,
-                              input_mask=input_mask,
-                              segment_ids=segment_ids,
-                              label_id=label_id,
-                              sub_idx=sub_idx,
-                              obj_idx=obj_idx,
-                              descriptions_input_ids=descriptions_input_ids,
-                              descriptions_input_mask=descriptions_input_mask,
-                              descriptions_type_ids=descriptions_type_ids,
-                              descriptions_sub_idx=descriptions_sub_idx,
-                              descriptions_obj_idx=descriptions_obj_idx))
+            InputFeatures(input_ids=input_ids,
+                          input_mask=input_mask,
+                          segment_ids=segment_ids,
+                          label_id=label_id,
+                          sub_idx=sub_idx,
+                          obj_idx=obj_idx,
+                          descriptions_input_ids=descriptions_input_ids,
+                          descriptions_input_mask=descriptions_input_mask,
+                          descriptions_type_ids=descriptions_type_ids,
+                          descriptions_sub_idx=descriptions_sub_idx,
+                          descriptions_obj_idx=descriptions_obj_idx))
     logger.info("Average #tokens: %.2f" % (num_tokens * 1.0 / len(examples)))
-    logger.info("Max #tokens: %d"%max_tokens)
+    logger.info("Max #tokens: %d" % max_tokens)
     logger.info("%d (%.2f %%) examples can fit max_seq_length = %d" % (num_fit_examples,
-                num_fit_examples * 100.0 / len(examples), max_seq_length))
+                                                                       num_fit_examples * 100.0 / len(examples),
+                                                                       max_seq_length))
     return features
+
 
 def simple_accuracy(preds, labels):
     return (preds == labels).mean()
+
 
 def compute_f1(preds, labels, e2e_ngold):
     n_gold = n_pred = n_correct = 0
@@ -337,7 +346,8 @@ def compute_f1(preds, labels, e2e_ngold):
         else:
             e2e_recall = e2e_f1 = 0.0
         return {'precision': prec, 'recall': e2e_recall, 'f1': e2e_f1, 'task_recall': recall, 'task_f1': f1,
-        'n_correct': n_correct, 'n_pred': n_pred, 'n_gold': e2e_ngold, 'task_ngold': n_gold}
+                'n_correct': n_correct, 'n_pred': n_pred, 'n_gold': e2e_ngold, 'task_ngold': n_gold}
+
 
 def print_pred_json(eval_data, eval_examples, preds, id2label, output_file):
     rels = dict()
@@ -359,6 +369,7 @@ def print_pred_json(eval_data, eval_examples, preds, id2label, output_file):
     with open(output_file, 'w') as f:
         f.write('\n'.join(json.dumps(doc) for doc in js))
 
+
 def setseed(seed):
     random.seed(seed)
     np.random.seed(seed)
@@ -366,10 +377,11 @@ def setseed(seed):
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
+
 def save_trained_model(output_dir, model, tokenizer):
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
-    logger.info('Saving model to %s'%output_dir)
+    logger.info('Saving model to %s' % output_dir)
     model_to_save = model.module if hasattr(model, 'module') else model
     output_model_file = os.path.join(output_dir, WEIGHTS_NAME)
     output_config_file = os.path.join(output_dir, CONFIG_NAME)
@@ -433,6 +445,7 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, e2e_ngo
 
     return preds, result
 
+
 train_file = 'chemprot/train.json'
 train_dataset, train_examples, train_nrel = generate_relation_data(train_file, use_gold=True, context_window=100)
 
@@ -442,14 +455,15 @@ label2id = {label: i for i, label in enumerate(label_list)}
 id2label = {i: label for i, label in enumerate(label_list)}
 num_labels = len(label_list)
 
-# tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
 add_marker_tokens(tokenizer, task_ner_labels['chemprot_5'])
 add_description_words(tokenizer, tokenized_id2description)
+model.input_encoder.resize_token_embeddings(len(tokenizer))
+model.description_encoder.resize_token_embeddings(len(tokenizer))
 
 special_tokens = {}
 seq_len = 250
 train_features = convert_examples_to_features(
-            train_examples, label2id, seq_len, tokenizer, special_tokens, tokenized_id2description, unused_tokens=True)
+    train_examples, label2id, seq_len, tokenizer, special_tokens, tokenized_id2description)
 
 all_input_ids = torch.tensor([f.input_ids for f in train_features], dtype=torch.long)
 all_input_mask = torch.tensor([f.input_mask for f in train_features], dtype=torch.long)
@@ -481,14 +495,15 @@ train_batches = [batch for batch in train_dataloader]
 
 batch = train_batches[0]
 
-input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx= batch
-descriptions_input_ids = descriptions_input_ids.reshape(batch_size*num_labels, seq_len)
-descriptions_input_mask = descriptions_input_mask.reshape(batch_size*num_labels, seq_len)
-descriptions_type_ids = descriptions_type_ids.reshape(batch_size*num_labels, seq_len)
-descriptions_sub_idx = descriptions_sub_idx.reshape(batch_size*num_labels)
-descriptions_obj_idx = descriptions_obj_idx.reshape(batch_size*num_labels)
+input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx = batch
+descriptions_input_ids = descriptions_input_ids.reshape(batch_size * num_labels, seq_len)
+descriptions_input_mask = descriptions_input_mask.reshape(batch_size * num_labels, seq_len)
+descriptions_type_ids = descriptions_type_ids.reshape(batch_size * num_labels, seq_len)
+descriptions_sub_idx = descriptions_sub_idx.reshape(batch_size * num_labels)
+descriptions_obj_idx = descriptions_obj_idx.reshape(batch_size * num_labels)
 
-results = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx)
+results = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids,
+                descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx)
 
 results = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx)
 
@@ -533,4 +548,3 @@ for step, batch in enumerate(train_batches):
     scheduler.step()
     optimizer.zero_grad()
     global_step += 1
-

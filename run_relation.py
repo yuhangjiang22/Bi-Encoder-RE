@@ -440,7 +440,7 @@ def main(args):
         cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE),
         revision=None,
         use_auth_token=True,
-        hidden_dropout_prob=0.1,
+        hidden_dropout_prob=0.3,
     )
 
     device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
