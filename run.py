@@ -33,11 +33,11 @@ checkpoint_PURE = 'rel_model'
 data_files = {}
 
 tokenizer = AutoTokenizer.from_pretrained(
-    checkpoint_PURE
+    checkpoint
 )
 
 config = BEFREConfig(
-    pretrained_model_name_or_path=checkpoint_PURE,
+    pretrained_model_name_or_path=checkpoint,
     cache_dir=None,
     use_auth_token=True,
     hidden_dropout_prob=0.1,

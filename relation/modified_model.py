@@ -30,7 +30,6 @@ class BEFREConfig(PretrainedConfig):
         hidden_dropout_prob=0.1,
         max_span_width=30,
         use_span_width_embedding=False,
-        linear_size=128,
         init_temperature=0.07,
         **kwargs,
     ):
@@ -41,7 +40,6 @@ class BEFREConfig(PretrainedConfig):
         self.hidden_dropout_prob=hidden_dropout_prob
         self.max_span_width = max_span_width
         self.use_span_width_embedding = use_span_width_embedding
-        self.linear_size = linear_size
         self.init_temperature = init_temperature
 
 class BEFRE(PreTrainedModel):
@@ -60,6 +58,7 @@ class BEFRE(PreTrainedModel):
         self.layer_norm = BertLayerNorm(hf_config.hidden_size * 2)
         self.logit_scale = torch.nn.Parameter(torch.ones([]) * np.log(1 / config.init_temperature))
         self.post_init()
+        self.linear = nn.Linear(hf_config.hidden_size * 2, hf_config.hidden_size)
 
         self.input_encoder = AutoModel.from_pretrained(
             config.pretrained_model_name_or_path,
@@ -137,6 +136,9 @@ class BEFRE(PreTrainedModel):
 
         # batch_size x hidden_size*2
         rep = self.dropout(rep)
+        # batch_size x hidden_size
+        rep = self.linear(rep)
+
 
         des_sub_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(description_sequence_output, descriptions_sub_idx)])
         des_obj_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(description_sequence_output, descriptions_obj_idx)])
@@ -145,6 +147,8 @@ class BEFRE(PreTrainedModel):
 
         # batch_size*num_types x hidden_size*2
         des_rep = self.dropout(des_rep)
+        des_rep = self.linear(des_rep)
+
 
         results = []
         for i in range(batch_size):
