@@ -26,7 +26,7 @@ from relation.utils import generate_relation_data, decode_sample_id
 from shared.const import task_rel_labels, task_ner_labels
 # from relation.config import BEFREConfig
 from relation.modified_model import BEFRE, BEFREConfig
-from relation.test_model import BEFRE, BEFREConfig
+from relation.unified_model import BEFRE, BEFREConfig
 
 id2description = {0: ["there are no relations between the compound @subject@ and gene @object@ .",
                       "the compound @subject@ and gene @object@ has no relations ."],
@@ -661,7 +661,7 @@ def main(args):
     if args.train_befre:
         from relation.modified_model import BEFRE, BEFREConfig
     else:
-        from relation.test_model import BEFRE, BEFREConfig
+        from relation.unified_model import BEFRE, BEFREConfig
 
     config = BEFREConfig(
         pretrained_model_name_or_path=args.model,
