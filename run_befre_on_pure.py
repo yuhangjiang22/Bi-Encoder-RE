@@ -116,7 +116,7 @@ id2description = {0: ["there are no relations between the compound @subject@ and
 #                   5: "@subject@ engages with the gene @object@ in a manner where it acts as a substrate , is a product "
 #                      "of, or both a substrate and product within the gene's associated biochemical pathways ."}
 
-tokenized_id2description = {key: value.lower().split() for key, value in id2description.items()}
+tokenized_id2description = {key: [s.lower().split() for s in value] for key, value in id2description.items()}
 
 def add_description_words(tokenizer, tokenized_id2description):
     unk_words = []
