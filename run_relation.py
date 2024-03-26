@@ -121,9 +121,10 @@ tokenized_id2description = {key: [s.lower().split() for s in value] for key, val
 def add_description_words(tokenizer, tokenized_id2description):
     unk_words = []
     for k, v in tokenized_id2description.items():
-        for w in v:
-            if w not in tokenizer.vocab:
-                unk_words.append(w)
+        for wds in v:
+            for w in wds:
+                if w not in tokenizer.vocab:
+                    unk_words.append(w)
     tokenizer.add_tokens(unk_words)
 
 CLS = "[CLS]"
