@@ -174,7 +174,7 @@ class BEFRE(PreTrainedModel):
 
             return loss
         else:
-            return logits
+            return scores
 
 
 
