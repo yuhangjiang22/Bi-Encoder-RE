@@ -25,8 +25,8 @@ from transformers import AdamW, get_linear_schedule_with_warmup
 from relation.utils import generate_relation_data, decode_sample_id
 from shared.const import task_rel_labels, task_ner_labels
 # from relation.config import BEFREConfig
-from relation.befre import BEFRE, BEFREConfig
-from relation.unified_model import BEFRE, BEFREConfig
+# from relation.befre import BEFRE, BEFREConfig
+# from relation.unified_model import BEFRE, BEFREConfig
 
 id2description = {0: ["there are no relations between the compound @subject@ and gene @object@ .",
                       "the compound @subject@ and gene @object@ has no relations ."],
@@ -524,7 +524,6 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                                                                        max_seq_length))
     return features
 
-
 def simple_accuracy(preds, labels):
     return (preds == labels).mean()
 
@@ -660,10 +659,8 @@ def main(args):
     #     args.add_new_tokens = True
     # else:
     #     RelationModel = BertForRelation
-    if args.train_befre:
-        from relation.befre import BEFRE, BEFREConfig
-    else:
-        from relation.unified_model import BEFRE, BEFREConfig
+
+    from relation.uni_model import BEFRE, BEFREConfig
 
     config = BEFREConfig(
         pretrained_model_name_or_path=args.model,
@@ -672,6 +669,7 @@ def main(args):
         use_auth_token=True,
         hidden_dropout_prob=args.drop_out,
     )
+    setseed(args.seed)
 
     device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
     n_gpu = torch.cuda.device_count()
@@ -691,7 +689,6 @@ def main(args):
             os.path.join(args.entity_output_dir, args.entity_predictions_test), use_gold=args.eval_with_gold,
             context_window=args.context_window)
 
-    setseed(args.seed)
 
     if not args.do_train and not args.do_eval:
         raise ValueError("At least one of `do_train` or `do_eval` must be True.")
@@ -733,7 +730,7 @@ def main(args):
     if args.do_eval and (args.do_train or not (args.eval_test)):
         eval_features = convert_examples_to_features(
             eval_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
-            unused_tokens=not (args.add_new_tokens))
+            unused_tokens=not (args.add_new_tokens), multiple_descriptions= args.multi_descriptions)
         logger.info("***** Dev *****")
         logger.info("  Num examples = %d", len(eval_examples))
         logger.info("  Batch size = %d", args.eval_batch_size)
@@ -773,7 +770,7 @@ def main(args):
     if args.do_train:
         train_features = convert_examples_to_features(
             train_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
-            unused_tokens=not (args.add_new_tokens), multiple_descriptions= args.multi_descriptions)
+            unused_tokens=not (args.add_new_tokens))
         if args.train_mode == 'sorted' or args.train_mode == 'random_sorted':
             train_features = sorted(train_features, key=lambda f: np.sum(f.input_mask))
         else:
@@ -825,8 +822,6 @@ def main(args):
         model = BEFRE(config)
         # model = RelationModel.from_pretrained(
         #     args.model, cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE), num_rel_labels=num_labels)
-        model.input_encoder.resize_token_embeddings(len(tokenizer))
-        model.description_encoder.resize_token_embeddings(len(tokenizer))
 
         model.to(device)
         if n_gpu > 1:
@@ -1031,8 +1026,6 @@ if __name__ == "__main__":
                         help="Whether to add new tokens as marker tokens instead of using [unusedX] tokens.")
     parser.add_argument('--train_num_examples', type=int, default=None,
                         help="How many training instances to train")
-    parser.add_argument('--train_befre', action='store_true',
-                        help="Train PURE of BEFRE.")
     parser.add_argument('--drop_out', type=float, default=0.1,
                         help="hidden drop out rate.")
     parser.add_argument('--multi_descriptions', action='store_true',

@@ -10,7 +10,7 @@ from relation.utils import generate_relation_data, decode_sample_id
 from shared.const import task_rel_labels, task_ner_labels
 import os
 import numpy as np
-from relation.modified_model import BEFRE, BEFREConfig
+from relation.befre import BEFRE, BEFREConfig
 
 # os.chdir('Bi-Encoder-RE')
 
