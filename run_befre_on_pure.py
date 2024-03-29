@@ -456,7 +456,8 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
 
             for _, description_tokens_list in tokenized_id2description.items():
 
-                description_tokens = random.choice(description_tokens_list)
+                # description_tokens = random.choice(description_tokens_list)
+                description_tokens = description_tokens_list[0]
                 description_input_ids, description_input_mask, description_type_ids = get_description_input(description_tokens)
 
                 descriptions_input_ids.append(description_input_ids)
