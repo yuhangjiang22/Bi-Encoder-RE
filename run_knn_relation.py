@@ -79,10 +79,10 @@ def search_tfidf_example(source, train_id2examples, tokenized_id2description):
 
         # Output the most similar sequence
         most_similar_sequence = search_domain[index[0][0]]
-        tokenized_id2description[label][0] += most_similar_sequence
+        if len(most_similar_sequence) >= 100:
+            tokenized_id2description[label][0] += most_similar_sequence[:100]
 
     return tokenized_id2description
-
 
 def add_description_words(tokenizer, tokenized_id2description):
     unk_words = []
@@ -179,7 +179,6 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         description_input_ids += padding
         description_input_mask += padding
         description_type_ids += padding
-        print('description_input_ids', len(description_input_ids))
 
         assert len(description_input_ids) == max_seq_length
         assert len(description_input_mask) == max_seq_length
