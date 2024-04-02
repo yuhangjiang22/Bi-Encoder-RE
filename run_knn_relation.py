@@ -53,6 +53,7 @@ import numpy as np
 
 
 def search_tfidf_example(source, train_id2examples, tokenized_id2description):
+    updated_id2description = {key: None for key in tokenized_id2description}
     source_token = source['token']
     docid = source['docid']
     for label, examples in train_id2examples.items():
@@ -79,10 +80,9 @@ def search_tfidf_example(source, train_id2examples, tokenized_id2description):
 
         # Output the most similar sequence
         most_similar_sequence = search_domain[index[0][0]]
-        if len(most_similar_sequence) >= 100:
-            tokenized_id2description[label][0] += most_similar_sequence[:100]
+        updated_id2description[label] = tokenized_id2description[label][0] + most_similar_sequence
 
-    return tokenized_id2description
+    return updated_id2description
 
 def add_description_words(tokenizer, tokenized_id2description):
     unk_words = []
@@ -257,11 +257,11 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         descriptions_sub_idx = []
         descriptions_obj_idx = []
 
-        tokenized_id2description = search_tfidf_example(example, train_id2examples, tokenized_id2description)
+        updated_id2description = search_tfidf_example(example, train_id2examples, tokenized_id2description)
 
-        for _, description_tokens_list in tokenized_id2description.items():
+        for _, description_tokens_list in updated_id2description.items():
 
-            description_tokens = description_tokens_list[0]
+            description_tokens = description_tokens_list
             description_input_ids, description_input_mask, description_type_ids = get_description_input(description_tokens)
 
             descriptions_input_ids.append(description_input_ids)
