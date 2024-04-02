@@ -173,12 +173,14 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         descriptions_obj_idx.append(des_obj_idx)
 
         description_input_ids = tokenizer.convert_tokens_to_ids(description_tokens)
+        print('description_input_ids: ', len(description_input_ids))
         description_type_ids = [0] * len(description_tokens)
         description_input_mask = [1] * len(description_input_ids)
         padding = [0] * (max_seq_length - len(description_input_ids))
         description_input_ids += padding
         description_input_mask += padding
         description_type_ids += padding
+        print('description_input_ids: ', len(description_input_ids))
 
         assert len(description_input_ids) == max_seq_length
         assert len(description_input_mask) == max_seq_length
