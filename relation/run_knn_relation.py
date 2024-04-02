@@ -25,98 +25,64 @@ from transformers import AdamW, get_linear_schedule_with_warmup
 from relation.utils import generate_relation_data, decode_sample_id
 from shared.const import task_rel_labels, task_ner_labels
 # from relation.config import BEFREConfig
-# from relation.befre import BEFRE, BEFREConfig
-# from relation.unified_model import BEFRE, BEFREConfig
+from relation.befre import BEFRE, BEFREConfig
+from relation.unified_model import BEFRE, BEFREConfig
 
-id2description = {0: ["there are no relations between the compound @subject@ and gene @object@ .",
-                      "the compound @subject@ and gene @object@ has no relations ."],
+id2description = {0: ["there are no relations between the compound @subject@ and gene @object@ . such as : ",],
                   1: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-                      "upregulator , activator , or indirect upregulator in its interactions .",
-                      "@subject@ initiates or enhances the activity of @object@ through direct or indirect means . an "
-                      "upregulator ,activator , or indirect upregulator serves as the mechanism that increases the "
-                      "function ,"
-                      "expression , or activity of the @object@"
+                      "upregulator , activator , or indirect upregulator in its interactions .  such as : ",
                       ],
                   2: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
-                      "downregulator , inhibitor , or indirect downregulator in its interactions .",
-                      "@subject@ interacts with the gene @object@ , resulting in a decrease in the gene's "
-                      "activity or expression . This interaction can occur through direct inhibition , acting as a "
-                      "downregulator , or through indirect means , where the compound causes a reduction in the gene's "
-                      "function or expression without directly binding to it . Such mechanisms are crucial in "
-                      "understanding genetic regulation and can have significant implications in fields like "
-                      "pharmacology and gene therapy ."
+                      "downregulator , inhibitor , or indirect downregulator in its interactions . such as : ",
                       ],
                   3: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-                      "agonist , agonist activator , or agonist inhibitor in its interactions .",
-                      "@subject@ interacts with the gene @object@ in a manner that modulates its activity positively ( "
-                      "as an agonist or agonist activator ) or negatively ( as an agonist inhibitor ) . An agonist "
-                      "interaction typically increases the gene's activity or the activity of proteins expressed by "
-                      "the gene , whereas an agonist activator enhances this effect further . Conversely , an agonist "
-                      "inhibitor would paradoxically bind in a manner that initially mimics an agonist's action but "
-                      "ultimately inhibits the gene's activity or its downstream effects ."
+                      "agonist , agonist activator , or agonist inhibitor in its interactions . such as : ",
                       ],
                   4: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-                      "antagonist in its interactions .",
-                      "@subject@ interacts with the gene @object@ by acting as an antagonist . This means that the "
-                      "compound blocks or diminishes the gene's normal activity or the activity of the protein product "
-                      "expressed by the gene . Antagonist interactions are significant in the regulation of biological "
-                      "pathways and have wide-ranging implications in therapeutic interventions , where they can be "
-                      "used to modulate the effects of genes involved in disease processes ."
+                      "antagonist in its interactions . such as : ",
                       ],
                   5: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
-                      "substrate , product of, or substrate product of in its interactions .",
-                      "@subject@ engages with the gene @object@ in a manner where it acts as a substrate , is a product"
-                      "of, or both a substrate and product within the gene's associated biochemical pathways ."
+                      "substrate , product of, or substrate product of in its interactions . such as : ",
                       ]}
 
-# id2description = {0: "there are no relations between the compound @subject@ and gene @object@ .",
-#                   1: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-#                      "upregulator, activator,or indirect upregulator in its interactions .",
-#                   2: "the compound @subject@ has been identified to engage with thegene @object@ , manifesting as a "
-#                      "downregulator, inhibitor, or indirect downregulator in its interactions .",
-#                   3: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-#                      "agonist, agonist activator, or agonist inhibitor in its interactions .",
-#                   4: "the compound @subject@ has been identified toengage with the gene @object@ , manifesting as an "
-#                      "antagonist in its interactions .",
-#                   5: "the compound @subject@ hasbeen identified to engage with the gene @object@ , manifesting as a "
-#                      "substrate, product of, or substrate product ofin its interactions ."}
-
-# id2description = {0: "there are no relations between the compound @subject@ and gene @object@ .",
-#                   1: "@subject@ engages @object@ , with upregulator , activator , or indirect upregulator .",
-#                   2: "@subject@ is proved to be associated with @object@ , in downregulator , inhibitor , or indirect "
-#                      "downregulator .",
-#                   3: "@subject@ interacts with @object@ , in agonist , agonist activator , or agonist inhibitor .",
-#                   4: "@subject@ is engaging @object@ , manifesting as an antagonist in the interactions .",
-#                   5: "the compound @subject@ has been identified to interact with the gene @object@ , as a "
-#                      "substrate , product of , or substrate product of in its interactions ."}
-
-# id2description = {0: "there are no relations between the compound @subject@ and gene @object@ .",
-#                   1: '@subject@ initiates or enhances the activity of @object@ through direct or indirect means . An '
-#                      'upregulator ,'
-#                      'activator , or indirect upregulator serves as the mechanism that increases the function , '
-#                      'expression , or activity'
-#                      'of the @object@',
-#                   2: "@subject@ interacts with the gene @object@ , resulting in a decrease in the gene's "
-#                      "activity or expression . This interaction can occur through direct inhibition , acting as a "
-#                      "downregulator , or through indirect means , where the compound causes a reduction in the gene's "
-#                      "function or expression without directly binding to it . Such mechanisms are crucial in "
-#                      "understanding genetic regulation and can have significant implications in fields like "
-#                      "pharmacology and gene therapy .",
-#                   3: "@subject@ interacts with the gene @object@ in a manner that modulates its activity positively ( "
-#                      "as an agonist or agonist activator ) or negatively ( as an agonist inhibitor ) . An agonist "
-#                      "interaction typically increases the gene's activity or the activity of proteins expressed by "
-#                      "the gene , whereas an agonist activator enhances this effect further . Conversely , an agonist "
-#                      "inhibitor would paradoxically bind in a manner that initially mimics an agonist's action but "
-#                      "ultimately inhibits the gene's activity or its downstream effects .",
-#                   4: "@subject@ interacts with the gene @object@ by acting as an antagonist . This means that the "
-#                      "compound blocks or diminishes the gene's normal activity or the activity of the protein product "
-#                      "expressed by the gene . Antagonist interactions are significant in the regulation of biological "
-#                      "pathways and have wide-ranging implications in therapeutic interventions , where they can be "
-#                      "used to modulate the effects of genes involved in disease processes .",
-#                   5: "@subject@ engages with the gene @object@ in a manner where it acts as a substrate , is a product "
-#                      "of, or both a substrate and product within the gene's associated biochemical pathways ."}
-
 tokenized_id2description = {key: [s.lower().split() for s in value] for key, value in id2description.items()}
+
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.neighbors import NearestNeighbors
+import numpy as np
+
+
+def search_tfidf_example(source, train_id2examples, tokenized_id2description):
+    source_token = source['token']
+    docid = source['docid']
+    for label, examples in train_id2examples.items():
+        examples = [example for example in examples if example['docid'] != docid]
+        search_domain = [example['token'] for example in examples]
+        input_sequence = ' '.join(source_token)
+        domain_sequences = [' '.join(seq) for seq in search_domain]
+        all_sequences = [input_sequence] + domain_sequences
+
+        # Vectorize the sequences
+        vectorizer = CountVectorizer()
+        vectorized_data = vectorizer.fit_transform(all_sequences).toarray()
+
+        # Separate the input vector from the domain vectors
+        input_vector = vectorized_data[0]
+        domain_vectors = vectorized_data[1:]
+
+        # Use NearestNeighbors to find the most similar sequence
+        nn = NearestNeighbors(n_neighbors=1, metric='euclidean')  # Using Euclidean distance
+        nn.fit(domain_vectors)
+
+        # Find the nearest neighbor to the input sequence
+        distance, index = nn.kneighbors([input_vector])
+
+        # Output the most similar sequence
+        most_similar_sequence = search_domain[index[0][0]]
+        tokenized_id2description[label][0] += most_similar_sequence
+
+    return tokenized_id2description
+
 
 def add_description_words(tokenizer, tokenized_id2description):
     unk_words = []
@@ -178,166 +144,8 @@ def add_marker_tokens(tokenizer, ner_labels):
     tokenizer.add_tokens(new_tokens)
     logger.info('# vocab after adding markers: %d' % len(tokenizer))
 
-
-# def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, special_tokens,
-#                                  tokenized_id2description, unused_tokens=True):
-#     """
-#     Loads a data file into a list of `InputBatch`s.
-#     unused_tokens: whether use [unused1] [unused2] as special tokens
-#     """
-#
-#     def get_special_token(w):
-#         if w not in special_tokens:
-#             if unused_tokens:
-#                 special_tokens[w] = "[unused%d]" % (len(special_tokens) + 1)
-#             else:
-#                 special_tokens[w] = ('<' + w + '>').lower()
-#         return special_tokens[w]
-#
-#     num_tokens = 0
-#     max_tokens = 0
-#     num_fit_examples = 0
-#     num_shown_examples = 0
-#     features = []
-#     for (ex_index, example) in enumerate(examples):
-#         if ex_index % 10000 == 0:
-#             logger.info("Writing example %d of %d" % (ex_index, len(examples)))
-#
-#         tokens = [CLS]
-#         SUBJECT_START = get_special_token("SUBJ_START")
-#         SUBJECT_END = get_special_token("SUBJ_END")
-#         OBJECT_START = get_special_token("OBJ_START")
-#         OBJECT_END = get_special_token("OBJ_END")
-#         SUBJECT_NER = get_special_token("SUBJ=%s" % example['subj_type'])
-#         OBJECT_NER = get_special_token("OBJ=%s" % example['obj_type'])
-#
-#         SUBJECT_START_NER = get_special_token("SUBJ_START=%s" % example['subj_type'])
-#         SUBJECT_END_NER = get_special_token("SUBJ_END=%s" % example['subj_type'])
-#         OBJECT_START_NER = get_special_token("OBJ_START=%s" % example['obj_type'])
-#         OBJECT_END_NER = get_special_token("OBJ_END=%s" % example['obj_type'])
-#
-#         for i, token in enumerate(example['token']):
-#             if i == example['subj_start']:
-#                 sub_idx = len(tokens)
-#                 tokens.append(SUBJECT_START_NER)
-#             if i == example['obj_start']:
-#                 obj_idx = len(tokens)
-#                 tokens.append(OBJECT_START_NER)
-#             for sub_token in tokenizer.tokenize(token):
-#                 tokens.append(sub_token)
-#             if i == example['subj_end']:
-#                 sub_idx_end = len(tokens)
-#                 tokens.append(SUBJECT_END_NER)
-#             if i == example['obj_end']:
-#                 obj_idx_end = len(tokens)
-#                 tokens.append(OBJECT_END_NER)
-#         tokens.append(SEP)
-#
-#         subject = tokens[sub_idx:sub_idx_end + 1]
-#         object = tokens[obj_idx:obj_idx_end + 1]
-#
-#         num_tokens += len(tokens)
-#         max_tokens = max(max_tokens, len(tokens))
-#
-#         if len(tokens) > max_seq_length:
-#             tokens = tokens[:max_seq_length]
-#             if sub_idx >= max_seq_length:
-#                 sub_idx = 0
-#             if obj_idx >= max_seq_length:
-#                 obj_idx = 0
-#         else:
-#             num_fit_examples += 1
-#
-#         segment_ids = [0] * len(tokens)
-#         input_ids = tokenizer.convert_tokens_to_ids(tokens)
-#         input_mask = [1] * len(input_ids)
-#         padding = [0] * (max_seq_length - len(input_ids))
-#         input_ids += padding
-#         input_mask += padding
-#         segment_ids += padding
-#         label_id = label2id[example['relation']]
-#
-#         assert len(input_ids) == max_seq_length
-#         assert len(input_mask) == max_seq_length
-#         assert len(segment_ids) == max_seq_length
-#
-#         descriptions_input_ids = []
-#         descriptions_input_mask = []
-#         descriptions_type_ids = []
-#         descriptions_sub_idx = []
-#         descriptions_obj_idx = []
-#
-#         for _, description_tokens in tokenized_id2description.items():
-#
-#             description_tokens = [CLS] + description_tokens
-#             description_tokens = [subject if word == '@subject@' else word for word in description_tokens]
-#             description_tokens = [object if word == '@object@' else word for word in description_tokens]
-#             description_tokens = [item for sublist in description_tokens for item in
-#                                   (sublist if isinstance(sublist, list) else [sublist])]
-#             description_tokens.append(SEP)
-#
-#             des_sub_idx = description_tokens.index(SUBJECT_START_NER)
-#             des_obj_idx = description_tokens.index(OBJECT_START_NER)
-#             descriptions_sub_idx.append(des_sub_idx)
-#             descriptions_obj_idx.append(des_obj_idx)
-#
-#             if len(description_tokens) > max_seq_length:
-#                 tokens = tokens[:max_seq_length]
-#                 if sub_idx >= max_seq_length:
-#                     sub_idx = 0
-#                 if obj_idx >= max_seq_length:
-#                     obj_idx = 0
-#
-#             description_input_ids = tokenizer.convert_tokens_to_ids(description_tokens)
-#             description_type_ids = [0] * len(description_tokens)
-#             description_input_mask = [1] * len(description_input_ids)
-#             padding = [0] * (max_seq_length - len(description_input_ids))
-#             description_input_ids += padding
-#             description_input_mask += padding
-#             description_type_ids += padding
-#
-#             assert len(description_input_ids) == max_seq_length
-#             assert len(description_input_mask) == max_seq_length
-#             assert len(description_type_ids) == max_seq_length
-#
-#             descriptions_input_ids.append(description_input_ids)
-#             descriptions_input_mask.append(description_input_mask)
-#             descriptions_type_ids.append(description_type_ids)
-#
-#         if num_shown_examples < 20:
-#             if (ex_index < 5) or (label_id > 0):
-#                 num_shown_examples += 1
-#                 logger.info("*** Example ***")
-#                 logger.info("guid: %s" % (example['id']))
-#                 logger.info("tokens: %s" % " ".join(
-#                     [str(x) for x in tokens]))
-#                 logger.info("input_ids: %s" % " ".join([str(x) for x in input_ids]))
-#                 logger.info("input_mask: %s" % " ".join([str(x) for x in input_mask]))
-#                 logger.info("segment_ids: %s" % " ".join([str(x) for x in segment_ids]))
-#                 logger.info("label: %s (id = %d)" % (example['relation'], label_id))
-#                 logger.info("sub_idx, obj_idx: %d, %d" % (sub_idx, obj_idx))
-#
-#         features.append(
-#             InputFeatures(input_ids=input_ids,
-#                           input_mask=input_mask,
-#                           segment_ids=segment_ids,
-#                           label_id=label_id,
-#                           sub_idx=sub_idx,
-#                           obj_idx=obj_idx,
-#                           descriptions_input_ids=descriptions_input_ids,
-#                           descriptions_input_mask=descriptions_input_mask,
-#                           descriptions_type_ids=descriptions_type_ids,
-#                           descriptions_sub_idx=descriptions_sub_idx,
-#                           descriptions_obj_idx=descriptions_obj_idx))
-#     logger.info("Average #tokens: %.2f" % (num_tokens * 1.0 / len(examples)))
-#     logger.info("Max #tokens: %d" % max_tokens)
-#     logger.info("%d (%.2f %%) examples can fit max_seq_length = %d" % (num_fit_examples,
-#                                                                        num_fit_examples * 100.0 / len(examples),
-#                                                                        max_seq_length))
-#     return features
-
 def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, special_tokens,
-                                 tokenized_id2description, unused_tokens=False, multiple_descriptions=False):
+                                 tokenized_id2description, train_id2examples, unused_tokens=False, multiple_descriptions=False):
     """
     Loads a data file into a list of `InputBatch`s.
     unused_tokens: whether use [unused1] [unused2] as special tokens
@@ -388,17 +196,12 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
             logger.info("Writing example %d of %d" % (ex_index, len(examples)))
 
         tokens = [CLS]
-        SUBJECT_START = get_special_token("SUBJ_START")
-        SUBJECT_END = get_special_token("SUBJ_END")
-        OBJECT_START = get_special_token("OBJ_START")
-        OBJECT_END = get_special_token("OBJ_END")
-        SUBJECT_NER = get_special_token("SUBJ=%s" % example['subj_type'])
-        OBJECT_NER = get_special_token("OBJ=%s" % example['obj_type'])
 
         SUBJECT_START_NER = get_special_token("SUBJ_START=%s" % example['subj_type'])
         SUBJECT_END_NER = get_special_token("SUBJ_END=%s" % example['subj_type'])
         OBJECT_START_NER = get_special_token("OBJ_START=%s" % example['obj_type'])
         OBJECT_END_NER = get_special_token("OBJ_END=%s" % example['obj_type'])
+
 
         for i, token in enumerate(example['token']):
             if i == example['subj_start']:
@@ -452,40 +255,19 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         descriptions_sub_idx = []
         descriptions_obj_idx = []
 
-        if not multiple_descriptions:
+        tokenized_id2description = search_tfidf_example(example, train_id2examples, tokenized_id2description)
 
-            for _, description_tokens_list in tokenized_id2description.items():
+        for _, description_tokens_list in tokenized_id2description.items():
 
-                # description_tokens = random.choice(description_tokens_list)
-                description_tokens = description_tokens_list[0]
-                description_input_ids, description_input_mask, description_type_ids = get_description_input(description_tokens)
+            description_tokens = description_tokens_list[0]
+            description_input_ids, description_input_mask, description_type_ids = get_description_input(description_tokens)
 
-                descriptions_input_ids.append(description_input_ids)
-                descriptions_input_mask.append(description_input_mask)
-                descriptions_type_ids.append(description_type_ids)
-
+            descriptions_input_ids.append(description_input_ids)
+            descriptions_input_mask.append(description_input_mask)
+            descriptions_type_ids.append(description_type_ids)
 
 
-        else:
-            for label, description_tokens_list in tokenized_id2description.items():
-                if label == label_id:
-                    description_label_id = len(descriptions_input_ids)
-                    description_tokens = description_tokens_list[0]
-                    description_input_ids, description_input_mask, description_type_ids = get_description_input(
-                        description_tokens)
 
-                    descriptions_input_ids.append(description_input_ids)
-                    descriptions_input_mask.append(description_input_mask)
-                    descriptions_type_ids.append(description_type_ids)
-                else:
-
-                    for description_tokens in description_tokens_list:
-                        description_input_ids, description_input_mask, description_type_ids = get_description_input(
-                            description_tokens)
-
-                        descriptions_input_ids.append(description_input_ids)
-                        descriptions_input_mask.append(description_input_mask)
-                        descriptions_type_ids.append(description_type_ids)
 
 
 
@@ -503,8 +285,6 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                 logger.info("label: %s (id = %d)" % (example['relation'], label_id))
                 logger.info("sub_idx, obj_idx: %d, %d" % (sub_idx, obj_idx))
 
-        if multiple_descriptions:
-            label_id = description_label_id
         features.append(
             InputFeatures(input_ids=input_ids,
                           input_mask=input_mask,
@@ -659,9 +439,11 @@ def main(args):
     #     args.add_new_tokens = True
     # else:
     #     RelationModel = BertForRelation
-
-    from relation.uni_model import BEFRE, BEFREConfig
-
+    if args.train_befre:
+        from relation.befre import BEFRE, BEFREConfig
+    else:
+        # from relation.unified_model import BEFRE, BEFREConfig
+        from relation.testing_model import BEFRE, BEFREConfig
     config = BEFREConfig(
         pretrained_model_name_or_path=args.model,
         cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE),
@@ -673,11 +455,27 @@ def main(args):
 
     device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
     n_gpu = torch.cuda.device_count()
-
     # train set
-    if args.do_train:
-        train_dataset, train_examples, train_nrel = generate_relation_data(args.train_file, use_gold=True,
-                                                                           context_window=args.context_window)
+    train_dataset, train_examples, train_nrel = generate_relation_data(args.train_file, use_gold=True,
+                                                                       context_window=args.context_window)
+    # get label_list
+    if os.path.exists(os.path.join(args.output_dir, 'label_list.json')):
+        with open(os.path.join(args.output_dir, 'label_list.json'), 'r') as f:
+            label_list = json.load(f)
+    else:
+        label_list = [args.negative_label] + task_rel_labels[args.task]
+        with open(os.path.join(args.output_dir, 'label_list.json'), 'w') as f:
+            json.dump(label_list, f)
+    label2id = {label: i for i, label in enumerate(label_list)}
+    id2label = {i: label for i, label in enumerate(label_list)}
+    num_labels = len(label_list)
+    train_id2examples = {key: [] for key in tokenized_id2description}
+
+    for example in train_examples:
+        label = label2id[example['relation']]
+        train_id2examples[label].append(example)
+
+
     # dev set
     if (args.do_eval and args.do_train) or (args.do_eval and not (args.eval_test)):
         eval_dataset, eval_examples, eval_nrel = generate_relation_data(
@@ -704,18 +502,6 @@ def main(args):
     logger.info("device: {}, n_gpu: {}".format(
         device, n_gpu))
 
-    # get label_list
-    if os.path.exists(os.path.join(args.output_dir, 'label_list.json')):
-        with open(os.path.join(args.output_dir, 'label_list.json'), 'r') as f:
-            label_list = json.load(f)
-    else:
-        label_list = [args.negative_label] + task_rel_labels[args.task]
-        with open(os.path.join(args.output_dir, 'label_list.json'), 'w') as f:
-            json.dump(label_list, f)
-    label2id = {label: i for i, label in enumerate(label_list)}
-    id2label = {i: label for i, label in enumerate(label_list)}
-    num_labels = len(label_list)
-
     tokenizer = AutoTokenizer.from_pretrained(args.model, do_lower_case=args.do_lower_case)
     add_description_words(tokenizer, tokenized_id2description)
     if args.add_new_tokens:
@@ -729,7 +515,7 @@ def main(args):
 
     if args.do_eval and (args.do_train or not (args.eval_test)):
         eval_features = convert_examples_to_features(
-            eval_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
+            eval_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description, train_id2examples=train_id2examples,
             unused_tokens=not (args.add_new_tokens))
         logger.info("***** Dev *****")
         logger.info("  Num examples = %d", len(eval_examples))
@@ -769,8 +555,8 @@ def main(args):
 
     if args.do_train:
         train_features = convert_examples_to_features(
-            train_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
-            unused_tokens=not (args.add_new_tokens), multiple_descriptions= args.multi_descriptions)
+            train_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description, train_id2examples=train_id2examples,
+            unused_tokens=not (args.add_new_tokens), multiple_descriptions=args.multiple_descriptions)
         if args.train_mode == 'sorted' or args.train_mode == 'random_sorted':
             train_features = sorted(train_features, key=lambda f: np.sum(f.input_mask))
         else:
@@ -911,7 +697,7 @@ def main(args):
             eval_dataset = test_dataset
             eval_examples = test_examples
             eval_features = convert_examples_to_features(
-                test_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
+                test_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description, train_id2examples=train_id2examples,
                 unused_tokens=not (args.add_new_tokens))
             eval_nrel = test_nrel
             logger.info(special_tokens)
@@ -1026,6 +812,8 @@ if __name__ == "__main__":
                         help="Whether to add new tokens as marker tokens instead of using [unusedX] tokens.")
     parser.add_argument('--train_num_examples', type=int, default=None,
                         help="How many training instances to train")
+    parser.add_argument('--train_befre', action='store_true',
+                        help="Train PURE of BEFRE.")
     parser.add_argument('--drop_out', type=float, default=0.1,
                         help="hidden drop out rate.")
     parser.add_argument('--multi_descriptions', action='store_true',

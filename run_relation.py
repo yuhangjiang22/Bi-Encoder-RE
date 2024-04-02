@@ -732,7 +732,7 @@ def main(args):
     if args.do_eval and (args.do_train or not (args.eval_test)):
         eval_features = convert_examples_to_features(
             eval_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
-            unused_tokens=not (args.add_new_tokens), multiple_descriptions= args.multi_descriptions)
+            unused_tokens=not (args.add_new_tokens))
         logger.info("***** Dev *****")
         logger.info("  Num examples = %d", len(eval_examples))
         logger.info("  Batch size = %d", args.eval_batch_size)
@@ -772,7 +772,7 @@ def main(args):
     if args.do_train:
         train_features = convert_examples_to_features(
             train_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
-            unused_tokens=not (args.add_new_tokens))
+            unused_tokens=not (args.add_new_tokens), multiple_descriptions=args.multiple_descriptions)
         if args.train_mode == 'sorted' or args.train_mode == 'random_sorted':
             train_features = sorted(train_features, key=lambda f: np.sum(f.input_mask))
         else:
