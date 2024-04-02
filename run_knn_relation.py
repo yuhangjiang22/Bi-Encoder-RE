@@ -254,11 +254,10 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         descriptions_type_ids = []
         descriptions_sub_idx = []
         descriptions_obj_idx = []
-
+        logger.info("*** fetching tfidf examples ***")
         updated_id2description = search_tfidf_example(example, train_id2examples, tokenized_id2description)
-
+        logger.info("*** completed tfidf examples ***")
         for _, description_tokens_list in updated_id2description.items():
-
             description_tokens = description_tokens_list
             description_input_ids, description_input_mask, description_type_ids = get_description_input(description_tokens)
 
