@@ -179,6 +179,7 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         description_input_ids += padding
         description_input_mask += padding
         description_type_ids += padding
+        print('description_input_ids', len(description_input_ids))
 
         assert len(description_input_ids) == max_seq_length
         assert len(description_input_mask) == max_seq_length
