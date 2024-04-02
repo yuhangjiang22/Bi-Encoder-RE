@@ -167,13 +167,12 @@ class BEFRE(PreTrainedModel):
         logits = self.classifier(rep)
 
         des_logits = self.classifier(des_rep)
-
         if labels is not None:
             CTloss = contrastive_loss(scores, labels)
             loss_fct = CrossEntropyLoss()
             CEloss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
-
-            des_labels = torch.tensor([0, 1, 2, 3, 4, 5]).repeat(batch_size)
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            des_labels = torch.tensor([0, 1, 2, 3, 4, 5]).repeat(batch_size).to(device)
             des_CEloss = loss_fct(des_logits.view(-1, self.num_labels), des_labels.view(-1))
 
             loss = 150 * (CEloss + des_CEloss) + CTloss
