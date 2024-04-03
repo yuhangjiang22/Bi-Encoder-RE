@@ -254,9 +254,11 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         descriptions_type_ids = []
         descriptions_sub_idx = []
         descriptions_obj_idx = []
+
         logger.info("*** fetching tfidf examples ***")
         updated_id2description = search_tfidf_example(example, train_id2examples, tokenized_id2description)
         logger.info("*** completed tfidf examples ***")
+
         for _, description_tokens_list in updated_id2description.items():
             description_tokens = description_tokens_list
             description_input_ids, description_input_mask, description_type_ids = get_description_input(description_tokens)
@@ -264,12 +266,6 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
             descriptions_input_ids.append(description_input_ids)
             descriptions_input_mask.append(description_input_mask)
             descriptions_type_ids.append(description_type_ids)
-
-
-
-
-
-
 
         if num_shown_examples < 20:
             if (ex_index < 5) or (label_id > 0):
@@ -555,7 +551,7 @@ def main(args):
     if args.do_train:
         train_features = convert_examples_to_features(
             train_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description, train_id2examples=train_id2examples,
-            unused_tokens=not (args.add_new_tokens), multiple_descriptions=args.multiple_descriptions)
+            unused_tokens=not (args.add_new_tokens), multiple_descriptions=args.multi_descriptions)
         if args.train_mode == 'sorted' or args.train_mode == 'random_sorted':
             train_features = sorted(train_features, key=lambda f: np.sum(f.input_mask))
         else:
