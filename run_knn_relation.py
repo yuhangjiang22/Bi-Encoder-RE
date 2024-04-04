@@ -437,8 +437,7 @@ def main(args):
     if args.train_befre:
         from relation.befre import BEFRE, BEFREConfig
     else:
-        # from relation.unified_model import BEFRE, BEFREConfig
-        from relation.testing_model import BEFRE, BEFREConfig
+        from relation.unified_model import BEFRE, BEFREConfig
     config = BEFREConfig(
         pretrained_model_name_or_path=args.model,
         cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE),
