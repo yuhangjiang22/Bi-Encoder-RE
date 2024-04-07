@@ -452,6 +452,10 @@ def main(args):
     # train set
     train_dataset, train_examples, train_nrel = generate_relation_data(args.train_file, use_gold=True,
                                                                        context_window=args.context_window)
+
+    if not os.path.exists(args.output_dir):
+        os.makedirs(args.output_dir)
+
     # get label_list
     if os.path.exists(os.path.join(args.output_dir, 'label_list.json')):
         with open(os.path.join(args.output_dir, 'label_list.json'), 'r') as f:
@@ -460,6 +464,7 @@ def main(args):
         label_list = [args.negative_label] + task_rel_labels[args.task]
         with open(os.path.join(args.output_dir, 'label_list.json'), 'w') as f:
             json.dump(label_list, f)
+
     label2id = {label: i for i, label in enumerate(label_list)}
     id2label = {i: label for i, label in enumerate(label_list)}
     num_labels = len(label_list)
@@ -485,8 +490,6 @@ def main(args):
     if not args.do_train and not args.do_eval:
         raise ValueError("At least one of `do_train` or `do_eval` must be True.")
 
-    if not os.path.exists(args.output_dir):
-        os.makedirs(args.output_dir)
     if args.do_train:
         logger.addHandler(logging.FileHandler(os.path.join(args.output_dir, "train.log"), 'w'))
     else:
