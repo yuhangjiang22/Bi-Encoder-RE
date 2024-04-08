@@ -175,7 +175,7 @@ class BEFRE(PreTrainedModel):
             des_labels = torch.tensor([0, 1, 2, 3, 4, 5]).repeat(batch_size).to(device)
             des_CEloss = loss_fct(des_logits.view(-1, self.num_labels), des_labels.view(-1))
 
-            loss = 100 * (CEloss + des_CEloss) + CTloss
+            loss = 150 * (CEloss + des_CEloss) + CTloss
 
             return loss
         else:
