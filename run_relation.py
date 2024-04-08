@@ -662,7 +662,7 @@ def main(args):
     if args.train_befre:
         from relation.befre import BEFRE, BEFREConfig
     else:
-        # from relation.unified_model import BEFRE, BEFREConfig
+        # from relation.testing_model import BEFRE, BEFREConfig
         from relation.unified_model import BEFRE, BEFREConfig
     config = BEFREConfig(
         pretrained_model_name_or_path=args.model,
@@ -1012,9 +1012,9 @@ if __name__ == "__main__":
 
     parser.add_argument("--entity_output_dir", type=str, default=None,
                         help="The directory of the prediction files of the entity model")
-    parser.add_argument("--entity_predictions_dev", type=str, default="ent_pred_dev.json",
+    parser.add_argument("--entity_predictions_dev", type=str, default="dev.json",
                         help="The entity prediction file of the dev set")
-    parser.add_argument("--entity_predictions_test", type=str, default="ent_pred_test.json",
+    parser.add_argument("--entity_predictions_test", type=str, default="test.json",
                         help="The entity prediction file of the test set")
 
     parser.add_argument("--prediction_file", type=str, default="predictions.json",
