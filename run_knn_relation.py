@@ -696,7 +696,7 @@ def main(args):
             eval_examples = test_examples
             eval_features = convert_examples_to_features(
                 test_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description, train_id2examples=train_id2examples,
-                unused_tokens=not (args.add_new_tokens), use_knn=False)
+                unused_tokens=not (args.add_new_tokens), use_knn=True)
             eval_nrel = test_nrel
             logger.info(special_tokens)
             logger.info("***** Test *****")
