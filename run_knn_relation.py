@@ -45,7 +45,7 @@ id2description = {0: ["there are no relations between the compound @subject@ and
                       "substrate , product of, or substrate product of in its interactions . such as : ",
                       ]}
 
-tokenized_id2description = {key: [s.lower().split() for s in value] for key, value in id2description.items()}
+tokenized_id2description = {key: value[0].lower().split() for key, value in id2description.items()}
 
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.neighbors import NearestNeighbors
@@ -80,7 +80,7 @@ def search_tfidf_example(source, train_id2examples, tokenized_id2description):
 
         # Output the most similar sequence
         most_similar_sequence = search_domain[index[0][0]]
-        updated_id2description[label] = tokenized_id2description[label][0] + most_similar_sequence
+        updated_id2description[label] = tokenized_id2description[label] + most_similar_sequence
 
     return updated_id2description
 
@@ -145,7 +145,7 @@ def add_marker_tokens(tokenizer, ner_labels):
     logger.info('# vocab after adding markers: %d' % len(tokenizer))
 
 def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, special_tokens,
-                                 tokenized_id2description, train_id2examples, unused_tokens=False, multiple_descriptions=False):
+                                 tokenized_id2description, train_id2examples, unused_tokens=False, multiple_descriptions=False, use_knn=True):
     """
     Loads a data file into a list of `InputBatch`s.
     unused_tokens: whether use [unused1] [unused2] as special tokens
@@ -255,11 +255,12 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         descriptions_sub_idx = []
         descriptions_obj_idx = []
 
-        logger.info("*** fetching tfidf examples ***")
-        updated_id2description = search_tfidf_example(example, train_id2examples, tokenized_id2description)
-        logger.info("*** completed tfidf examples ***")
+        if use_knn:
+            id2description = search_tfidf_example(example, train_id2examples, tokenized_id2description)
+        else:
+            id2description = {key: value[:-3] for key, value in tokenized_id2description}
 
-        for _, description_tokens_list in updated_id2description.items():
+        for _, description_tokens_list in id2description.items():
             description_tokens = description_tokens_list
             description_input_ids, description_input_mask, description_type_ids = get_description_input(description_tokens)
 
@@ -513,7 +514,7 @@ def main(args):
     if args.do_eval and (args.do_train or not (args.eval_test)):
         eval_features = convert_examples_to_features(
             eval_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description, train_id2examples=train_id2examples,
-            unused_tokens=not (args.add_new_tokens))
+            unused_tokens=not (args.add_new_tokens), use_knn=False)
         logger.info("***** Dev *****")
         logger.info("  Num examples = %d", len(eval_examples))
         logger.info("  Batch size = %d", args.eval_batch_size)
@@ -695,7 +696,7 @@ def main(args):
             eval_examples = test_examples
             eval_features = convert_examples_to_features(
                 test_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description, train_id2examples=train_id2examples,
-                unused_tokens=not (args.add_new_tokens))
+                unused_tokens=not (args.add_new_tokens), use_knn=False)
             eval_nrel = test_nrel
             logger.info(special_tokens)
             logger.info("***** Test *****")
