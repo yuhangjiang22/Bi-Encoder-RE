@@ -662,8 +662,8 @@ def main(args):
     if args.train_befre:
         from relation.befre import BEFRE, BEFREConfig
     else:
-        from relation.testing_model import BEFRE, BEFREConfig
-        # from relation.unified_model import BEFRE, BEFREConfig
+        # from relation.testing_model import BEFRE, BEFREConfig
+        from relation.unified_model import BEFRE, BEFREConfig
     config = BEFREConfig(
         pretrained_model_name_or_path=args.model,
         cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE),
@@ -927,14 +927,14 @@ def main(args):
             all_sub_idx = torch.tensor([f.sub_idx for f in eval_features], dtype=torch.long)
             all_obj_idx = torch.tensor([f.obj_idx for f in eval_features], dtype=torch.long)
 
-            all_descriptions_input_ids = torch.tensor([f.descriptions_input_ids for f in train_features],
+            all_descriptions_input_ids = torch.tensor([f.descriptions_input_ids for f in eval_features],
                                                       dtype=torch.long)
-            all_descriptions_input_mask = torch.tensor([f.descriptions_input_mask for f in train_features],
+            all_descriptions_input_mask = torch.tensor([f.descriptions_input_mask for f in eval_features],
                                                        dtype=torch.long)
-            all_descriptions_type_ids = torch.tensor([f.descriptions_type_ids for f in train_features],
+            all_descriptions_type_ids = torch.tensor([f.descriptions_type_ids for f in eval_features],
                                                      dtype=torch.long)
-            all_descriptions_sub_idx = torch.tensor([f.descriptions_sub_idx for f in train_features], dtype=torch.long)
-            all_descriptions_obj_idx = torch.tensor([f.descriptions_obj_idx for f in train_features], dtype=torch.long)
+            all_descriptions_sub_idx = torch.tensor([f.descriptions_sub_idx for f in eval_features], dtype=torch.long)
+            all_descriptions_obj_idx = torch.tensor([f.descriptions_obj_idx for f in eval_features], dtype=torch.long)
 
             eval_data = TensorDataset(all_input_ids,
                                       all_input_mask,
