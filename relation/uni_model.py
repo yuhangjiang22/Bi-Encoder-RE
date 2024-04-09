@@ -32,6 +32,7 @@ class BEFREConfig(PretrainedConfig):
         use_span_width_embedding=False,
         linear_size=128,
         init_temperature=0.07,
+        sp_temperature=0.1,
         num_labels=6,
         **kwargs,
     ):
@@ -45,6 +46,7 @@ class BEFREConfig(PretrainedConfig):
         self.linear_size = linear_size
         self.init_temperature = init_temperature
         self.num_labels = num_labels
+        self.sp_temperature=sp_temperature
 
 class BEFRE(PreTrainedModel):
 
@@ -61,6 +63,7 @@ class BEFRE(PreTrainedModel):
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
         self.layer_norm = BertLayerNorm(hf_config.hidden_size * 2)
         self.logit_scale = torch.nn.Parameter(torch.ones([]) * np.log(1 / config.init_temperature))
+        self.sp_logit_scale = torch.nn.Parameter(torch.ones([]) * np.log(1 / config.sp_temperature))
         self.post_init()
         self.num_labels = config.num_labels
         self.classifier = nn.Linear(hf_config.hidden_size * 2, config.num_labels)
@@ -142,6 +145,23 @@ class BEFRE(PreTrainedModel):
         # batch_size x hidden_size*2
         rep = self.dropout(rep)
 
+        outputs_2 = self.input_encoder(
+            input_ids,
+            attention_mask=attention_mask,
+            token_type_ids=token_type_ids if token_type_ids is not None else None,
+            return_dict=return_dict,
+        )
+        # batch_size x seq_length x hidden_size
+        sequence_output_2 = outputs_2[0]
+
+        sub_output_2 = torch.cat([a[i].unsqueeze(0) for a, i in zip(sequence_output_2, sub_idx)])
+        obj_output_2 = torch.cat([a[i].unsqueeze(0) for a, i in zip(sequence_output_2, obj_idx)])
+        rep_2 = torch.cat((sub_output_2, obj_output_2), dim=1)
+        rep_2 = self.layer_norm(rep_2)
+
+        # batch_size x hidden_size*2
+        rep_2 = self.dropout(rep_2)
+
         des_sub_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(description_sequence_output, descriptions_sub_idx)])
         des_obj_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(description_sequence_output, descriptions_obj_idx)])
         des_rep = torch.cat((des_sub_output, des_obj_output), dim=1)
@@ -159,8 +179,29 @@ class BEFRE(PreTrainedModel):
             vec_des = des_rep[i * num_types:(i + 1) * num_types]
 
             # Calculate the dot product of each input rep with description rep
-            dot_products = torch.matmul(vec_des, vec_input)
+            cos = nn.CosineSimilarity(dim=-1)
+            # dot_products = torch.matmul(vec_des, vec_input)
+            dot_products = cos(vec_des, vec_input)
             results.append(dot_products)
+
+        dropped_results = []
+        for i in range(batch_size):
+
+            vec_input = rep[i]
+
+            similar_vec_input = rep_2[i]
+            label = labels[i]
+            vec_des = des_rep[i * num_types:(i + 1) * num_types]
+
+            vec_des[label] = similar_vec_input
+            # Calculate the dot product of each input rep with description rep
+            cos = nn.CosineSimilarity(dim=-1)
+            # dot_products = torch.matmul(vec_des, vec_input)
+            dot_products = cos(vec_des, vec_input)
+            dropped_results.append(dot_products)
+
+        sp_scores = torch.stack(dropped_results)
+        sp_scores = self.sp_logit_scale.exp() * sp_scores
 
         scores = torch.stack(results)
         scores = self.logit_scale.exp() * scores
@@ -168,9 +209,11 @@ class BEFRE(PreTrainedModel):
 
         if labels is not None:
             CTloss = contrastive_loss(scores, labels)
+            SPloss = contrastive_loss(sp_scores, labels)
+
             loss_fct = CrossEntropyLoss()
             CEloss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
-            loss = 150 * CEloss + CTloss
+            loss = 1/3 * CEloss + 1/3 * (CTloss + SPloss)
             return loss
         else:
             return scores
