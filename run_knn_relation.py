@@ -438,7 +438,9 @@ def main(args):
     if args.train_befre:
         from relation.befre import BEFRE, BEFREConfig
     else:
-        from relation.unified_model import BEFRE, BEFREConfig
+        # from relation.unified_model import BEFRE, BEFREConfig
+        from relation.uni_model import BEFRE, BEFREConfig
+
     config = BEFREConfig(
         pretrained_model_name_or_path=args.model,
         cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE),
@@ -514,7 +516,7 @@ def main(args):
     if args.do_eval and (args.do_train or not (args.eval_test)):
         eval_features = convert_examples_to_features(
             eval_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description, train_id2examples=train_id2examples,
-            unused_tokens=not (args.add_new_tokens), use_knn=True)
+            unused_tokens=not (args.add_new_tokens), use_knn=False)
         logger.info("***** Dev *****")
         logger.info("  Num examples = %d", len(eval_examples))
         logger.info("  Batch size = %d", args.eval_batch_size)
@@ -696,7 +698,7 @@ def main(args):
             eval_examples = test_examples
             eval_features = convert_examples_to_features(
                 test_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description, train_id2examples=train_id2examples,
-                unused_tokens=not (args.add_new_tokens), use_knn=True)
+                unused_tokens=not (args.add_new_tokens), use_knn=False)
             eval_nrel = test_nrel
             logger.info(special_tokens)
             logger.info("***** Test *****")
