@@ -193,11 +193,11 @@ class BEFRE(PreTrainedModel):
             label = labels[i]
             vec_des = des_rep[i * num_types:(i + 1) * num_types]
 
-            vec_des[label] = similar_vec_input
+            inserted_vec_des = torch.cat((vec_des[:label], similar_vec_input.unsqueeze(0), vec_des[label+1:]), dim=0)
             # Calculate the dot product of each input rep with description rep
             cos = nn.CosineSimilarity(dim=-1)
             # dot_products = torch.matmul(vec_des, vec_input)
-            dot_products = cos(vec_des, vec_input)
+            dot_products = cos(inserted_vec_des, vec_input)
             dropped_results.append(dot_products)
 
         sp_scores = torch.stack(dropped_results)
