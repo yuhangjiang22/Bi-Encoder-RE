@@ -171,7 +171,6 @@ class BEFRE(PreTrainedModel):
             loss_fct = CrossEntropyLoss()
             CEloss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
             loss = 150 * CEloss + CTloss
-
             return loss
         else:
             return scores
