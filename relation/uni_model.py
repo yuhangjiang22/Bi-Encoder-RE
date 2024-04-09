@@ -184,30 +184,31 @@ class BEFRE(PreTrainedModel):
             dot_products = cos(vec_des, vec_input)
             results.append(dot_products)
 
-        dropped_results = []
-        for i in range(batch_size):
-
-            vec_input = rep[i]
-
-            similar_vec_input = rep_2[i]
-            label = labels[i]
-            vec_des = des_rep[i * num_types:(i + 1) * num_types]
-
-            inserted_vec_des = torch.cat((vec_des[:label], similar_vec_input.unsqueeze(0), vec_des[label+1:]), dim=0)
-            # Calculate the dot product of each input rep with description rep
-            cos = nn.CosineSimilarity(dim=-1)
-            # dot_products = torch.matmul(vec_des, vec_input)
-            dot_products = cos(inserted_vec_des, vec_input)
-            dropped_results.append(dot_products)
-
-        sp_scores = torch.stack(dropped_results)
-        sp_scores = self.sp_logit_scale.exp() * sp_scores
 
         scores = torch.stack(results)
         scores = self.logit_scale.exp() * scores
         logits = self.classifier(rep)
 
         if labels is not None:
+            dropped_results = []
+            for i in range(batch_size):
+                vec_input = rep[i]
+
+                similar_vec_input = rep_2[i]
+                label = labels[i]
+                vec_des = des_rep[i * num_types:(i + 1) * num_types]
+
+                inserted_vec_des = torch.cat((vec_des[:label], similar_vec_input.unsqueeze(0), vec_des[label + 1:]),
+                                             dim=0)
+                # Calculate the dot product of each input rep with description rep
+                cos = nn.CosineSimilarity(dim=-1)
+                # dot_products = torch.matmul(vec_des, vec_input)
+                dot_products = cos(inserted_vec_des, vec_input)
+                dropped_results.append(dot_products)
+
+            sp_scores = torch.stack(dropped_results)
+            sp_scores = self.sp_logit_scale.exp() * sp_scores
+
             CTloss = contrastive_loss(scores, labels)
             SPloss = contrastive_loss(sp_scores, labels)
 
