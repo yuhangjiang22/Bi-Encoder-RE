@@ -1041,6 +1041,4 @@ if __name__ == "__main__":
                         help="Use multi-descriptions or not.")
 
     args = parser.parse_args()
-    print('lr: ', args.learning_rate)
-    print('batch size: ', args.train_batch_size)
     main(args)
