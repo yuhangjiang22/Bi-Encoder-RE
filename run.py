@@ -30,7 +30,6 @@ config = BEFREConfig(
 )
 
 model = BEFRE(config)
-print(model.description_encoder.state_dict()['embeddings.word_embeddings.weight'].size())
 
 CLS = "[CLS]"
 SEP = "[SEP]"
@@ -68,31 +67,19 @@ class InputFeatures(object):
         self.descriptions_sub_idx = descriptions_sub_idx
         self.descriptions_obj_idx = descriptions_obj_idx
 
-
-# class InputFeatures(object):
-#     """A single set of features of data."""
-#
-#     def __init__(self, input_ids, input_mask, segment_ids, label_id, sub_idx, obj_idx):
-#         self.input_ids = input_ids
-#         self.input_mask = input_mask
-#         self.segment_ids = segment_ids
-#         self.label_id = label_id
-#         self.sub_idx = sub_idx
-#         self.obj_idx = obj_idx
-
-def add_marker_tokens(tokenizer, ner_labels):
-    new_tokens = ['<SUBJ_START>', '<SUBJ_END>', '<OBJ_START>', '<OBJ_END>']
-    for label in ner_labels:
-        new_tokens.append('<SUBJ_START=%s>' % label)
-        new_tokens.append('<SUBJ_END=%s>' % label)
-        new_tokens.append('<OBJ_START=%s>' % label)
-        new_tokens.append('<OBJ_END=%s>' % label)
-    for label in ner_labels:
-        new_tokens.append('<SUBJ=%s>' % label)
-        new_tokens.append('<OBJ=%s>' % label)
-    new_tokens = [token.lower() for token in new_tokens]
-    tokenizer.add_tokens(new_tokens)
-    logger.info('# vocab after adding markers: %d' % len(tokenizer))
+# def add_marker_tokens(tokenizer, ner_labels):
+#     new_tokens = ['<SUBJ_START>', '<SUBJ_END>', '<OBJ_START>', '<OBJ_END>']
+#     for label in ner_labels:
+#         new_tokens.append('<SUBJ_START=%s>' % label)
+#         new_tokens.append('<SUBJ_END=%s>' % label)
+#         new_tokens.append('<OBJ_START=%s>' % label)
+#         new_tokens.append('<OBJ_END=%s>' % label)
+#     for label in ner_labels:
+#         new_tokens.append('<SUBJ=%s>' % label)
+#         new_tokens.append('<OBJ=%s>' % label)
+#     new_tokens = [token.lower() for token in new_tokens]
+#     tokenizer.add_tokens(new_tokens)
+#     logger.info('# vocab after adding markers: %d' % len(tokenizer))
 
 
 id2description = {0: ["there are no relations between the compound @subject@ and gene @object@ .",
@@ -500,7 +487,7 @@ label2id = {label: i for i, label in enumerate(label_list)}
 id2label = {i: label for i, label in enumerate(label_list)}
 num_labels = len(label_list)
 
-add_marker_tokens(tokenizer, task_ner_labels['chemprot_5'])
+# add_marker_tokens(tokenizer, task_ner_labels['chemprot_5'])
 add_description_words(tokenizer, tokenized_id2description)
 model.input_encoder.resize_token_embeddings(len(tokenizer))
 model.description_encoder.resize_token_embeddings(len(tokenizer))
