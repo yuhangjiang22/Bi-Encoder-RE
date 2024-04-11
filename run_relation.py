@@ -565,7 +565,7 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
         input_ids = input_ids.to(device)
         input_mask = input_mask.to(device)
         segment_ids = segment_ids.to(device)
-        # label_ids = label_ids.to(device)
+        label_ids = label_ids.to(device)
         sub_idx = sub_idx.to(device)
         obj_idx = obj_idx.to(device)
 
@@ -595,6 +595,9 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
                            descriptions_sub_idx=descriptions_sub_idx,
                            descriptions_obj_idx=descriptions_obj_idx,
                            return_dict=True)
+
+            print('scores: ', scores)
+            print('labels: ', label_ids, '\n')
 
         # loss_fct = CrossEntropyLoss()
         # tmp_eval_loss = loss_fct(logits.view(-1, num_labels), label_ids.view(-1))
