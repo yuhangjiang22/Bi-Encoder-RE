@@ -12,7 +12,7 @@ task_rel_labels = {
     'scierc': ['PART-OF', 'USED-FOR', 'FEATURE-OF', 'CONJUNCTION', 'EVALUATE-FOR', 'HYPONYM-OF', 'COMPARE'],
     'chemprot': ['UPREGULATOR', 'ACTIVATOR', 'INDIRECT-UPREGULATOR',
                  'DOWNREGULATOR', 'INHIBITOR', 'INDIRECT-DOWNREGULATOR',
-                 'AGONIST', 'AGONIST-ACTIVATOR', 'AGONIST-INHIBITOR'
+                 'AGONIST', 'AGONIST-ACTIVATOR', 'AGONIST-INHIBITOR',
                  'ANTAGONIST',
                  'SUBSTRATE', 'PRODUCT-OF', 'SUBSTRATE_PRODUCT-OF'],
     'chemprot_5': ['CPR:3', 'CPR:4', 'CPR:5', 'CPR:6', 'CPR:9']
