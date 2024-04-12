@@ -565,7 +565,7 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
     # eval_loss = 0
     nb_eval_steps = 0
     preds = []
-    reps = []
+    reps = torch.tensor([])
     for input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx in eval_dataloader:
         input_ids = input_ids.to(device)
         input_mask = input_mask.to(device)
@@ -601,7 +601,7 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
                            descriptions_obj_idx=descriptions_obj_idx,
                            return_dict=True)
 
-        reps.append(rep)
+        reps = torch.cat((reps, rep), dim=0)
         nb_eval_steps += 1
         if len(preds) == 0:
             preds.append(scores.detach().cpu().numpy())
@@ -616,7 +616,7 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
     result = compute_f1(preds, eval_label_ids.numpy(), e2e_ngold=e2e_ngold)
     result['accuracy'] = simple_accuracy(preds, eval_label_ids.numpy())
     # result['eval_loss'] = eval_loss
-    reps = torch.stack(reps).numpy()
+    reps = reps.numpy()
     labels = eval_label_ids.numpy()
 
     tsne = TSNE(n_components=2, random_state=0)  # n_components=2 for 2D visualization
