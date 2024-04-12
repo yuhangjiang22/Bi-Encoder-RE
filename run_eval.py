@@ -565,7 +565,7 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
     # eval_loss = 0
     nb_eval_steps = 0
     preds = []
-    reps = torch.tensor([])
+    reps = torch.tensor([]).to(device)
     for input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx in eval_dataloader:
         input_ids = input_ids.to(device)
         input_mask = input_mask.to(device)
