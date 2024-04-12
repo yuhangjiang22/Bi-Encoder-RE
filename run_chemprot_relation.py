@@ -494,8 +494,6 @@ def main(args):
     label2id = {label: i for i, label in enumerate(label_list)}
     id2label = {i: label for i, label in enumerate(label_list)}
     num_labels = len(label_list)
-    print(task_rel_labels)
-    print(label2id)
 
     config = BEFREConfig(
         pretrained_model_name_or_path=args.model,
