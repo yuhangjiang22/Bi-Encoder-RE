@@ -162,21 +162,21 @@ class BEFRE(PreTrainedModel):
             dot_products = torch.matmul(vec_des, vec_input)
             results.append(dot_products)
 
-        scores = torch.stack(results)
-        scores = self.logit_scale.exp() * scores
+        # scores = torch.stack(results)
+        # scores = self.logit_scale.exp() * scores
         logits = self.classifier(rep)
 
-        des_logits = self.classifier(des_rep)
+        # des_logits = self.classifier(des_rep)
         if labels is not None:
-            CTloss = contrastive_loss(scores, labels)
+            # CTloss = contrastive_loss(scores, labels)
             loss_fct = CrossEntropyLoss()
             CEloss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            des_labels = torch.tensor([0, 1, 2, 3, 4, 5]).repeat(batch_size).to(device)
-            des_CEloss = loss_fct(des_logits.view(-1, self.num_labels), des_labels.view(-1))
+            # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            # des_labels = torch.tensor([0, 1, 2, 3, 4, 5]).repeat(batch_size).to(device)
+            # des_CEloss = loss_fct(des_logits.view(-1, self.num_labels), des_labels.view(-1))
 
-            loss = 150 * (CEloss + des_CEloss) + CTloss
-
+            # loss = 150 * (CEloss + des_CEloss) + CTloss
+            loss = CEloss
             return loss
         else:
-            return scores
+            return logits
