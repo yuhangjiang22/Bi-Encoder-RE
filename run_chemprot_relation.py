@@ -28,44 +28,31 @@ from shared.const import task_rel_labels, task_ner_labels
 from relation.befre import BEFRE, BEFREConfig
 from relation.unified_model import BEFRE, BEFREConfig
 
-id2description = {0: ["there are no relations between the compound @subject@ and gene @object@ .",],
-                  1: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+id2description = {0: [" there are no relations between the compound @subject@ and gene @object@ .",],
+                  1: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
                       "upregulator in its interactions . ",
                       ],
                   2: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an activator in its interactions . "],
                   3: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an indirect upregulator in its interactions . "],
 
                   4: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
-                      "downregulator , inhibitor , or indirect downregulator in its interactions .",
-                      "@subject@ interacts with the gene @object@ , resulting in a decrease in the gene's "
-                      "activity or expression . This interaction can occur through direct inhibition , acting as a "
-                      "downregulator , or through indirect means , where the compound causes a reduction in the gene's "
-                      "function or expression without directly binding to it . Such mechanisms are crucial in "
-                      "understanding genetic regulation and can have significant implications in fields like "
-                      "pharmacology and gene therapy ."
+                      "downregulator in its interactions .",
                       ],
-                  3: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-                      "agonist , agonist activator , or agonist inhibitor in its interactions .",
-                      "@subject@ interacts with the gene @object@ in a manner that modulates its activity positively ( "
-                      "as an agonist or agonist activator ) or negatively ( as an agonist inhibitor ) . An agonist "
-                      "interaction typically increases the gene's activity or the activity of proteins expressed by "
-                      "the gene , whereas an agonist activator enhances this effect further . Conversely , an agonist "
-                      "inhibitor would paradoxically bind in a manner that initially mimics an agonist's action but "
-                      "ultimately inhibits the gene's activity or its downstream effects ."
+                  5: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an inhibitor in its interactions . "],
+                  6: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an indirect downregulator in its interactions . "],
+                  7: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+                      "agonist in its interactions .",
                       ],
-                  4: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+                  8: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an agonist activator in its interactions . "],
+                  9: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an agonist inhibitor in its interactions . "],
+                  10: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
                       "antagonist in its interactions .",
-                      "@subject@ interacts with the gene @object@ by acting as an antagonist . This means that the "
-                      "compound blocks or diminishes the gene's normal activity or the activity of the protein product "
-                      "expressed by the gene . Antagonist interactions are significant in the regulation of biological "
-                      "pathways and have wide-ranging implications in therapeutic interventions , where they can be "
-                      "used to modulate the effects of genes involved in disease processes ."
                       ],
-                  5: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
-                      "substrate , product of, or substrate product of in its interactions .",
-                      "@subject@ engages with the gene @object@ in a manner where it acts as a substrate , is a product"
-                      "of, or both a substrate and product within the gene's associated biochemical pathways ."
-                      ]}
+                  11: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
+                      "substrate in its interactions .",
+                      ],
+                  12: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a product of in its interactions . "],
+                  13: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a substrate product of in its interactions . "],}
 
 # id2description = {0: "there are no relations between the compound @subject@ and gene @object@ .",
 #                   1: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
