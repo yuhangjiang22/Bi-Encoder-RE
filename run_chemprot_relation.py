@@ -495,6 +495,8 @@ def main(args):
     id2label = {i: label for i, label in enumerate(label_list)}
     num_labels = len(label_list)
 
+    print(label2id)
+
     config = BEFREConfig(
         pretrained_model_name_or_path=args.model,
         cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE),
