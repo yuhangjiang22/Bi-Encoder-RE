@@ -155,7 +155,8 @@ class BEFRE(PreTrainedModel):
             vec_des = des_rep[i * num_types:(i + 1) * num_types]
 
             # Calculate the dot product of each input rep with description rep
-            dot_products = torch.matmul(vec_des, vec_input)
+            cos = nn.CosineSimilarity(dim=-1)
+            dot_products = cos(vec_des, vec_input)
             results.append(dot_products)
 
         scores = torch.stack(results)
@@ -163,8 +164,6 @@ class BEFRE(PreTrainedModel):
 
         if labels is not None:
             loss = contrastive_loss(scores, labels)
-            # loss_fct = CrossEntropyLoss()
-            # loss = loss_fct(scores, labels)
             return loss
         else:
             return scores
