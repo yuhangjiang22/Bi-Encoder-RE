@@ -596,9 +596,6 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
                            descriptions_obj_idx=descriptions_obj_idx,
                            return_dict=True)
 
-            print('scores: ', scores)
-            print('labels: ', label_ids, '\n')
-
         # loss_fct = CrossEntropyLoss()
         # tmp_eval_loss = loss_fct(logits.view(-1, num_labels), label_ids.view(-1))
         # eval_loss += tmp_eval_loss.mean().item()

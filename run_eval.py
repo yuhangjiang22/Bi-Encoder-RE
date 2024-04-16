@@ -618,6 +618,7 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
     # result['eval_loss'] = eval_loss
     reps = reps.detach().cpu().numpy()
     labels = eval_label_ids.numpy()
+    pre_labels = preds.numpy()
 
     tsne = TSNE(n_components=2, random_state=0)  # n_components=2 for 2D visualization
     tsne_results = tsne.fit_transform(reps)
@@ -632,7 +633,23 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
     plt.title('t-SNE Visualization of the Tensor Data')
     plt.xlabel('t-SNE Component 1')
     plt.ylabel('t-SNE Component 2')
-    plt.savefig(args.output_dir + '/tsne_visualization.png')
+    plt.savefig(args.output_dir + '/tsne_visualization_gold.png')
+
+    tsne = TSNE(n_components=2, random_state=0)  # n_components=2 for 2D visualization
+    tsne_results = tsne.fit_transform(reps)
+    # Plotting the results
+    plt.figure(figsize=(10, 8))
+    colors = ['red', 'green', 'blue', 'cyan', 'magenta', 'yellow']  # Colors for labels 0 to 5
+
+    for i in range(6):  # Loop over the labels
+        mask = pre_labels == i
+        plt.scatter(tsne_results[mask, 0], tsne_results[mask, 1], c=colors[i], label=f'Label {i}', alpha=0.5)
+
+    plt.legend()
+    plt.title('t-SNE Visualization of the Tensor Data')
+    plt.xlabel('t-SNE Component 1')
+    plt.ylabel('t-SNE Component 2')
+    plt.savefig(args.output_dir + '/tsne_visualization_pred.png')
 
     return preds, result
 
