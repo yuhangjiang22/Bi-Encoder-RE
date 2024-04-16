@@ -28,37 +28,76 @@ from shared.const import task_rel_labels, task_ner_labels
 from relation.befre import BEFRE, BEFREConfig
 from relation.unified_model import BEFRE, BEFREConfig
 
-id2description = {0: [" there are no relations between the compound @subject@ and gene @object@ .",],
-                  1: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-                      "upregulator in its interactions . ",
-                      ],
-                  2: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an activator in its interactions . "],
-                  3: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an indirect upregulator in its interactions . "],
+id2description = {
+    'drug-disease': {
+        0: ['there are no relations between the drug @durg@ and disease @disease@ .',],
+        1: ['the drug @drug@ may induce the disease @disease@, increase its risk, or the levels may correlate with '
+            'disease risk .'],
+        2: ['the drug @drug@ is able to treat the disease @disease@ or decrease its susceptibility .'],
+        3: ['the drug @drug@ is found to affect the disease @disease@ but not clearly identified as positive or '
+            'negative correlations . '],
+    },
+    'gene-disease': {
+        0: ['there are no relations between the disease @disease@ and gene @gene@ .',],
+        1: ['overexpression or side effects of the gene @gene@ may cause the disease @disease@ .'],
+        2: ['the proteins from the gene @gene@ used as drugs may treat the disease @disease@ or the absence may '
+            'cause diseases .'],
+        3: ['the functional gene @gene@ prevents disease @disease@ or other association relationships .' ],
+    },
+    'variant-disease': {
+        0: ['there are no relations between the disease @disease@ and variant @variant@ .',],
+        1: ['the variant @variant@ may increase disease @disease@ risk, contribute to disease susceptibility, '
+            'or cause protein deficiencies leading to diseases .'],
+        2: ['the variant @variant@ may increase disease @disease@ risk .'],
+        3: ['the variant @variant@ associated with the disease @disease@ prevalence and which that cannot be '
+            'categorized as causing the disease . '],
+    },
+    'gene-gene': {
+        0: ['there are no relations between the gene @gene@ and gene @gene@ .'],
+        1: ['the gene @gene@ and gene @gene@ may show positive correlations in expression or regulatory functions .'],
+        2: ['the gene @gene@ and gene @gene@ may show negative correlations in expression or regulatory functions .'],
+        3: ['associations between gene @gene@ and gene @gene@ that cannot be categorized differently .'],
+        4: ['there are physical interactions between proteins from gene @gene@ and gene @gene@, including protein '
+            'binding at gene promoters .']
+    },
+    'gene-drug': {
+        0: ['there are no relations between the drug @drug@ and gene @gene@ .'],
+        1: ['the drug @drug@ may cause higher expression of gene @gene@ or gene variants may trigger chemical adverse '
+            'effects .'],
+        2: ['the drug @drug@ may cause lower expression of gene @gene@ or gene variants may confer resistance to '
+            'chemicals .'],
+        3: ['there are non-specific associations and binding interactions between the drug @drug@ and gene @gene@ '
+            'promoters .'],
+        4: ['there are relations between the gene @gene@ and the drug @drug@ such that the drug binds the promoter of '
+            'a gene, or the protein from the gene is the drug receptor .'],
+    },
+    'drug-drug': {
+        0: ['there are no relations between the drug @drug@ and drug @drug@ .'],
+        1: ['the drug @drug@ may increase the sensitivity or effectiveness of drug @drug@ or vice versa .'],
+        2: ['the drug @drug@ may decrease the sensitivity or side effects of drug @drug@ or vice versa .'],
+        3: ['there are chemical conversions or non-specific associations between drug @drug@ and drug @drug@ .'],
+        5: ['there are pharmacodynamic interactions between the drug @drug@ and drug @drug@ .'],
+        6: ['the drug combination therapy using both drug @drug@ and drug @drug@ .'],
+        7: ['there is a comparison relation between drug @drug@ and drug @drug@ .'],
+        8: ['the drug @drug@ may convert to drug @drug@ or vice versa .'],
+    },
+    'drug-variant': {
+        0: ['there are no relations between the drug @drug@ and variant @variant@ .'],
+        1: ['the drug @drug@ may cause higher expression of a gene variant @variant@ or increase sensitivity due to a '
+            'variant .'],
+        2: ['the drug @drug@ may decrease gene expression due to the variant @variant@ or the variant may confer '
+            'resistance .'],
+        3: ['there are association relationships not defined between the variant @variant@ and the drug @drug@, '
+            'like variant on chemical binding sites .']
+    },
+    'variant-variant': {
+        0: ['there are no relations between the variant @variant@ and variant @variant@ .'],
+        3: ['there is a association relation between the variant @variant@ and variant @variant@ .']
+    }
+}
 
-                  4: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
-                      "downregulator in its interactions .",
-                      ],
-                  5: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an inhibitor in its interactions . "],
-                  6: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an indirect downregulator in its interactions . "],
 
-                  7: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-                      "agonist in its interactions .",
-                      ],
-                  8: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an agonist activator in its interactions . "],
-                  9: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an agonist inhibitor in its interactions . "],
-
-                  10: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-                      "antagonist in its interactions .",
-                      ],
-
-                  11: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
-                      "substrate in its interactions .",
-                      ],
-                  12: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a product of in its interactions . "],
-                  13: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a substrate product of in its interactions . "],}
-
-
-tokenized_id2description = {key: [s.lower().split() for s in value] for key, value in id2description.items()}
+tokenized_id2description = {pair: {key: [s.lower().split() for s in value] for key, value in dic.items()} for pair, dic in id2description.items()}
 
 def add_description_words(tokenizer, tokenized_id2description):
     unk_words = []
@@ -120,9 +159,8 @@ def add_marker_tokens(tokenizer, ner_labels):
     tokenizer.add_tokens(new_tokens)
     logger.info('# vocab after adding markers: %d' % len(tokenizer))
 
-
 def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, special_tokens,
-                                 tokenized_id2description, unused_tokens=False, multiple_descriptions=False):
+                                 tokenized_id2description, unused_tokens=False):
     """
     Loads a data file into a list of `InputBatch`s.
     unused_tokens: whether use [unused1] [unused2] as special tokens
@@ -231,43 +269,15 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         descriptions_sub_idx = []
         descriptions_obj_idx = []
 
-        if not multiple_descriptions:
+        for _, description_tokens_list in tokenized_id2description.items():
 
-            for _, description_tokens_list in tokenized_id2description.items():
+            # description_tokens = random.choice(description_tokens_list)
+            description_tokens = description_tokens_list[0]
+            description_input_ids, description_input_mask, description_type_ids = get_description_input(description_tokens)
 
-                # description_tokens = random.choice(description_tokens_list)
-                description_tokens = description_tokens_list[0]
-                description_input_ids, description_input_mask, description_type_ids = get_description_input(description_tokens)
-
-                descriptions_input_ids.append(description_input_ids)
-                descriptions_input_mask.append(description_input_mask)
-                descriptions_type_ids.append(description_type_ids)
-
-
-
-        else:
-            for label, description_tokens_list in tokenized_id2description.items():
-                if label == label_id:
-                    description_label_id = len(descriptions_input_ids)
-                    description_tokens = description_tokens_list[0]
-                    description_input_ids, description_input_mask, description_type_ids = get_description_input(
-                        description_tokens)
-
-                    descriptions_input_ids.append(description_input_ids)
-                    descriptions_input_mask.append(description_input_mask)
-                    descriptions_type_ids.append(description_type_ids)
-                else:
-
-                    for description_tokens in description_tokens_list:
-                        description_input_ids, description_input_mask, description_type_ids = get_description_input(
-                            description_tokens)
-
-                        descriptions_input_ids.append(description_input_ids)
-                        descriptions_input_mask.append(description_input_mask)
-                        descriptions_type_ids.append(description_type_ids)
-
-
-
+            descriptions_input_ids.append(description_input_ids)
+            descriptions_input_mask.append(description_input_mask)
+            descriptions_type_ids.append(description_type_ids)
 
         if num_shown_examples < 20:
             if (ex_index < 5) or (label_id > 0):
@@ -282,8 +292,6 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                 logger.info("label: %s (id = %d)" % (example['relation'], label_id))
                 logger.info("sub_idx, obj_idx: %d, %d" % (sub_idx, obj_idx))
 
-        if multiple_descriptions:
-            label_id = description_label_id
         features.append(
             InputFeatures(input_ids=input_ids,
                           input_mask=input_mask,
@@ -305,7 +313,6 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
 
 def simple_accuracy(preds, labels):
     return (preds == labels).mean()
-
 
 def compute_f1(preds, labels, e2e_ngold):
     n_gold = n_pred = n_correct = 0
@@ -333,7 +340,6 @@ def compute_f1(preds, labels, e2e_ngold):
             e2e_recall = e2e_f1 = 0.0
         return {'precision': prec, 'recall': e2e_recall, 'f1': e2e_f1, 'task_recall': recall, 'task_f1': f1,
                 'n_correct': n_correct, 'n_pred': n_pred, 'n_gold': e2e_ngold, 'task_ngold': n_gold}
-
 
 def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_size, seq_len, e2e_ngold=None):
     model.eval()
@@ -397,7 +403,6 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
 
     return preds, result
 
-
 def print_pred_json(eval_data, eval_examples, preds, id2label, output_file):
     rels = dict()
     for ex, pred in zip(eval_examples, preds):
@@ -417,7 +422,6 @@ def print_pred_json(eval_data, eval_examples, preds, id2label, output_file):
     logger.info('Output predictions to %s..' % (output_file))
     with open(output_file, 'w') as f:
         f.write('\n'.join(json.dumps(doc) for doc in js))
-
 
 def setseed(seed):
     random.seed(seed)
@@ -441,13 +445,20 @@ def main(args):
     #     args.add_new_tokens = True
     # else:
     #     RelationModel = BertForRelation
-    if args.train_pure:
-        from relation.testing_model import BEFRE, BEFREConfig
+    if args.train_befre:
+        from relation.befre import BEFRE, BEFREConfig
     else:
         # from relation.testing_model import BEFRE, BEFREConfig
         from relation.unified_model import BEFRE, BEFREConfig
         # from relation.uni_model import BEFRE, BEFREConfig
 
+    config = BEFREConfig(
+        pretrained_model_name_or_path=args.model,
+        cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE),
+        revision=None,
+        use_auth_token=True,
+        hidden_dropout_prob=args.drop_out,
+    )
     setseed(args.seed)
 
     device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
@@ -494,15 +505,6 @@ def main(args):
     label2id = {label: i for i, label in enumerate(label_list)}
     id2label = {i: label for i, label in enumerate(label_list)}
     num_labels = len(label_list)
-
-    config = BEFREConfig(
-        pretrained_model_name_or_path=args.model,
-        cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE),
-        revision=None,
-        use_auth_token=True,
-        hidden_dropout_prob=args.drop_out,
-        num_labels=num_labels,
-    )
 
     tokenizer = AutoTokenizer.from_pretrained(args.model, do_lower_case=args.do_lower_case)
     add_description_words(tokenizer, tokenized_id2description)
@@ -608,6 +610,8 @@ def main(args):
 
         lr = args.learning_rate
         model = BEFRE(config)
+        # model = RelationModel.from_pretrained(
+        #     args.model, cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE), num_rel_labels=num_labels)
 
         model.to(device)
         if n_gpu > 1:
@@ -735,7 +739,7 @@ def main(args):
             eval_dataloader = DataLoader(eval_data, batch_size=args.eval_batch_size)
             eval_label_ids = all_label_ids
 
-        model = BEFRE.from_pretrained(args.output_dir, num_labels=num_labels)
+        model = BEFRE.from_pretrained(args.output_dir)
         model.to(device)
         preds, result = evaluate(model=model,
                                  device=device,
@@ -805,14 +809,14 @@ if __name__ == "__main__":
                         help="The prediction filename for the relation model")
 
     parser.add_argument('--task', type=str, default=None, required=True,
-                        choices=['ace04', 'ace05', 'scierc', 'chemprot', 'chemprot_5'])
+                        choices=['ace04', 'ace05', 'scierc', 'chemprot_5'])
     parser.add_argument('--context_window', type=int, default=0)
 
     parser.add_argument('--add_new_tokens', action='store_true',
                         help="Whether to add new tokens as marker tokens instead of using [unusedX] tokens.")
     parser.add_argument('--train_num_examples', type=int, default=None,
                         help="How many training instances to train")
-    parser.add_argument('--train_pure', action='store_true',
+    parser.add_argument('--train_befre', action='store_true',
                         help="Train PURE of BEFRE.")
     parser.add_argument('--drop_out', type=float, default=0.1,
                         help="hidden drop out rate.")
