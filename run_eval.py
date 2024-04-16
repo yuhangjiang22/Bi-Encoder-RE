@@ -618,7 +618,7 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
     # result['eval_loss'] = eval_loss
     reps = reps.detach().cpu().numpy()
     labels = eval_label_ids.numpy()
-    pre_labels = preds.numpy()
+    pre_labels = preds
 
     tsne = TSNE(n_components=2, random_state=0)  # n_components=2 for 2D visualization
     tsne_results = tsne.fit_transform(reps)
