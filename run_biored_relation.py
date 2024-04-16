@@ -739,7 +739,7 @@ def main(args):
             eval_dataloader = DataLoader(eval_data, batch_size=args.eval_batch_size)
             eval_label_ids = all_label_ids
 
-        model = BEFRE.from_pretrained(args.output_dir)
+        model = BEFRE.from_pretrained(args.output_dir, num_labels=num_labels)
         model.to(device)
         preds, result = evaluate(model=model,
                                  device=device,
