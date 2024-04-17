@@ -145,12 +145,14 @@ class BEFRE(PreTrainedModel):
         rep = self.dropout(rep)
 
         cls_rep = sequence_output[0].unsqueeze(0)
+        cls_rep = cls_rep.repeat_interleave(num_types, dim=0)
 
         des_sub_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(description_sequence_output, descriptions_sub_idx)])
         des_obj_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(description_sequence_output, descriptions_obj_idx)])
         des_rep = torch.cat((des_sub_output, des_obj_output), dim=1)
         des_rep = torch.cat((des_rep, cls_rep), dim=1)
         des_rep = self.des_linear(des_rep)
+
         des_rep = self.layer_norm(des_rep)
         des_rep = self.dropout(des_rep)
 
