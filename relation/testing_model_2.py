@@ -145,7 +145,7 @@ class BEFRE(PreTrainedModel):
         rep = self.layer_norm(rep)
         rep = self.dropout(rep)
 
-        cls_rep = sequence_output[0].unsqueeze(0)
+        cls_rep = torch.cat([a[0].unsqueeze(0) for a in sequence_output])
         cls_rep = cls_rep.repeat_interleave(num_types, dim=0)
         print(cls_rep.size())
 
