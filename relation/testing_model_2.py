@@ -184,7 +184,7 @@ class BEFRE(PreTrainedModel):
             loss = 0.5 * CEloss + 0.5 * CTloss
             return loss
         else:
-            return scores, rep
+            return scores
 
 
 
