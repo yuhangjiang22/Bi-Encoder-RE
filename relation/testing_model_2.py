@@ -59,7 +59,7 @@ class BEFRE(PreTrainedModel):
         self.hf_config = hf_config
         self.config.pruned_heads = hf_config.pruned_heads
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        self.layer_norm = BertLayerNorm(hf_config.hidden_size * 2)
+        self.layer_norm = BertLayerNorm(2048)
         self.logit_scale = torch.nn.Parameter(torch.ones([]) * np.log(1 / config.init_temperature))
         self.post_init()
         self.num_labels = config.num_labels
@@ -151,7 +151,6 @@ class BEFRE(PreTrainedModel):
         des_rep = torch.cat((des_sub_output, des_obj_output), dim=1)
         des_rep = torch.cat((des_rep, cls_rep), dim=1)
         des_rep = self.des_linear(des_rep)
-
         des_rep = self.layer_norm(des_rep)
         des_rep = self.dropout(des_rep)
 
