@@ -524,8 +524,8 @@ def main(args):
     #     args.add_new_tokens = True
     # else:
     #     RelationModel = BertForRelation
-    if args.train_befre:
-        from relation.befre import BEFRE, BEFREConfig
+    if args.train_pure:
+        from relation.testing_model import BEFRE, BEFREConfig
     else:
         # from relation.testing_model import BEFRE, BEFREConfig
         from relation.unified_model import BEFRE, BEFREConfig
