@@ -5,7 +5,6 @@ task_ner_labels = {
     'chemprot': ['CHEMICAL', 'GENE'],
     'chemprot_5': ['CHEMICAL', 'GENE'],
     'biored': ['DiseaseOrPhenotypicFeature', 'SequenceVariant', 'GeneOrGeneProduct', 'ChemicalEntity']
-
 }
 
 task_rel_labels = {

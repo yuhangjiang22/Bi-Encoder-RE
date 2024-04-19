@@ -639,7 +639,7 @@ def main(args):
     if args.do_train:
         train_features = convert_examples_to_features(
             train_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
-            unused_tokens=not (args.add_new_tokens), multiple_descriptions=args.multi_descriptions)
+            unused_tokens=not (args.add_new_tokens))
         if args.train_mode == 'sorted' or args.train_mode == 'random_sorted':
             train_features = sorted(train_features, key=lambda f: np.sum(f.input_mask))
         else:
@@ -901,8 +901,6 @@ if __name__ == "__main__":
                         help="Train PURE of BEFRE.")
     parser.add_argument('--drop_out', type=float, default=0.1,
                         help="hidden drop out rate.")
-    parser.add_argument('--multi_descriptions', action='store_true',
-                        help="Use multi-descriptions or not.")
 
     args = parser.parse_args()
     main(args)
