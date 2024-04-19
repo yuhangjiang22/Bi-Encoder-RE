@@ -897,8 +897,8 @@ if __name__ == "__main__":
                         help="Whether to add new tokens as marker tokens instead of using [unusedX] tokens.")
     parser.add_argument('--train_num_examples', type=int, default=None,
                         help="How many training instances to train")
-    parser.add_argument('--train_befre', action='store_true',
-                        help="Train PURE of BEFRE.")
+    parser.add_argument('--train_pure', action='store_true',
+                        help="Train PURE.")
     parser.add_argument('--drop_out', type=float, default=0.1,
                         help="hidden drop out rate.")
 
