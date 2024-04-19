@@ -29,70 +29,126 @@ from relation.befre import BEFRE, BEFREConfig
 from relation.unified_model import BEFRE, BEFREConfig
 
 id2description = {
-    'drug-disease': {
-        0: ['there are no relations between the drug @durg@ and disease @disease@ .',],
-        1: ['the drug @drug@ may induce the disease @disease@, increase its risk, or the levels may correlate with '
-            'disease risk .'],
-        2: ['the drug @drug@ is able to treat the disease @disease@ or decrease its susceptibility .'],
-        3: ['the drug @drug@ is found to affect the disease @disease@ but not clearly identified as positive or '
-            'negative correlations . '],
+    'ChemicalEntity-DiseaseOrPhenotypicFeature': {
+        0: ['there are no relations between the drug @ChemicalEntity@ and disease @DiseaseOrPhenotypicFeature@ .',],
+        1: ['the drug @ChemicalEntity@ may induce the disease @DiseaseOrPhenotypicFeature@ , increase its risk, '
+            'or the levels may'
+            'correlate with disease risk .'],
+        2: ['the drug @ChemicalEntity@ is able to treat the disease @DiseaseOrPhenotypicFeature@ or decrease its '
+            'susceptibility .'],
+        3: ['the drug @ChemicalEntity@ is found to affect the disease @DiseaseOrPhenotypicFeature@ but not clearly '
+            'identified as'
+            'positive or negative correlations . '],
+        4: [''],
+        5: [''],
+        6: [''],
+        7: [''],
+        8: [''],
     },
-    'gene-disease': {
-        0: ['there are no relations between the disease @disease@ and gene @gene@ .',],
-        1: ['overexpression or side effects of the gene @gene@ may cause the disease @disease@ .'],
-        2: ['the proteins from the gene @gene@ used as drugs may treat the disease @disease@ or the absence may '
+    'GeneOrGeneProduct-DiseaseOrPhenotypicFeature': {
+        0: ['there are no relations between the disease @DiseaseOrPhenotypicFeature@ and gene @GeneOrGeneProduct@ .',],
+        1: ['overexpression or side effects of the gene @GeneOrGeneProduct@ may cause the disease '
+            '@DiseaseOrPhenotypicFeature@ .'],
+        2: ['the proteins from the gene @GeneOrGeneProduct@ used as drugs may treat the disease '
+            '@DiseaseOrPhenotypicFeature@ or the absence may'
             'cause diseases .'],
-        3: ['the functional gene @gene@ prevents disease @disease@ or other association relationships .' ],
+        3: ['the functional gene @GeneOrGeneProduct@ prevents disease @DiseaseOrPhenotypicFeature@ or other '
+            'association relationships .' ],
+        4: [''],
+        5: [''],
+        6: [''],
+        7: [''],
+        8: [''],
     },
-    'variant-disease': {
-        0: ['there are no relations between the disease @disease@ and variant @variant@ .',],
-        1: ['the variant @variant@ may increase disease @disease@ risk, contribute to disease susceptibility, '
+    'SequenceVariant-DiseaseOrPhenotypicFeature': {
+        0: ['there are no relations between the disease @DiseaseOrPhenotypicFeature@ and variant @SequenceVariant@ .',],
+        1: ['the variant @SequenceVariant@ may increase disease @DiseaseOrPhenotypicFeature@ risk, contribute to '
+            'disease susceptibility,'
             'or cause protein deficiencies leading to diseases .'],
-        2: ['the variant @variant@ may increase disease @disease@ risk .'],
-        3: ['the variant @variant@ associated with the disease @disease@ prevalence and which that cannot be '
+        2: ['the variant @SequenceVariant@ may increase disease @DiseaseOrPhenotypicFeature@ risk .'],
+        3: ['the variant @SequenceVariant@ associated with the disease @DiseaseOrPhenotypicFeature@ prevalence and '
+            'which that cannot be'
             'categorized as causing the disease . '],
+        4: [''],
+        5: [''],
+        6: [''],
+        7: [''],
+        8: [''],
     },
-    'gene-gene': {
-        0: ['there are no relations between the gene @gene@ and gene @gene@ .'],
-        1: ['the gene @gene@ and gene @gene@ may show positive correlations in expression or regulatory functions .'],
-        2: ['the gene @gene@ and gene @gene@ may show negative correlations in expression or regulatory functions .'],
-        3: ['associations between gene @gene@ and gene @gene@ that cannot be categorized differently .'],
-        4: ['there are physical interactions between proteins from gene @gene@ and gene @gene@, including protein '
-            'binding at gene promoters .']
+    'GeneOrGeneProduct-GeneOrGeneProduct': {
+        0: ['there are no relations between the gene @GeneOrGeneProduct@ and gene @GeneOrGeneProduct@ .'],
+        1: ['the gene @GeneOrGeneProduct@ and gene @GeneOrGeneProduct@ may show positive correlations in expression '
+            'or regulatory functions .'],
+        2: ['the gene @GeneOrGeneProduct@ and gene @GeneOrGeneProduct@ may show negative correlations in expression '
+            'or regulatory functions .'],
+        3: ['associations between gene @GeneOrGeneProduct@ and gene @GeneOrGeneProduct@ that cannot be categorized '
+            'differently .'],
+        4: ['there are physical interactions between proteins from gene @GeneOrGeneProduct@ and gene '
+            '@GeneOrGeneProduct@ , including protein'
+            'binding at gene promoters .'],
+        5: [''],
+        6: [''],
+        7: [''],
+        8: [''],
     },
-    'gene-drug': {
-        0: ['there are no relations between the drug @drug@ and gene @gene@ .'],
-        1: ['the drug @drug@ may cause higher expression of gene @gene@ or gene variants may trigger chemical adverse '
-            'effects .'],
-        2: ['the drug @drug@ may cause lower expression of gene @gene@ or gene variants may confer resistance to '
-            'chemicals .'],
-        3: ['there are non-specific associations and binding interactions between the drug @drug@ and gene @gene@ '
-            'promoters .'],
-        4: ['there are relations between the gene @gene@ and the drug @drug@ such that the drug binds the promoter of '
-            'a gene, or the protein from the gene is the drug receptor .'],
+    'GeneOrGeneProduct-ChemicalEntity': {
+        0: ['there are no relations between the drug @ChemicalEntity@ and gene @GeneOrGeneProduct@ .'],
+        1: ['the drug @ChemicalEntity@ may cause higher expression of gene @GeneOrGeneProduct@ or gene variants may '
+            'trigger'
+            'chemical adverse effects .'],
+        2: ['the drug @ChemicalEntity@ may cause lower expression of gene @GeneOrGeneProduct@ or gene variants may '
+            'confer'
+            'resistance to chemicals .'],
+        3: ['there are non-specific associations and binding interactions between the drug @ChemicalEntity@ and gene '
+            '@GeneOrGeneProduct@ promoters .'],
+        4: ['there are relations between the gene @GeneOrGeneProduct@ and the drug @ChemicalEntity@ such that the '
+            'drug binds the'
+            'promoter of a gene, or the protein from the gene is the drug receptor .'],
+        5: [''],
+        6: [''],
+        7: [''],
+        8: [''],
     },
-    'drug-drug': {
-        0: ['there are no relations between the drug @drug@ and drug @drug@ .'],
-        1: ['the drug @drug@ may increase the sensitivity or effectiveness of drug @drug@ or vice versa .'],
-        2: ['the drug @drug@ may decrease the sensitivity or side effects of drug @drug@ or vice versa .'],
-        3: ['there are chemical conversions or non-specific associations between drug @drug@ and drug @drug@ .'],
-        5: ['there are pharmacodynamic interactions between the drug @drug@ and drug @drug@ .'],
-        6: ['the drug combination therapy using both drug @drug@ and drug @drug@ .'],
-        7: ['there is a comparison relation between drug @drug@ and drug @drug@ .'],
-        8: ['the drug @drug@ may convert to drug @drug@ or vice versa .'],
+    'ChemicalEntity-ChemicalEntity': {
+        0: ['there are no relations between the drug @ChemicalEntity@ and drug @ChemicalEntity@ .'],
+        1: ['the drug @ChemicalEntity@ may increase the sensitivity or effectiveness of drug @ChemicalEntity@ or vice '
+            'versa .'],
+        2: ['the drug @ChemicalEntity@ may decrease the sensitivity or side effects of drug @ChemicalEntity@ or vice '
+            'versa .'],
+        3: ['there are chemical conversions or non-specific associations between drug @ChemicalEntity@ and drug '
+            '@ChemicalEntity@ .'],
+        4: [''],
+        5: ['there are pharmacodynamic interactions between the drug @ChemicalEntity@ and drug @ChemicalEntity@ .'],
+        6: ['the drug combination therapy using both drug @ChemicalEntity@ and drug @ChemicalEntity@ .'],
+        7: ['there is a comparison relation between drug @ChemicalEntity@ and drug @ChemicalEntity@ .'],
+        8: ['the drug @ChemicalEntity@ may convert to drug @ChemicalEntity@ or vice versa .'],
     },
-    'drug-variant': {
-        0: ['there are no relations between the drug @drug@ and variant @variant@ .'],
-        1: ['the drug @drug@ may cause higher expression of a gene variant @variant@ or increase sensitivity due to a '
-            'variant .'],
-        2: ['the drug @drug@ may decrease gene expression due to the variant @variant@ or the variant may confer '
-            'resistance .'],
-        3: ['there are association relationships not defined between the variant @variant@ and the drug @drug@, '
-            'like variant on chemical binding sites .']
+    'ChemicalEntity-SequenceVariant': {
+        0: ['there are no relations between the drug @ChemicalEntity@ and variant @SequenceVariant@ .'],
+        1: ['the drug @ChemicalEntity@ may cause higher expression of a gene variant @SequenceVariant@ or increase '
+            'sensitivity due to a variant .'],
+        2: ['the drug @ChemicalEntity@ may decrease gene expression due to the variant @SequenceVariant@ or the '
+            'variant may'
+            'confer resistance .'],
+        3: ['there are association relationships not defined between the variant @SequenceVariant@ and the drug '
+            '@ChemicalEntity@ , like variant on chemical binding sites .'],
+        4: [''],
+        5: [''],
+        6: [''],
+        7: [''],
+        8: [''],
+
     },
-    'variant-variant': {
-        0: ['there are no relations between the variant @variant@ and variant @variant@ .'],
-        3: ['there is a association relation between the variant @variant@ and variant @variant@ .']
+    'SequenceVariant-SequenceVariant': {
+        0: ['there are no relations between the variant @SequenceVariant@ and variant @SequenceVariant@ .'],
+        1: [''],
+        2: [''],
+        3: ['there is a association relation between the variant @SequenceVariant@ and variant @SequenceVariant@ .'],
+        4: [''],
+        5: [''],
+        6: [''],
+        7: [''],
+        8: [''],
     }
 }
 
@@ -101,11 +157,12 @@ tokenized_id2description = {pair: {key: [s.lower().split() for s in value] for k
 
 def add_description_words(tokenizer, tokenized_id2description):
     unk_words = []
-    for k, v in tokenized_id2description.items():
-        for wds in v:
-            for w in wds:
-                if w not in tokenizer.vocab:
-                    unk_words.append(w)
+    for key, value in tokenized_id2description.items():
+        for k, v in value.items():
+            for wds in v:
+                for w in wds:
+                    if w not in tokenizer.vocab:
+                        unk_words.append(w)
     tokenizer.add_tokens(unk_words)
 
 CLS = "[CLS]"
@@ -174,22 +231,41 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                 special_tokens[w] = ('<' + w + '>').lower()
         return special_tokens[w]
 
+    def replace_sub_obj(lst, ori_word, rep_word):
+        for i in range(len(lst)):
+            if lst[i] == ori_word:
+                lst[i] = rep_word
+                break
+        return lst
+
     def get_description_input(description_tokens):
-        description_tokens = [CLS] + description_tokens
-        description_tokens = [subject if word == '@subject@' else word for word in description_tokens]
-        description_tokens = [object if word == '@object@' else word for word in description_tokens]
-        description_tokens = [item for sublist in description_tokens for item in
-                              (sublist if isinstance(sublist, list) else [sublist])]
-        description_tokens.append(SEP)
+        if description_tokens:
+            description_tokens = [CLS] + description_tokens
+            description_tokens = replace_sub_obj(description_tokens, ('@' + subj_type + '@').lower(), subject)
+            description_tokens = replace_sub_obj(description_tokens, ('@' + obj_type + '@').lower(), object)
+            description_tokens = [item for sublist in description_tokens for item in
+                                  (sublist if isinstance(sublist, list) else [sublist])]
+            description_tokens.append(SEP)
 
-        des_sub_idx = description_tokens.index(SUBJECT_START_NER)
-        des_obj_idx = description_tokens.index(OBJECT_START_NER)
-        descriptions_sub_idx.append(des_sub_idx)
-        descriptions_obj_idx.append(des_obj_idx)
+            des_sub_idx = description_tokens.index(SUBJECT_START_NER)
+            des_obj_idx = description_tokens.index(OBJECT_START_NER)
+            descriptions_sub_idx.append(des_sub_idx)
+            descriptions_obj_idx.append(des_obj_idx)
 
-        description_input_ids = tokenizer.convert_tokens_to_ids(description_tokens)
-        description_type_ids = [0] * len(description_tokens)
-        description_input_mask = [1] * len(description_input_ids)
+            description_input_ids = tokenizer.convert_tokens_to_ids(description_tokens)
+            description_type_ids = [0] * len(description_tokens)
+            description_input_mask = [1] * len(description_input_ids)
+        # for dummy descriptions since some tasks do not require other descriptions
+        else:
+
+            description_input_ids = [0]
+            description_input_mask = [0]
+            description_type_ids = [0]
+            des_sub_idx = 0
+            des_obj_idx = 0
+            descriptions_sub_idx.append(des_sub_idx)
+            descriptions_obj_idx.append(des_obj_idx)
+
         padding = [0] * (max_seq_length - len(description_input_ids))
         description_input_ids += padding
         description_input_mask += padding
@@ -263,13 +339,18 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         assert len(input_mask) == max_seq_length
         assert len(segment_ids) == max_seq_length
 
+        subj_type = example['subj_type']
+        obj_type = example['obj_type']
+        type_pair = subj_type + '-' + obj_type if subj_type + '-' + obj_type in tokenized_id2description else obj_type + '-' + subj_type
+
         descriptions_input_ids = []
         descriptions_input_mask = []
         descriptions_type_ids = []
         descriptions_sub_idx = []
         descriptions_obj_idx = []
+        task_tokenized_id2description = tokenized_id2description[type_pair]
 
-        for _, description_tokens_list in tokenized_id2description.items():
+        for _, description_tokens_list in task_tokenized_id2description.items():
 
             # description_tokens = random.choice(description_tokens_list)
             description_tokens = description_tokens_list[0]
@@ -648,9 +729,11 @@ def main(args):
                 descriptions_type_ids = descriptions_type_ids.reshape(num_descriptions, args.max_seq_length)
                 descriptions_sub_idx = descriptions_sub_idx.reshape(num_descriptions)
                 descriptions_obj_idx = descriptions_obj_idx.reshape(num_descriptions)
+
                 loss = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids,
                              descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx,
                              return_dict=True)
+
                 if n_gpu > 1:
                     loss = loss.mean()
 
