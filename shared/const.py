@@ -4,6 +4,8 @@ task_ner_labels = {
     'scierc': ['Method', 'OtherScientificTerm', 'Task', 'Generic', 'Material', 'Metric'],
     'chemprot': ['CHEMICAL', 'GENE'],
     'chemprot_5': ['CHEMICAL', 'GENE'],
+    'biored': ['DiseaseOrPhenotypicFeature', 'SequenceVariant', 'GeneOrGeneProduct', 'ChemicalEntity']
+
 }
 
 task_rel_labels = {
