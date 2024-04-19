@@ -556,6 +556,8 @@ def main(args):
         eval_dataset, eval_examples, eval_nrel = generate_relation_data(
             os.path.join(args.entity_output_dir, args.entity_predictions_dev), use_gold=args.eval_with_gold,
             context_window=args.context_window)
+        if args.eval_num_examples:
+            eval_examples = eval_examples[:args.eval_num_examples]
     # test set
     if args.eval_test:
         test_dataset, test_examples, test_nrel = generate_relation_data(
@@ -899,6 +901,8 @@ if __name__ == "__main__":
                         help="Whether to add new tokens as marker tokens instead of using [unusedX] tokens.")
     parser.add_argument('--train_num_examples', type=int, default=None,
                         help="How many training instances to train")
+    parser.add_argument('--eval_num_examples', type=int, default=None,
+                        help="How many training instances to eval")
     parser.add_argument('--train_pure', action='store_true',
                         help="Train PURE.")
     parser.add_argument('--drop_out', type=float, default=0.1,
