@@ -519,7 +519,6 @@ def save_trained_model(output_dir, model, tokenizer):
 
 
 def main(args):
-    os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
     # if 'albert' in args.model:
     #     RelationModel = AlbertForRelation
     #     args.add_new_tokens = True
@@ -532,13 +531,7 @@ def main(args):
         from relation.unified_model import BEFRE, BEFREConfig
         # from relation.uni_model import BEFRE, BEFREConfig
 
-    config = BEFREConfig(
-        pretrained_model_name_or_path=args.model,
-        cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE),
-        revision=None,
-        use_auth_token=True,
-        hidden_dropout_prob=args.drop_out,
-    )
+
     setseed(args.seed)
 
     device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
@@ -693,6 +686,16 @@ def main(args):
         eval_step = max(1, len(train_batches) // args.eval_per_epoch)
 
         lr = args.learning_rate
+
+        config = BEFREConfig(
+            pretrained_model_name_or_path=args.model,
+            cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE),
+            revision=None,
+            use_auth_token=True,
+            hidden_dropout_prob=args.drop_out,
+            num_labels=num_labels
+        )
+
         model = BEFRE(config)
         # model = RelationModel.from_pretrained(
         #     args.model, cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE), num_rel_labels=num_labels)
