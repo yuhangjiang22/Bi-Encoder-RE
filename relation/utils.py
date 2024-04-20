@@ -113,7 +113,7 @@ def generate_relation_data(entity_data, use_gold=False, context_window=0):
                         sent_samples.append(sample)
 
                     if type_pair in biored_entity_pairs: # This task is only for BioRED
-                        if [sub, obj] not in captured:
+                        if [sub.span.text, obj.span.text] not in captured:
                             label = gold_rel.get((sub.span, obj.span), 'no_relation')
                             if label == 'no_relation':
                                 label = gold_rel.get((obj.span, sub.span), 'no_relation')
@@ -136,8 +136,8 @@ def generate_relation_data(entity_data, use_gold=False, context_window=0):
 
                             sent_samples.append(sample)
 
-                            captured.append([sub, obj])
-                            captured.append([obj, sub])
+                            captured.append([sub.span.text, obj.span.text])
+                            captured.append([obj.span.text, sub.span.text])
 
             max_sentsample = max(max_sentsample, len(sent_samples))
             samples += sent_samples
