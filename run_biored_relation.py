@@ -519,6 +519,7 @@ def save_trained_model(output_dir, model, tokenizer):
 
 
 def main(args):
+    os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
     # if 'albert' in args.model:
     #     RelationModel = AlbertForRelation
     #     args.add_new_tokens = True
