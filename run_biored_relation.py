@@ -779,7 +779,6 @@ def main(args):
 
                         if (best_result is None) or (result[args.eval_metric] > best_result[args.eval_metric]):
                             best_result = result
-                            print(result)
                             logger.info("!!! Best dev %s (lr=%s, epoch=%d): %.2f" %
                                         (args.eval_metric, str(lr), epoch, result[args.eval_metric] * 100.0))
                             save_trained_model(args.output_dir, model, tokenizer)
