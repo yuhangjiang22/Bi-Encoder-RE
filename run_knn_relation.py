@@ -257,9 +257,9 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
 
         if use_knn:
             # id2description = search_tfidf_example(example, train_id2examples, tokenized_id2description)
-            for label in tokenized_id2description.keys():
-                tokenized_id2description[label] = tokenized_id2description[label] + tokens[1:-1]
             id2description = tokenized_id2description
+            for label in id2description.keys():
+                id2description[label] = tokenized_id2description[label] + tokens[1:-1]
         else:
             id2description = {key: value[:-3] for key, value in tokenized_id2description.items()}
 
