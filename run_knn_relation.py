@@ -256,7 +256,10 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         descriptions_obj_idx = []
 
         if use_knn:
-            id2description = search_tfidf_example(example, train_id2examples, tokenized_id2description)
+            # id2description = search_tfidf_example(example, train_id2examples, tokenized_id2description)
+            for label in tokenized_id2description.keys():
+                tokenized_id2description[label] = tokenized_id2description[label] + tokens[1:-1]
+            id2description = tokenized_id2description
         else:
             id2description = {key: value[:-3] for key, value in tokenized_id2description.items()}
 
@@ -516,7 +519,7 @@ def main(args):
     if args.do_eval and (args.do_train or not (args.eval_test)):
         eval_features = convert_examples_to_features(
             eval_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description, train_id2examples=train_id2examples,
-            unused_tokens=not (args.add_new_tokens), use_knn=False)
+            unused_tokens=not (args.add_new_tokens), use_knn=True)
         logger.info("***** Dev *****")
         logger.info("  Num examples = %d", len(eval_examples))
         logger.info("  Batch size = %d", args.eval_batch_size)
@@ -698,7 +701,7 @@ def main(args):
             eval_examples = test_examples
             eval_features = convert_examples_to_features(
                 test_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description, train_id2examples=train_id2examples,
-                unused_tokens=not (args.add_new_tokens), use_knn=False)
+                unused_tokens=not (args.add_new_tokens), use_knn=True)
             eval_nrel = test_nrel
             logger.info(special_tokens)
             logger.info("***** Test *****")
