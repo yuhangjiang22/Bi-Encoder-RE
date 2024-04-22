@@ -59,13 +59,13 @@ class BEFRE(PreTrainedModel):
         self.hf_config = hf_config
         self.config.pruned_heads = hf_config.pruned_heads
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        self.layer_norm = BertLayerNorm(2048)
+        self.layer_norm = BertLayerNorm(hf_config.hidden_size)
         self.logit_scale = torch.nn.Parameter(torch.ones([]) * np.log(1 / config.init_temperature))
         self.post_init()
         self.num_labels = config.num_labels
-        self.classifier = nn.Linear(2048, config.num_labels)
-        self.input_linear = nn.Linear(hf_config.hidden_size * 2, 2048)
-        self.des_linear = nn.Linear(hf_config.hidden_size * 3, 2048)
+        self.classifier = nn.Linear(hf_config.hidden_size, config.num_labels)
+        self.input_linear = nn.Linear(hf_config.hidden_size * 2, hf_config.hidden_size)
+        self.des_linear = nn.Linear(hf_config.hidden_size * 3, hf_config.hidden_size)
 
         self.input_encoder = AutoModel.from_pretrained(
             config.pretrained_model_name_or_path,
@@ -147,12 +147,10 @@ class BEFRE(PreTrainedModel):
 
         cls_rep = torch.cat([a[0].unsqueeze(0) for a in sequence_output])
         cls_rep = cls_rep.repeat_interleave(num_types, dim=0)
-        print(cls_rep.size())
 
         des_sub_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(description_sequence_output, descriptions_sub_idx)])
         des_obj_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(description_sequence_output, descriptions_obj_idx)])
         des_rep = torch.cat((des_sub_output, des_obj_output), dim=1)
-        print(des_rep.size())
         des_rep = torch.cat((des_rep, cls_rep), dim=1)
         des_rep = self.des_linear(des_rep)
 
@@ -181,7 +179,7 @@ class BEFRE(PreTrainedModel):
             CTloss = contrastive_loss(scores, labels)
             loss_fct = CrossEntropyLoss()
             CEloss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
-            loss = 0 * CEloss + 1 * CTloss
+            loss = 0.5 * CEloss + 0.5 * CTloss
             return loss
         else:
             return scores
