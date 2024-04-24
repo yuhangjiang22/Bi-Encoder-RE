@@ -28,141 +28,103 @@ from shared.const import task_rel_labels, task_ner_labels
 from relation.befre import BEFRE, BEFREConfig
 from relation.unified_model import BEFRE, BEFREConfig
 
-id2description = {
-    'ChemicalEntity-DiseaseOrPhenotypicFeature': {
-        0: ['there are no relations between the drug @ChemicalEntity@ and disease @DiseaseOrPhenotypicFeature@ .',],
-        1: ['the drug @ChemicalEntity@ may induce the disease @DiseaseOrPhenotypicFeature@ , increase its risk, '
-            'or the levels may'
-            'correlate with disease risk .'],
-        2: ['the drug @ChemicalEntity@ is able to treat the disease @DiseaseOrPhenotypicFeature@ or decrease its '
-            'susceptibility .'],
-        3: ['the drug @ChemicalEntity@ is found to affect the disease @DiseaseOrPhenotypicFeature@ but not clearly '
-            'identified as'
-            'positive or negative correlations . '],
-        4: [''],
-        5: [''],
-        6: [''],
-        7: [''],
-        8: [''],
-    },
-    'GeneOrGeneProduct-DiseaseOrPhenotypicFeature': {
-        0: ['there are no relations between the disease @DiseaseOrPhenotypicFeature@ and gene @GeneOrGeneProduct@ .',],
-        1: ['overexpression or side effects of the gene @GeneOrGeneProduct@ may cause the disease '
-            '@DiseaseOrPhenotypicFeature@ .'],
-        2: ['the proteins from the gene @GeneOrGeneProduct@ used as drugs may treat the disease '
-            '@DiseaseOrPhenotypicFeature@ or the absence may'
-            'cause diseases .'],
-        3: ['the functional gene @GeneOrGeneProduct@ prevents disease @DiseaseOrPhenotypicFeature@ or other '
-            'association relationships .' ],
-        4: [''],
-        5: [''],
-        6: [''],
-        7: [''],
-        8: [''],
-    },
-    'SequenceVariant-DiseaseOrPhenotypicFeature': {
-        0: ['there are no relations between the disease @DiseaseOrPhenotypicFeature@ and variant @SequenceVariant@ .',],
-        1: ['the variant @SequenceVariant@ may increase disease @DiseaseOrPhenotypicFeature@ risk, contribute to '
-            'disease susceptibility,'
-            'or cause protein deficiencies leading to diseases .'],
-        2: ['the variant @SequenceVariant@ may increase disease @DiseaseOrPhenotypicFeature@ risk .'],
-        3: ['the variant @SequenceVariant@ associated with the disease @DiseaseOrPhenotypicFeature@ prevalence and '
-            'which that cannot be'
-            'categorized as causing the disease . '],
-        4: [''],
-        5: [''],
-        6: [''],
-        7: [''],
-        8: [''],
-    },
-    'GeneOrGeneProduct-GeneOrGeneProduct': {
-        0: ['there are no relations between the gene @GeneOrGeneProduct@ and gene @GeneOrGeneProduct@ .'],
-        1: ['the gene @GeneOrGeneProduct@ and gene @GeneOrGeneProduct@ may show positive correlations in expression '
-            'or regulatory functions .'],
-        2: ['the gene @GeneOrGeneProduct@ and gene @GeneOrGeneProduct@ may show negative correlations in expression '
-            'or regulatory functions .'],
-        3: ['associations between gene @GeneOrGeneProduct@ and gene @GeneOrGeneProduct@ that cannot be categorized '
-            'differently .'],
-        4: ['there are physical interactions between proteins from gene @GeneOrGeneProduct@ and gene '
-            '@GeneOrGeneProduct@ , including protein'
-            'binding at gene promoters .'],
-        5: [''],
-        6: [''],
-        7: [''],
-        8: [''],
-    },
-    'GeneOrGeneProduct-ChemicalEntity': {
-        0: ['there are no relations between the drug @ChemicalEntity@ and gene @GeneOrGeneProduct@ .'],
-        1: ['the drug @ChemicalEntity@ may cause higher expression of gene @GeneOrGeneProduct@ or gene variants may '
-            'trigger'
-            'chemical adverse effects .'],
-        2: ['the drug @ChemicalEntity@ may cause lower expression of gene @GeneOrGeneProduct@ or gene variants may '
-            'confer'
-            'resistance to chemicals .'],
-        3: ['there are non-specific associations and binding interactions between the drug @ChemicalEntity@ and gene '
-            '@GeneOrGeneProduct@ promoters .'],
-        4: ['there are relations between the gene @GeneOrGeneProduct@ and the drug @ChemicalEntity@ such that the '
-            'drug binds the'
-            'promoter of a gene, or the protein from the gene is the drug receptor .'],
-        5: [''],
-        6: [''],
-        7: [''],
-        8: [''],
-    },
-    'ChemicalEntity-ChemicalEntity': {
-        0: ['there are no relations between the drug @ChemicalEntity@ and drug @ChemicalEntity@ .'],
-        1: ['the drug @ChemicalEntity@ may increase the sensitivity or effectiveness of drug @ChemicalEntity@ or vice '
-            'versa .'],
-        2: ['the drug @ChemicalEntity@ may decrease the sensitivity or side effects of drug @ChemicalEntity@ or vice '
-            'versa .'],
-        3: ['there are chemical conversions or non-specific associations between drug @ChemicalEntity@ and drug '
-            '@ChemicalEntity@ .'],
-        4: [''],
-        5: ['there are pharmacodynamic interactions between the drug @ChemicalEntity@ and drug @ChemicalEntity@ .'],
-        6: ['the drug combination therapy using both drug @ChemicalEntity@ and drug @ChemicalEntity@ .'],
-        7: ['there is a comparison relation between drug @ChemicalEntity@ and drug @ChemicalEntity@ .'],
-        8: ['the drug @ChemicalEntity@ may convert to drug @ChemicalEntity@ or vice versa .'],
-    },
-    'ChemicalEntity-SequenceVariant': {
-        0: ['there are no relations between the drug @ChemicalEntity@ and variant @SequenceVariant@ .'],
-        1: ['the drug @ChemicalEntity@ may cause higher expression of a gene variant @SequenceVariant@ or increase '
-            'sensitivity due to a variant .'],
-        2: ['the drug @ChemicalEntity@ may decrease gene expression due to the variant @SequenceVariant@ or the '
-            'variant may'
-            'confer resistance .'],
-        3: ['there are association relationships not defined between the variant @SequenceVariant@ and the drug '
-            '@ChemicalEntity@ , like variant on chemical binding sites .'],
-        4: [''],
-        5: [''],
-        6: [''],
-        7: [''],
-        8: [''],
+id2description = {0: ["there are no relations between the compound @subject@ and gene @object@ .",
+                      "the compound @subject@ and gene @object@ has no relations ."],
+                  1: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+                      "upregulator , activator , or indirect upregulator in its interactions .",
+                      "@subject@ initiates or enhances the activity of @object@ through direct or indirect means . an "
+                      "upregulator ,activator , or indirect upregulator serves as the mechanism that increases the "
+                      "function ,"
+                      "expression , or activity of the @object@"
+                      ],
+                  2: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
+                      "downregulator , inhibitor , or indirect downregulator in its interactions .",
+                      "@subject@ interacts with the gene @object@ , resulting in a decrease in the gene's "
+                      "activity or expression . This interaction can occur through direct inhibition , acting as a "
+                      "downregulator , or through indirect means , where the compound causes a reduction in the gene's "
+                      "function or expression without directly binding to it . Such mechanisms are crucial in "
+                      "understanding genetic regulation and can have significant implications in fields like "
+                      "pharmacology and gene therapy ."
+                      ],
+                  3: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+                      "agonist , agonist activator , or agonist inhibitor in its interactions .",
+                      "@subject@ interacts with the gene @object@ in a manner that modulates its activity positively ( "
+                      "as an agonist or agonist activator ) or negatively ( as an agonist inhibitor ) . An agonist "
+                      "interaction typically increases the gene's activity or the activity of proteins expressed by "
+                      "the gene , whereas an agonist activator enhances this effect further . Conversely , an agonist "
+                      "inhibitor would paradoxically bind in a manner that initially mimics an agonist's action but "
+                      "ultimately inhibits the gene's activity or its downstream effects ."
+                      ],
+                  4: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+                      "antagonist in its interactions .",
+                      "@subject@ interacts with the gene @object@ by acting as an antagonist . This means that the "
+                      "compound blocks or diminishes the gene's normal activity or the activity of the protein product "
+                      "expressed by the gene . Antagonist interactions are significant in the regulation of biological "
+                      "pathways and have wide-ranging implications in therapeutic interventions , where they can be "
+                      "used to modulate the effects of genes involved in disease processes ."
+                      ],
+                  5: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
+                      "substrate , product of, or substrate product of in its interactions .",
+                      "@subject@ engages with the gene @object@ in a manner where it acts as a substrate , is a product"
+                      "of, or both a substrate and product within the gene's associated biochemical pathways ."
+                      ]}
 
-    },
-    'SequenceVariant-SequenceVariant': {
-        0: ['there are no relations between the variant @SequenceVariant@ and variant @SequenceVariant@ .'],
-        1: [''],
-        2: [''],
-        3: ['there is a association relation between the variant @SequenceVariant@ and variant @SequenceVariant@ .'],
-        4: [''],
-        5: [''],
-        6: [''],
-        7: [''],
-        8: [''],
-    }
-}
+# id2description = {0: "there are no relations between the compound @subject@ and gene @object@ .",
+#                   1: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+#                      "upregulator, activator,or indirect upregulator in its interactions .",
+#                   2: "the compound @subject@ has been identified to engage with thegene @object@ , manifesting as a "
+#                      "downregulator, inhibitor, or indirect downregulator in its interactions .",
+#                   3: "the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+#                      "agonist, agonist activator, or agonist inhibitor in its interactions .",
+#                   4: "the compound @subject@ has been identified toengage with the gene @object@ , manifesting as an "
+#                      "antagonist in its interactions .",
+#                   5: "the compound @subject@ hasbeen identified to engage with the gene @object@ , manifesting as a "
+#                      "substrate, product of, or substrate product ofin its interactions ."}
 
+# id2description = {0: "there are no relations between the compound @subject@ and gene @object@ .",
+#                   1: "@subject@ engages @object@ , with upregulator , activator , or indirect upregulator .",
+#                   2: "@subject@ is proved to be associated with @object@ , in downregulator , inhibitor , or indirect "
+#                      "downregulator .",
+#                   3: "@subject@ interacts with @object@ , in agonist , agonist activator , or agonist inhibitor .",
+#                   4: "@subject@ is engaging @object@ , manifesting as an antagonist in the interactions .",
+#                   5: "the compound @subject@ has been identified to interact with the gene @object@ , as a "
+#                      "substrate , product of , or substrate product of in its interactions ."}
 
-tokenized_id2description = {pair: {key: [s.lower().split() for s in value] for key, value in dic.items()} for pair, dic in id2description.items()}
+# id2description = {0: "there are no relations between the compound @subject@ and gene @object@ .",
+#                   1: '@subject@ initiates or enhances the activity of @object@ through direct or indirect means . An '
+#                      'upregulator ,'
+#                      'activator , or indirect upregulator serves as the mechanism that increases the function , '
+#                      'expression , or activity'
+#                      'of the @object@',
+#                   2: "@subject@ interacts with the gene @object@ , resulting in a decrease in the gene's "
+#                      "activity or expression . This interaction can occur through direct inhibition , acting as a "
+#                      "downregulator , or through indirect means , where the compound causes a reduction in the gene's "
+#                      "function or expression without directly binding to it . Such mechanisms are crucial in "
+#                      "understanding genetic regulation and can have significant implications in fields like "
+#                      "pharmacology and gene therapy .",
+#                   3: "@subject@ interacts with the gene @object@ in a manner that modulates its activity positively ( "
+#                      "as an agonist or agonist activator ) or negatively ( as an agonist inhibitor ) . An agonist "
+#                      "interaction typically increases the gene's activity or the activity of proteins expressed by "
+#                      "the gene , whereas an agonist activator enhances this effect further . Conversely , an agonist "
+#                      "inhibitor would paradoxically bind in a manner that initially mimics an agonist's action but "
+#                      "ultimately inhibits the gene's activity or its downstream effects .",
+#                   4: "@subject@ interacts with the gene @object@ by acting as an antagonist . This means that the "
+#                      "compound blocks or diminishes the gene's normal activity or the activity of the protein product "
+#                      "expressed by the gene . Antagonist interactions are significant in the regulation of biological "
+#                      "pathways and have wide-ranging implications in therapeutic interventions , where they can be "
+#                      "used to modulate the effects of genes involved in disease processes .",
+#                   5: "@subject@ engages with the gene @object@ in a manner where it acts as a substrate , is a product "
+#                      "of, or both a substrate and product within the gene's associated biochemical pathways ."}
+
+tokenized_id2description = {key: [s.lower().split() for s in value] for key, value in id2description.items()}
 
 def add_description_words(tokenizer, tokenized_id2description):
     unk_words = []
-    for key, value in tokenized_id2description.items():
-        for k, v in value.items():
-            for wds in v:
-                for w in wds:
-                    if w not in tokenizer.vocab:
-                        unk_words.append(w)
+    for k, v in tokenized_id2description.items():
+        for wds in v:
+            for w in wds:
+                if w not in tokenizer.vocab:
+                    unk_words.append(w)
     tokenizer.add_tokens(unk_words)
 
 CLS = "[CLS]"
@@ -216,8 +178,166 @@ def add_marker_tokens(tokenizer, ner_labels):
     tokenizer.add_tokens(new_tokens)
     logger.info('# vocab after adding markers: %d' % len(tokenizer))
 
+
+# def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, special_tokens,
+#                                  tokenized_id2description, unused_tokens=True):
+#     """
+#     Loads a data file into a list of `InputBatch`s.
+#     unused_tokens: whether use [unused1] [unused2] as special tokens
+#     """
+#
+#     def get_special_token(w):
+#         if w not in special_tokens:
+#             if unused_tokens:
+#                 special_tokens[w] = "[unused%d]" % (len(special_tokens) + 1)
+#             else:
+#                 special_tokens[w] = ('<' + w + '>').lower()
+#         return special_tokens[w]
+#
+#     num_tokens = 0
+#     max_tokens = 0
+#     num_fit_examples = 0
+#     num_shown_examples = 0
+#     features = []
+#     for (ex_index, example) in enumerate(examples):
+#         if ex_index % 10000 == 0:
+#             logger.info("Writing example %d of %d" % (ex_index, len(examples)))
+#
+#         tokens = [CLS]
+#         SUBJECT_START = get_special_token("SUBJ_START")
+#         SUBJECT_END = get_special_token("SUBJ_END")
+#         OBJECT_START = get_special_token("OBJ_START")
+#         OBJECT_END = get_special_token("OBJ_END")
+#         SUBJECT_NER = get_special_token("SUBJ=%s" % example['subj_type'])
+#         OBJECT_NER = get_special_token("OBJ=%s" % example['obj_type'])
+#
+#         SUBJECT_START_NER = get_special_token("SUBJ_START=%s" % example['subj_type'])
+#         SUBJECT_END_NER = get_special_token("SUBJ_END=%s" % example['subj_type'])
+#         OBJECT_START_NER = get_special_token("OBJ_START=%s" % example['obj_type'])
+#         OBJECT_END_NER = get_special_token("OBJ_END=%s" % example['obj_type'])
+#
+#         for i, token in enumerate(example['token']):
+#             if i == example['subj_start']:
+#                 sub_idx = len(tokens)
+#                 tokens.append(SUBJECT_START_NER)
+#             if i == example['obj_start']:
+#                 obj_idx = len(tokens)
+#                 tokens.append(OBJECT_START_NER)
+#             for sub_token in tokenizer.tokenize(token):
+#                 tokens.append(sub_token)
+#             if i == example['subj_end']:
+#                 sub_idx_end = len(tokens)
+#                 tokens.append(SUBJECT_END_NER)
+#             if i == example['obj_end']:
+#                 obj_idx_end = len(tokens)
+#                 tokens.append(OBJECT_END_NER)
+#         tokens.append(SEP)
+#
+#         subject = tokens[sub_idx:sub_idx_end + 1]
+#         object = tokens[obj_idx:obj_idx_end + 1]
+#
+#         num_tokens += len(tokens)
+#         max_tokens = max(max_tokens, len(tokens))
+#
+#         if len(tokens) > max_seq_length:
+#             tokens = tokens[:max_seq_length]
+#             if sub_idx >= max_seq_length:
+#                 sub_idx = 0
+#             if obj_idx >= max_seq_length:
+#                 obj_idx = 0
+#         else:
+#             num_fit_examples += 1
+#
+#         segment_ids = [0] * len(tokens)
+#         input_ids = tokenizer.convert_tokens_to_ids(tokens)
+#         input_mask = [1] * len(input_ids)
+#         padding = [0] * (max_seq_length - len(input_ids))
+#         input_ids += padding
+#         input_mask += padding
+#         segment_ids += padding
+#         label_id = label2id[example['relation']]
+#
+#         assert len(input_ids) == max_seq_length
+#         assert len(input_mask) == max_seq_length
+#         assert len(segment_ids) == max_seq_length
+#
+#         descriptions_input_ids = []
+#         descriptions_input_mask = []
+#         descriptions_type_ids = []
+#         descriptions_sub_idx = []
+#         descriptions_obj_idx = []
+#
+#         for _, description_tokens in tokenized_id2description.items():
+#
+#             description_tokens = [CLS] + description_tokens
+#             description_tokens = [subject if word == '@subject@' else word for word in description_tokens]
+#             description_tokens = [object if word == '@object@' else word for word in description_tokens]
+#             description_tokens = [item for sublist in description_tokens for item in
+#                                   (sublist if isinstance(sublist, list) else [sublist])]
+#             description_tokens.append(SEP)
+#
+#             des_sub_idx = description_tokens.index(SUBJECT_START_NER)
+#             des_obj_idx = description_tokens.index(OBJECT_START_NER)
+#             descriptions_sub_idx.append(des_sub_idx)
+#             descriptions_obj_idx.append(des_obj_idx)
+#
+#             if len(description_tokens) > max_seq_length:
+#                 tokens = tokens[:max_seq_length]
+#                 if sub_idx >= max_seq_length:
+#                     sub_idx = 0
+#                 if obj_idx >= max_seq_length:
+#                     obj_idx = 0
+#
+#             description_input_ids = tokenizer.convert_tokens_to_ids(description_tokens)
+#             description_type_ids = [0] * len(description_tokens)
+#             description_input_mask = [1] * len(description_input_ids)
+#             padding = [0] * (max_seq_length - len(description_input_ids))
+#             description_input_ids += padding
+#             description_input_mask += padding
+#             description_type_ids += padding
+#
+#             assert len(description_input_ids) == max_seq_length
+#             assert len(description_input_mask) == max_seq_length
+#             assert len(description_type_ids) == max_seq_length
+#
+#             descriptions_input_ids.append(description_input_ids)
+#             descriptions_input_mask.append(description_input_mask)
+#             descriptions_type_ids.append(description_type_ids)
+#
+#         if num_shown_examples < 20:
+#             if (ex_index < 5) or (label_id > 0):
+#                 num_shown_examples += 1
+#                 logger.info("*** Example ***")
+#                 logger.info("guid: %s" % (example['id']))
+#                 logger.info("tokens: %s" % " ".join(
+#                     [str(x) for x in tokens]))
+#                 logger.info("input_ids: %s" % " ".join([str(x) for x in input_ids]))
+#                 logger.info("input_mask: %s" % " ".join([str(x) for x in input_mask]))
+#                 logger.info("segment_ids: %s" % " ".join([str(x) for x in segment_ids]))
+#                 logger.info("label: %s (id = %d)" % (example['relation'], label_id))
+#                 logger.info("sub_idx, obj_idx: %d, %d" % (sub_idx, obj_idx))
+#
+#         features.append(
+#             InputFeatures(input_ids=input_ids,
+#                           input_mask=input_mask,
+#                           segment_ids=segment_ids,
+#                           label_id=label_id,
+#                           sub_idx=sub_idx,
+#                           obj_idx=obj_idx,
+#                           descriptions_input_ids=descriptions_input_ids,
+#                           descriptions_input_mask=descriptions_input_mask,
+#                           descriptions_type_ids=descriptions_type_ids,
+#                           descriptions_sub_idx=descriptions_sub_idx,
+#                           descriptions_obj_idx=descriptions_obj_idx))
+#     logger.info("Average #tokens: %.2f" % (num_tokens * 1.0 / len(examples)))
+#     logger.info("Max #tokens: %d" % max_tokens)
+#     logger.info("%d (%.2f %%) examples can fit max_seq_length = %d" % (num_fit_examples,
+#                                                                        num_fit_examples * 100.0 / len(examples),
+#                                                                        max_seq_length))
+#     return features
+
 def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, special_tokens,
-                                 tokenized_id2description, unused_tokens=False):
+                                 tokenized_id2description, unused_tokens=False, multiple_descriptions=False):
     """
     Loads a data file into a list of `InputBatch`s.
     unused_tokens: whether use [unused1] [unused2] as special tokens
@@ -231,41 +351,22 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                 special_tokens[w] = ('<' + w + '>').lower()
         return special_tokens[w]
 
-    def replace_sub_obj(lst, ori_word, rep_word):
-        for i in range(len(lst)):
-            if lst[i] == ori_word:
-                lst[i] = rep_word
-                break
-        return lst
-
     def get_description_input(description_tokens):
-        if description_tokens:
-            description_tokens = [CLS] + description_tokens
-            description_tokens = replace_sub_obj(description_tokens, ('@' + subj_type + '@').lower(), subject)
-            description_tokens = replace_sub_obj(description_tokens, ('@' + obj_type + '@').lower(), object)
-            description_tokens = [item for sublist in description_tokens for item in
-                                  (sublist if isinstance(sublist, list) else [sublist])]
-            description_tokens.append(SEP)
+        description_tokens = [CLS] + description_tokens
+        description_tokens = [subject if word == '@subject@' else word for word in description_tokens]
+        description_tokens = [object if word == '@object@' else word for word in description_tokens]
+        description_tokens = [item for sublist in description_tokens for item in
+                              (sublist if isinstance(sublist, list) else [sublist])]
+        description_tokens.append(SEP)
 
-            des_sub_idx = description_tokens.index(SUBJECT_START_NER)
-            des_obj_idx = description_tokens.index(OBJECT_START_NER)
-            descriptions_sub_idx.append(des_sub_idx)
-            descriptions_obj_idx.append(des_obj_idx)
+        des_sub_idx = description_tokens.index(SUBJECT_START_NER)
+        des_obj_idx = description_tokens.index(OBJECT_START_NER)
+        descriptions_sub_idx.append(des_sub_idx)
+        descriptions_obj_idx.append(des_obj_idx)
 
-            description_input_ids = tokenizer.convert_tokens_to_ids(description_tokens)
-            description_type_ids = [0] * len(description_tokens)
-            description_input_mask = [1] * len(description_input_ids)
-        # for dummy descriptions since some tasks do not require other descriptions
-        else:
-
-            description_input_ids = [0]
-            description_input_mask = [0]
-            description_type_ids = [0]
-            des_sub_idx = 0
-            des_obj_idx = 0
-            descriptions_sub_idx.append(des_sub_idx)
-            descriptions_obj_idx.append(des_obj_idx)
-
+        description_input_ids = tokenizer.convert_tokens_to_ids(description_tokens)
+        description_type_ids = [0] * len(description_tokens)
+        description_input_mask = [1] * len(description_input_ids)
         padding = [0] * (max_seq_length - len(description_input_ids))
         description_input_ids += padding
         description_input_mask += padding
@@ -287,6 +388,12 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
             logger.info("Writing example %d of %d" % (ex_index, len(examples)))
 
         tokens = [CLS]
+        SUBJECT_START = get_special_token("SUBJ_START")
+        SUBJECT_END = get_special_token("SUBJ_END")
+        OBJECT_START = get_special_token("OBJ_START")
+        OBJECT_END = get_special_token("OBJ_END")
+        SUBJECT_NER = get_special_token("SUBJ=%s" % example['subj_type'])
+        OBJECT_NER = get_special_token("OBJ=%s" % example['obj_type'])
 
         SUBJECT_START_NER = get_special_token("SUBJ_START=%s" % example['subj_type'])
         SUBJECT_END_NER = get_special_token("SUBJ_END=%s" % example['subj_type'])
@@ -339,26 +446,49 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         assert len(input_mask) == max_seq_length
         assert len(segment_ids) == max_seq_length
 
-        subj_type = example['subj_type']
-        obj_type = example['obj_type']
-        type_pair = subj_type + '-' + obj_type if subj_type + '-' + obj_type in tokenized_id2description else obj_type + '-' + subj_type
-
         descriptions_input_ids = []
         descriptions_input_mask = []
         descriptions_type_ids = []
         descriptions_sub_idx = []
         descriptions_obj_idx = []
-        task_tokenized_id2description = tokenized_id2description[type_pair]
 
-        for _, description_tokens_list in task_tokenized_id2description.items():
+        if not multiple_descriptions:
 
-            # description_tokens = random.choice(description_tokens_list)
-            description_tokens = description_tokens_list[0]
-            description_input_ids, description_input_mask, description_type_ids = get_description_input(description_tokens)
+            for _, description_tokens_list in tokenized_id2description.items():
 
-            descriptions_input_ids.append(description_input_ids)
-            descriptions_input_mask.append(description_input_mask)
-            descriptions_type_ids.append(description_type_ids)
+                # description_tokens = random.choice(description_tokens_list)
+                description_tokens = description_tokens_list[0]
+                description_input_ids, description_input_mask, description_type_ids = get_description_input(description_tokens)
+
+                descriptions_input_ids.append(description_input_ids)
+                descriptions_input_mask.append(description_input_mask)
+                descriptions_type_ids.append(description_type_ids)
+
+
+
+        else:
+            for label, description_tokens_list in tokenized_id2description.items():
+                if label == label_id:
+                    description_label_id = len(descriptions_input_ids)
+                    description_tokens = description_tokens_list[0]
+                    description_input_ids, description_input_mask, description_type_ids = get_description_input(
+                        description_tokens)
+
+                    descriptions_input_ids.append(description_input_ids)
+                    descriptions_input_mask.append(description_input_mask)
+                    descriptions_type_ids.append(description_type_ids)
+                else:
+
+                    for description_tokens in description_tokens_list:
+                        description_input_ids, description_input_mask, description_type_ids = get_description_input(
+                            description_tokens)
+
+                        descriptions_input_ids.append(description_input_ids)
+                        descriptions_input_mask.append(description_input_mask)
+                        descriptions_type_ids.append(description_type_ids)
+
+
+
 
         if num_shown_examples < 20:
             if (ex_index < 5) or (label_id > 0):
@@ -373,6 +503,8 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                 logger.info("label: %s (id = %d)" % (example['relation'], label_id))
                 logger.info("sub_idx, obj_idx: %d, %d" % (sub_idx, obj_idx))
 
+        if multiple_descriptions:
+            label_id = description_label_id
         features.append(
             InputFeatures(input_ids=input_ids,
                           input_mask=input_mask,
@@ -395,6 +527,7 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
 def simple_accuracy(preds, labels):
     return (preds == labels).mean()
 
+
 def compute_f1(preds, labels, e2e_ngold):
     n_gold = n_pred = n_correct = 0
     for pred, label in zip(preds, labels):
@@ -405,7 +538,7 @@ def compute_f1(preds, labels, e2e_ngold):
         if (pred != 0) and (label != 0) and (pred == label):
             n_correct += 1
     if n_correct == 0:
-        return {'precision': 0.0, 'recall': 0.0, 'f1': 0.0, 'task_f1': 0.0,}
+        return {'precision': 0.0, 'recall': 0.0, 'f1': 0.0}
     else:
         prec = n_correct * 1.0 / n_pred
         recall = n_correct * 1.0 / n_gold
@@ -422,6 +555,7 @@ def compute_f1(preds, labels, e2e_ngold):
         return {'precision': prec, 'recall': e2e_recall, 'f1': e2e_f1, 'task_recall': recall, 'task_f1': f1,
                 'n_correct': n_correct, 'n_pred': n_pred, 'n_gold': e2e_ngold, 'task_ngold': n_gold}
 
+
 def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_size, seq_len, e2e_ngold=None):
     model.eval()
     # eval_loss = 0
@@ -435,13 +569,7 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
         sub_idx = sub_idx.to(device)
         obj_idx = obj_idx.to(device)
 
-        batch_size, num_labels, _ = descriptions_input_ids.size()
 
-        descriptions_input_ids = descriptions_input_ids.reshape(batch_size * num_labels, seq_len)
-        descriptions_input_mask = descriptions_input_mask.reshape(batch_size * num_labels, seq_len)
-        descriptions_type_ids = descriptions_type_ids.reshape(batch_size * num_labels, seq_len)
-        descriptions_sub_idx = descriptions_sub_idx.reshape(batch_size * num_labels)
-        descriptions_obj_idx = descriptions_obj_idx.reshape(batch_size * num_labels)
         descriptions_input_ids = descriptions_input_ids.to(device)
         descriptions_input_mask = descriptions_input_mask.to(device)
         descriptions_type_ids = descriptions_type_ids.to(device)
@@ -462,7 +590,6 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
                            descriptions_obj_idx=descriptions_obj_idx,
                            return_dict=True)
 
-
         # loss_fct = CrossEntropyLoss()
         # tmp_eval_loss = loss_fct(logits.view(-1, num_labels), label_ids.view(-1))
         # eval_loss += tmp_eval_loss.mean().item()
@@ -481,6 +608,7 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
     # result['eval_loss'] = eval_loss
 
     return preds, result
+
 
 def print_pred_json(eval_data, eval_examples, preds, id2label, output_file):
     rels = dict()
@@ -501,6 +629,7 @@ def print_pred_json(eval_data, eval_examples, preds, id2label, output_file):
     logger.info('Output predictions to %s..' % (output_file))
     with open(output_file, 'w') as f:
         f.write('\n'.join(json.dumps(doc) for doc in js))
+
 
 def setseed(seed):
     random.seed(seed)
@@ -524,13 +653,24 @@ def main(args):
     #     args.add_new_tokens = True
     # else:
     #     RelationModel = BertForRelation
-    if args.train_pure:
-        from relation.testing_model import BEFRE, BEFREConfig
+    if args.train_befre:
+        from relation.befre import BEFRE, BEFREConfig
     else:
         # from relation.testing_model import BEFRE, BEFREConfig
-        from relation.unified_model import BEFRE, BEFREConfig
+        from relation.prefix_model import BEFRE, BEFREConfig
+        # from relation.unified_model import BEFRE, BEFREConfig
         # from relation.uni_model import BEFRE, BEFREConfig
 
+    config = BEFREConfig(
+        pretrained_model_name_or_path=args.model,
+        cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE),
+        revision=None,
+        use_auth_token=True,
+        hidden_dropout_prob=args.drop_out,
+        prefix_projection=True,
+        prefix_hidden_size=args.prefix_hidden_size,
+        pre_seq_len=args.pre_seq_len,
+    )
     setseed(args.seed)
 
     device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
@@ -540,17 +680,11 @@ def main(args):
     if args.do_train:
         train_dataset, train_examples, train_nrel = generate_relation_data(args.train_file, use_gold=True,
                                                                            context_window=args.context_window)
-        if args.train_num_examples:
-            # train_dataset = train_dataset[:args.train_num_examples]
-            train_examples = train_examples[:args.train_num_examples]
-            # train_nrel = args.train_num_examples
     # dev set
     if (args.do_eval and args.do_train) or (args.do_eval and not (args.eval_test)):
         eval_dataset, eval_examples, eval_nrel = generate_relation_data(
             os.path.join(args.entity_output_dir, args.entity_predictions_dev), use_gold=args.eval_with_gold,
             context_window=args.context_window)
-        if args.eval_num_examples:
-            eval_examples = eval_examples[:args.eval_num_examples]
     # test set
     if args.eval_test:
         test_dataset, test_examples, test_nrel = generate_relation_data(
@@ -638,7 +772,7 @@ def main(args):
     if args.do_train:
         train_features = convert_examples_to_features(
             train_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
-            unused_tokens=not (args.add_new_tokens))
+            unused_tokens=not (args.add_new_tokens), multiple_descriptions=args.multi_descriptions)
         if args.train_mode == 'sorted' or args.train_mode == 'random_sorted':
             train_features = sorted(train_features, key=lambda f: np.sum(f.input_mask))
         else:
@@ -673,6 +807,8 @@ def main(args):
 
         train_dataloader = DataLoader(train_data, batch_size=args.train_batch_size)
         train_batches = [batch for batch in train_dataloader]
+        if args.train_num_examples:
+            train_batches = train_batches[:args.train_num_examples]
 
         num_train_optimization_steps = len(train_dataloader) * args.num_train_epochs
 
@@ -685,16 +821,6 @@ def main(args):
         eval_step = max(1, len(train_batches) // args.eval_per_epoch)
 
         lr = args.learning_rate
-
-        config = BEFREConfig(
-            pretrained_model_name_or_path=args.model,
-            cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE),
-            revision=None,
-            use_auth_token=True,
-            hidden_dropout_prob=args.drop_out,
-            num_labels=num_labels
-        )
-
         model = BEFRE(config)
         # model = RelationModel.from_pretrained(
         #     args.model, cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE), num_rel_labels=num_labels)
@@ -727,20 +853,13 @@ def main(args):
             if args.train_mode == 'random' or args.train_mode == 'random_sorted':
                 random.shuffle(train_batches)
             for step, batch in enumerate(train_batches):
-                num_descriptions = batch[6].size(0) * batch[6].size(1)
                 # batch_size, _ = batch[0].size()
                 batch = tuple(t.to(device) for t in batch)
                 input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx = batch
-                descriptions_input_ids = descriptions_input_ids.reshape(num_descriptions, args.max_seq_length)
-                descriptions_input_mask = descriptions_input_mask.reshape(num_descriptions, args.max_seq_length)
-                descriptions_type_ids = descriptions_type_ids.reshape(num_descriptions, args.max_seq_length)
-                descriptions_sub_idx = descriptions_sub_idx.reshape(num_descriptions)
-                descriptions_obj_idx = descriptions_obj_idx.reshape(num_descriptions)
 
                 loss = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids,
                              descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx,
                              return_dict=True)
-
                 if n_gpu > 1:
                     loss = loss.mean()
 
@@ -827,7 +946,7 @@ def main(args):
             eval_dataloader = DataLoader(eval_data, batch_size=args.eval_batch_size)
             eval_label_ids = all_label_ids
 
-        model = BEFRE.from_pretrained(args.output_dir, num_labels=num_labels)
+        model = BEFRE.from_pretrained(args.output_dir)
         model.to(device)
         preds, result = evaluate(model=model,
                                  device=device,
@@ -897,19 +1016,22 @@ if __name__ == "__main__":
                         help="The prediction filename for the relation model")
 
     parser.add_argument('--task', type=str, default=None, required=True,
-                        choices=['ace04', 'ace05', 'scierc', 'chemprot_5', 'biored'])
+                        choices=['ace04', 'ace05', 'scierc', 'chemprot_5'])
     parser.add_argument('--context_window', type=int, default=0)
 
     parser.add_argument('--add_new_tokens', action='store_true',
                         help="Whether to add new tokens as marker tokens instead of using [unusedX] tokens.")
     parser.add_argument('--train_num_examples', type=int, default=None,
                         help="How many training instances to train")
-    parser.add_argument('--eval_num_examples', type=int, default=None,
-                        help="How many training instances to eval")
-    parser.add_argument('--train_pure', action='store_true',
-                        help="Train PURE.")
+    parser.add_argument('--train_befre', action='store_true',
+                        help="Train PURE of BEFRE.")
     parser.add_argument('--drop_out', type=float, default=0.1,
                         help="hidden drop out rate.")
-
+    parser.add_argument('--multi_descriptions', action='store_true',
+                        help="Use multi-descriptions or not.")
+    parser.add_argument('--prefix_hidden_size', type=int, default=1024,
+                        help="Prefix encoder hidden size.")
+    parser.add_argument('--pre_seq_len', type=int, default=60,
+                        help="Prefix encoder sequence length.")
     args = parser.parse_args()
     main(args)

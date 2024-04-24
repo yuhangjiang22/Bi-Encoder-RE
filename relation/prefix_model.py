@@ -63,10 +63,8 @@ class BEFREConfig(PretrainedConfig):
         init_temperature=0.07,
         num_labels=6,
         prefix_projection=True,
-        hidden_size=768,
         prefix_hidden_size=1024,
         pre_seq_len=60,
-        num_hidden_layers=12,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -80,10 +78,8 @@ class BEFREConfig(PretrainedConfig):
         self.init_temperature = init_temperature
         self.num_labels = num_labels
         self.prefix_projection = prefix_projection
-        self.hidden_size = hidden_size
         self.prefix_hidden_size = prefix_hidden_size
         self.pre_seq_len = pre_seq_len
-        self.num_hidden_layers = num_hidden_layers
 
 class BEFRE(PreTrainedModel):
 
@@ -96,6 +92,8 @@ class BEFRE(PreTrainedModel):
             pretrained_model_name_or_path=config.pretrained_model_name_or_path,
         )
         self.hf_config = hf_config
+        self.config.hidden_size = hf_config.hidden_size
+        self.config.num_hidden_layers = hf_config.num_hidden_layers
         self.config.pruned_heads = hf_config.pruned_heads
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
         self.layer_norm = BertLayerNorm(hf_config.hidden_size * 2)
@@ -112,8 +110,8 @@ class BEFRE(PreTrainedModel):
         self.prefix_encoders = nn.ModuleList([
             PrefixEncoder(config) for i in range(self.num_labels)
         ])
-
-        self.prefix_tokens = torch.arange(config.pre_seq_len).long()
+        self.pre_seq_len = config.pre_seq_len
+        self.prefix_tokens = torch.arange(self.pre_seq_len).long()
 
 
         self.input_encoder = AutoModel.from_pretrained(
@@ -177,27 +175,33 @@ class BEFRE(PreTrainedModel):
             return_dict: bool = None,
     ):
         return_dict = return_dict if return_dict is not None else self.hf_config.use_return_dict
-        batch_size, seq_length = input_ids.size()
+        batch_size, _, des_seq_length = descriptions_input_ids.size()
+        descriptions_sub_idx = descriptions_sub_idx.reshape(batch_size * self.num_labels)
+        descriptions_obj_idx = descriptions_obj_idx.reshape(batch_size * self.num_labels)
 
         #reshape to size num_labels x batch_size x seq_len
         descriptions_input_ids = descriptions_input_ids.permute(1, 0, 2)
         descriptions_input_mask = descriptions_input_mask.permute(1, 0, 2)
         descriptions_type_ids = descriptions_type_ids.permute(1, 0, 2)
 
+        prefix_attention_mask = torch.ones(batch_size, self.pre_seq_len).to(self.description_encoder.device)
+        descriptions_input_masks = [torch.cat((prefix_attention_mask, i), dim=1) for i in descriptions_input_mask]
+
         past_key_values_for_each = []
         for a in range(self.num_labels):
-            past_key_values_for_each.append(self.get_prompt(self, batch_size=batch_size, label=a))
+            past_key_values_for_each.append(self.get_prompt(batch_size=batch_size, label=a))
 
         description_outputs = [self.description_encoder(
             descriptions_input_ids[i],
-            attention_mask=descriptions_input_mask,
-            token_type_ids=descriptions_type_ids,
+            attention_mask=descriptions_input_masks[i],
+            token_type_ids=descriptions_type_ids[i],
             return_dict=return_dict,
             past_key_values=past_key_values_for_each[i]
-        ) for i in range(self.num_labels)]
-        description_outputs = torch.tensor(description_outputs)
+        )[0] for i in range(self.num_labels)]
+
+        description_outputs = torch.stack(description_outputs)
         description_outputs = description_outputs.permute(1, 0, 2, 3)
-        description_outputs = description_outputs.reshape(batch_size*self.num_labels, seq_length, self.hf_config.hidden_size)
+        description_outputs = description_outputs.reshape(batch_size*self.num_labels, des_seq_length, self.hf_config.hidden_size)
 
         # description_outputs = self.description_encoder(
         #     descriptions_input_ids,
@@ -205,7 +209,6 @@ class BEFRE(PreTrainedModel):
         #     token_type_ids=descriptions_type_ids,
         #     return_dict=return_dict,
         # )
-
 
         # batch_size*num_types x seq_length x hidden_size
         description_sequence_output = description_outputs
@@ -219,8 +222,7 @@ class BEFRE(PreTrainedModel):
         # batch_size x seq_length x hidden_size
         sequence_output = outputs[0]
         # batch_size*num_types x seq_length x hidden_size
-        batch_size_times_num_types, des_seq_length, _ = description_sequence_output.size()
-        num_types = int(batch_size_times_num_types / batch_size)
+        num_types = self.num_labels
 
         sub_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(sequence_output, sub_idx)])
         obj_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(sequence_output, obj_idx)])

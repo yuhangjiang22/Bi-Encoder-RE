@@ -495,7 +495,7 @@ model.description_encoder.resize_token_embeddings(len(tokenizer))
 special_tokens = {}
 seq_len = 250
 train_features = convert_examples_to_features(
-    train_examples, label2id, seq_len, tokenizer, special_tokens, tokenized_id2description, multiple_descriptions=True)
+    train_examples, label2id, seq_len, tokenizer, special_tokens, tokenized_id2description, multiple_descriptions=False)
 
 all_input_ids = torch.tensor([f.input_ids for f in train_features], dtype=torch.long)
 all_input_mask = torch.tensor([f.input_mask for f in train_features], dtype=torch.long)
@@ -528,12 +528,12 @@ train_batches = [batch for batch in train_dataloader]
 batch = train_batches[0]
 
 input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx = batch
-num_descriptions = descriptions_input_ids.size(0) * descriptions_input_ids.size(1)
-descriptions_input_ids = descriptions_input_ids.reshape(num_descriptions, seq_len)
-descriptions_input_mask = descriptions_input_mask.reshape(num_descriptions, seq_len)
-descriptions_type_ids = descriptions_type_ids.reshape(num_descriptions, seq_len)
-descriptions_sub_idx = descriptions_sub_idx.reshape(num_descriptions)
-descriptions_obj_idx = descriptions_obj_idx.reshape(num_descriptions)
+# num_descriptions = descriptions_input_ids.size(0) * descriptions_input_ids.size(1)
+# descriptions_input_ids = descriptions_input_ids.reshape(num_descriptions, seq_len)
+# descriptions_input_mask = descriptions_input_mask.reshape(num_descriptions, seq_len)
+# descriptions_type_ids = descriptions_type_ids.reshape(num_descriptions, seq_len)
+# descriptions_sub_idx = descriptions_sub_idx.reshape(num_descriptions)
+# descriptions_obj_idx = descriptions_obj_idx.reshape(num_descriptions)
 
 results = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids,
                 descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx)
