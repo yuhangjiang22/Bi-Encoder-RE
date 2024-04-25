@@ -1024,7 +1024,7 @@ if __name__ == "__main__":
     parser.add_argument('--train_num_examples', type=int, default=None,
                         help="How many training instances to train")
     parser.add_argument('--train_befre', action='store_true',
-                        help="Train PURE of BEFRE.")
+                        help="Train BEFRE or other models.")
     parser.add_argument('--drop_out', type=float, default=0.1,
                         help="hidden drop out rate.")
     parser.add_argument('--multi_descriptions', action='store_true',

@@ -28,6 +28,130 @@ from shared.const import task_rel_labels, task_ner_labels
 from relation.befre import BEFRE, BEFREConfig
 from relation.unified_model import BEFRE, BEFREConfig
 
+# id2description = {
+#     'ChemicalEntity-DiseaseOrPhenotypicFeature': {
+#         0: ['there are no relations between the drug @ChemicalEntity@ and disease @DiseaseOrPhenotypicFeature@ .',],
+#         1: ['the drug @ChemicalEntity@ may induce the disease @DiseaseOrPhenotypicFeature@ , increase its risk, '
+#             'or the levels may'
+#             'correlate with disease risk .'],
+#         2: ['the drug @ChemicalEntity@ is able to treat the disease @DiseaseOrPhenotypicFeature@ or decrease its '
+#             'susceptibility .'],
+#         3: ['the drug @ChemicalEntity@ is found to affect the disease @DiseaseOrPhenotypicFeature@ but not clearly '
+#             'identified as'
+#             'positive or negative correlations . '],
+#         4: [''],
+#         5: [''],
+#         6: [''],
+#         7: [''],
+#         8: [''],
+#     },
+#     'GeneOrGeneProduct-DiseaseOrPhenotypicFeature': {
+#         0: ['there are no relations between the disease @DiseaseOrPhenotypicFeature@ and gene @GeneOrGeneProduct@ .',],
+#         1: ['overexpression or side effects of the gene @GeneOrGeneProduct@ may cause the disease '
+#             '@DiseaseOrPhenotypicFeature@ .'],
+#         2: ['the proteins from the gene @GeneOrGeneProduct@ used as drugs may treat the disease '
+#             '@DiseaseOrPhenotypicFeature@ or the absence may'
+#             'cause diseases .'],
+#         3: ['the functional gene @GeneOrGeneProduct@ prevents disease @DiseaseOrPhenotypicFeature@ or other '
+#             'association relationships .' ],
+#         4: [''],
+#         5: [''],
+#         6: [''],
+#         7: [''],
+#         8: [''],
+#     },
+#     'SequenceVariant-DiseaseOrPhenotypicFeature': {
+#         0: ['there are no relations between the disease @DiseaseOrPhenotypicFeature@ and variant @SequenceVariant@ .',],
+#         1: ['the variant @SequenceVariant@ may increase disease @DiseaseOrPhenotypicFeature@ risk, contribute to '
+#             'disease susceptibility,'
+#             'or cause protein deficiencies leading to diseases .'],
+#         2: ['the variant @SequenceVariant@ may increase disease @DiseaseOrPhenotypicFeature@ risk .'],
+#         3: ['the variant @SequenceVariant@ associated with the disease @DiseaseOrPhenotypicFeature@ prevalence and '
+#             'which that cannot be'
+#             'categorized as causing the disease . '],
+#         4: [''],
+#         5: [''],
+#         6: [''],
+#         7: [''],
+#         8: [''],
+#     },
+#     'GeneOrGeneProduct-GeneOrGeneProduct': {
+#         0: ['there are no relations between the gene @GeneOrGeneProduct@ and gene @GeneOrGeneProduct@ .'],
+#         1: ['the gene @GeneOrGeneProduct@ and gene @GeneOrGeneProduct@ may show positive correlations in expression '
+#             'or regulatory functions .'],
+#         2: ['the gene @GeneOrGeneProduct@ and gene @GeneOrGeneProduct@ may show negative correlations in expression '
+#             'or regulatory functions .'],
+#         3: ['associations between gene @GeneOrGeneProduct@ and gene @GeneOrGeneProduct@ that cannot be categorized '
+#             'differently .'],
+#         4: ['there are physical interactions between proteins from gene @GeneOrGeneProduct@ and gene '
+#             '@GeneOrGeneProduct@ , including protein'
+#             'binding at gene promoters .'],
+#         5: [''],
+#         6: [''],
+#         7: [''],
+#         8: [''],
+#     },
+#     'GeneOrGeneProduct-ChemicalEntity': {
+#         0: ['there are no relations between the drug @ChemicalEntity@ and gene @GeneOrGeneProduct@ .'],
+#         1: ['the drug @ChemicalEntity@ may cause higher expression of gene @GeneOrGeneProduct@ or gene variants may '
+#             'trigger'
+#             'chemical adverse effects .'],
+#         2: ['the drug @ChemicalEntity@ may cause lower expression of gene @GeneOrGeneProduct@ or gene variants may '
+#             'confer'
+#             'resistance to chemicals .'],
+#         3: ['there are non-specific associations and binding interactions between the drug @ChemicalEntity@ and gene '
+#             '@GeneOrGeneProduct@ promoters .'],
+#         4: ['there are relations between the gene @GeneOrGeneProduct@ and the drug @ChemicalEntity@ such that the '
+#             'drug binds the'
+#             'promoter of a gene, or the protein from the gene is the drug receptor .'],
+#         5: [''],
+#         6: [''],
+#         7: [''],
+#         8: [''],
+#     },
+#     'ChemicalEntity-ChemicalEntity': {
+#         0: ['there are no relations between the drug @ChemicalEntity@ and drug @ChemicalEntity@ .'],
+#         1: ['the drug @ChemicalEntity@ may increase the sensitivity or effectiveness of drug @ChemicalEntity@ or vice '
+#             'versa .'],
+#         2: ['the drug @ChemicalEntity@ may decrease the sensitivity or side effects of drug @ChemicalEntity@ or vice '
+#             'versa .'],
+#         3: ['there are chemical conversions or non-specific associations between drug @ChemicalEntity@ and drug '
+#             '@ChemicalEntity@ .'],
+#         4: [''],
+#         5: ['there are pharmacodynamic interactions between the drug @ChemicalEntity@ and drug @ChemicalEntity@ .'],
+#         6: ['the drug combination therapy using both drug @ChemicalEntity@ and drug @ChemicalEntity@ .'],
+#         7: ['there is a comparison relation between drug @ChemicalEntity@ and drug @ChemicalEntity@ .'],
+#         8: ['the drug @ChemicalEntity@ may convert to drug @ChemicalEntity@ or vice versa .'],
+#     },
+#     'ChemicalEntity-SequenceVariant': {
+#         0: ['there are no relations between the drug @ChemicalEntity@ and variant @SequenceVariant@ .'],
+#         1: ['the drug @ChemicalEntity@ may cause higher expression of a gene variant @SequenceVariant@ or increase '
+#             'sensitivity due to a variant .'],
+#         2: ['the drug @ChemicalEntity@ may decrease gene expression due to the variant @SequenceVariant@ or the '
+#             'variant may'
+#             'confer resistance .'],
+#         3: ['there are association relationships not defined between the variant @SequenceVariant@ and the drug '
+#             '@ChemicalEntity@ , like variant on chemical binding sites .'],
+#         4: [''],
+#         5: [''],
+#         6: [''],
+#         7: [''],
+#         8: [''],
+#
+#     },
+#     'SequenceVariant-SequenceVariant': {
+#         0: ['there are no relations between the variant @SequenceVariant@ and variant @SequenceVariant@ .'],
+#         1: [''],
+#         2: [''],
+#         3: ['there is a association relation between the variant @SequenceVariant@ and variant @SequenceVariant@ .'],
+#         4: [''],
+#         5: [''],
+#         6: [''],
+#         7: [''],
+#         8: [''],
+#     }
+# }
+
 id2description = {
     'ChemicalEntity-DiseaseOrPhenotypicFeature': {
         0: ['there are no relations between the drug @ChemicalEntity@ and disease @DiseaseOrPhenotypicFeature@ .',],
@@ -152,7 +276,6 @@ id2description = {
     }
 }
 
-
 tokenized_id2description = {pair: {key: [s.lower().split() for s in value] for key, value in dic.items()} for pair, dic in id2description.items()}
 
 def add_description_words(tokenizer, tokenized_id2description):
@@ -238,7 +361,7 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                 break
         return lst
 
-    def get_description_input(description_tokens):
+    def get_description_input(description_tokens, des_max_seq_length=100):
         if description_tokens:
             description_tokens = [CLS] + description_tokens
             description_tokens = replace_sub_obj(description_tokens, ('@' + subj_type + '@').lower(), subject)
@@ -271,9 +394,9 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         description_input_mask += padding
         description_type_ids += padding
 
-        assert len(description_input_ids) == max_seq_length
-        assert len(description_input_mask) == max_seq_length
-        assert len(description_type_ids) == max_seq_length
+        assert len(description_input_ids) == des_max_seq_length
+        assert len(description_input_mask) == des_max_seq_length
+        assert len(description_type_ids) == des_max_seq_length
 
         return description_input_ids, description_input_mask, description_type_ids
 
@@ -435,7 +558,7 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
         sub_idx = sub_idx.to(device)
         obj_idx = obj_idx.to(device)
 
-        batch_size, num_labels, _ = descriptions_input_ids.size()
+        batch_size, num_labels, seq_len = descriptions_input_ids.size()
 
         descriptions_input_ids = descriptions_input_ids.reshape(batch_size * num_labels, seq_len)
         descriptions_input_mask = descriptions_input_mask.reshape(batch_size * num_labels, seq_len)
@@ -727,15 +850,16 @@ def main(args):
             if args.train_mode == 'random' or args.train_mode == 'random_sorted':
                 random.shuffle(train_batches)
             for step, batch in enumerate(train_batches):
-                num_descriptions = batch[6].size(0) * batch[6].size(1)
                 # batch_size, _ = batch[0].size()
                 batch = tuple(t.to(device) for t in batch)
                 input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx = batch
-                descriptions_input_ids = descriptions_input_ids.reshape(num_descriptions, args.max_seq_length)
-                descriptions_input_mask = descriptions_input_mask.reshape(num_descriptions, args.max_seq_length)
-                descriptions_type_ids = descriptions_type_ids.reshape(num_descriptions, args.max_seq_length)
-                descriptions_sub_idx = descriptions_sub_idx.reshape(num_descriptions)
-                descriptions_obj_idx = descriptions_obj_idx.reshape(num_descriptions)
+                batch_size, num_labels, des_seq_length = descriptions_input_ids.size()
+
+                descriptions_input_ids = descriptions_input_ids.reshape(batch_size * num_labels, des_seq_length)
+                descriptions_input_mask = descriptions_input_mask.reshape(batch_size * num_labels, des_seq_length)
+                descriptions_type_ids = descriptions_type_ids.reshape(batch_size * num_labels, des_seq_length)
+                descriptions_sub_idx = descriptions_sub_idx.reshape(batch_size * num_labels)
+                descriptions_obj_idx = descriptions_obj_idx.reshape(batch_size * num_labels)
 
                 loss = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids,
                              descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx,
