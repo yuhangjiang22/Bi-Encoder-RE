@@ -654,8 +654,8 @@ def main(args):
     if args.train_pure:
         from relation.testing_model import BEFRE, BEFREConfig
     else:
-        from relation.testing_model_2 import BEFRE, BEFREConfig
-        # from relation.unified_model import BEFRE, BEFREConfig
+        # from relation.testing_model_2 import BEFRE, BEFREConfig
+        from relation.unified_model import BEFRE, BEFREConfig
         # from relation.uni_model import BEFRE, BEFREConfig
 
     setseed(args.seed)
