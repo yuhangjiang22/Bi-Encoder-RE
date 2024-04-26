@@ -651,12 +651,14 @@ def main(args):
     #     args.add_new_tokens = True
     # else:
     #     RelationModel = BertForRelation
+    if args.soft_prompt:
+        from relation.testing_model_2 import BEFRE, BEFREConfig
+    else:
+        # from relation.testing_model_2 import BEFRE, BEFREConfig
+        from relation.unified_model import BEFRE, BEFREConfig
+        # from relation.uni_model import BEFRE, BEFREConfig
     if args.train_pure:
         from relation.testing_model import BEFRE, BEFREConfig
-    else:
-        from relation.testing_model_2 import BEFRE, BEFREConfig
-        # from relation.unified_model import BEFRE, BEFREConfig
-        # from relation.uni_model import BEFRE, BEFREConfig
 
     setseed(args.seed)
 
