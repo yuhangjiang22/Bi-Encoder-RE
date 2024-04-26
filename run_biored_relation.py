@@ -389,7 +389,7 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
             descriptions_sub_idx.append(des_sub_idx)
             descriptions_obj_idx.append(des_obj_idx)
 
-        padding = [0] * (max_seq_length - len(description_input_ids))
+        padding = [0] * (des_max_seq_length - len(description_input_ids))
         description_input_ids += padding
         description_input_mask += padding
         description_type_ids += padding
@@ -650,8 +650,8 @@ def main(args):
     if args.train_pure:
         from relation.testing_model import BEFRE, BEFREConfig
     else:
-        # from relation.testing_model import BEFRE, BEFREConfig
-        from relation.unified_model import BEFRE, BEFREConfig
+        from relation.testing_model_2 import BEFRE, BEFREConfig
+        # from relation.unified_model import BEFRE, BEFREConfig
         # from relation.uni_model import BEFRE, BEFREConfig
 
     setseed(args.seed)
