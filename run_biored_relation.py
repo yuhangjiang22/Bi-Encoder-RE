@@ -494,6 +494,10 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                 logger.info("input_mask: %s" % " ".join([str(x) for x in input_mask]))
                 logger.info("segment_ids: %s" % " ".join([str(x) for x in segment_ids]))
                 logger.info("label: %s (id = %d)" % (example['relation'], label_id))
+
+                logger.info("description_input_ids: %s" % " ".join([str(x) for x in descriptions_input_ids[label_id]]))
+                logger.info("description_input_mask: %s" % " ".join([str(x) for x in descriptions_input_mask[label_id]]))
+                logger.info("segment_ids: %s" % " ".join([str(x) for x in descriptions_type_ids[label_id]]))
                 logger.info("sub_idx, obj_idx: %d, %d" % (sub_idx, obj_idx))
 
         features.append(
