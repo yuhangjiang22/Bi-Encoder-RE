@@ -31,6 +31,7 @@ class BEFREConfig(PretrainedConfig):
         max_span_width=30,
         use_span_width_embedding=False,
         init_temperature=0.07,
+        num_labels=6,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -41,6 +42,63 @@ class BEFREConfig(PretrainedConfig):
         self.max_span_width = max_span_width
         self.use_span_width_embedding = use_span_width_embedding
         self.init_temperature = init_temperature
+        self.num_labels = num_labels
+
+class SupConLoss(nn.Module):
+    """
+    Supervised Contrastive Learning: https://arxiv.org/pdf/2004.11362.pdf.
+
+    Modified from https://github.com/HobbitLong/SupContrast.
+    """
+
+    def __init__(self, temperature=0.01):
+        super(SupConLoss, self).__init__()
+        self.temperature = temperature
+
+    def forward(self, embs, same_label_mask, no_label_mask):
+        """Compute supervised contrastive loss (variant).
+
+        Args:
+            embs: (num_examples, hidden_dim)
+            same_label_mask: (num_examples, num_examples)
+            no_label_mask: (num_examples)
+
+        Returns:
+            A loss scalar
+        """
+        # compute similarity scores for embs
+        sim = embs @ embs.T / self.temperature
+        # for numerical stability
+        sim_max, _ = torch.max(sim, dim=1, keepdim=True)
+        sim = sim - sim_max.detach()
+
+        # compute log-likelihood for each pair
+        # ***unlike original supcon, do not include examples with the same label in the denominator***
+        negs = torch.exp(sim) * ~(same_label_mask)
+        denominator = negs.sum(axis=1, keepdim=True) + torch.exp(sim)
+        # log(exp(x)) = x and log(x/y) = log(x) - log(y)
+        log_prob = sim - torch.log(denominator)
+
+        # compute mean of log-likelihood over all positive pairs for a query/entity
+        # exclude self from positive pairs
+        pos_pairs_mask = same_label_mask.fill_diagonal_(0)
+        # only include examples in loss that have positive pairs and the class label is known
+        include_in_loss = (pos_pairs_mask.sum(1) != 0) & (~no_label_mask).flatten()
+        # we add ones to the denominator to avoid nans when there are no positive pairs
+        mean_log_prob_pos = (pos_pairs_mask * log_prob).sum(1) / (
+            pos_pairs_mask.sum(1) + (~include_in_loss).float()
+        )
+        mean_log_prob_pos = mean_log_prob_pos[include_in_loss]
+
+        # return zero loss if there are no values to take average over
+        if mean_log_prob_pos.shape[0] == 0:
+            return torch.tensor(0)
+
+        # scale loss by temperature (as done in supcon paper)
+        loss = -1 * self.temperature * mean_log_prob_pos
+
+        # average loss over all queries/entities that have at least one positive pair
+        return loss.mean()
 
 class BEFRE(PreTrainedModel):
 
@@ -58,6 +116,7 @@ class BEFRE(PreTrainedModel):
         self.layer_norm = BertLayerNorm(hf_config.hidden_size * 2)
         self.logit_scale = torch.nn.Parameter(torch.ones([]) * np.log(1 / config.init_temperature))
         self.post_init()
+        self.temperature = config.init_temperature
 
         self.input_encoder = AutoModel.from_pretrained(
             config.pretrained_model_name_or_path,
@@ -154,7 +213,6 @@ class BEFRE(PreTrainedModel):
             # Extract the corresponding num_types vectors from des_rep
             vec_des = des_rep[i * num_types:(i + 1) * num_types]
 
-            # Calculate the dot product of each input rep with description rep
             cos = nn.CosineSimilarity(dim=-1)
             dot_products = cos(vec_des, vec_input)
             results.append(dot_products)
@@ -162,9 +220,21 @@ class BEFRE(PreTrainedModel):
         scores = torch.stack(results)
         scores = self.logit_scale.exp() * scores
 
+
         if labels is not None:
             loss = contrastive_loss(scores, labels)
-            return loss
+            all_rep = torch.cat([rep, des_rep], dim=0)
+            des_labels = torch.arange(num_types).repeat(batch_size).to(self.description_encoder.device)
+            all_labels = torch.cat([labels, des_labels], dim=0).view(-1, 1)
+            no_label_mask = all_labels == 0
+            same_label_mask = torch.eq(all_labels, all_labels.T).bool()
+            relation_loss = SupConLoss(temperature=self.temperature)(
+                embs=all_rep,
+                no_label_mask=no_label_mask,
+                same_label_mask=same_label_mask,
+            )
+            total_loss = 0.8 * loss + 0.2 * relation_loss
+            return total_loss
         else:
             return scores
 
