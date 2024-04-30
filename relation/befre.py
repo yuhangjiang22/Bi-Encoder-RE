@@ -236,7 +236,7 @@ class BEFRE(PreTrainedModel):
                 no_label_mask=no_label_mask,
                 same_label_mask=same_label_mask,
             )
-            total_loss = 0.8 * loss + 0.2 * relation_loss
+            total_loss = 0.2 * loss + 0.8 * relation_loss
             return total_loss
         else:
             return scores
