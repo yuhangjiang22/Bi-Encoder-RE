@@ -136,7 +136,7 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                 special_tokens[w] = ('<' + w + '>').lower()
         return special_tokens[w]
 
-    def get_description_input(description_tokens):
+    def get_description_input(description_tokens, des_max_seq_length=200):
         description_tokens = [CLS] + description_tokens
         description_tokens = [subject if word == '@subject@' else word for word in description_tokens]
         description_tokens = [object if word == '@object@' else word for word in description_tokens]
@@ -152,14 +152,14 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         description_input_ids = tokenizer.convert_tokens_to_ids(description_tokens)
         description_type_ids = [0] * len(description_tokens)
         description_input_mask = [1] * len(description_input_ids)
-        padding = [0] * (max_seq_length - len(description_input_ids))
+        padding = [0] * (des_max_seq_length - len(description_input_ids))
         description_input_ids += padding
         description_input_mask += padding
         description_type_ids += padding
 
-        assert len(description_input_ids) == max_seq_length
-        assert len(description_input_mask) == max_seq_length
-        assert len(description_type_ids) == max_seq_length
+        assert len(description_input_ids) == des_max_seq_length
+        assert len(description_input_mask) == des_max_seq_length
+        assert len(description_type_ids) == des_max_seq_length
 
         return description_input_ids, description_input_mask, description_type_ids
 
@@ -348,7 +348,7 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
         sub_idx = sub_idx.to(device)
         obj_idx = obj_idx.to(device)
 
-        batch_size, num_labels, _ = descriptions_input_ids.size()
+        batch_size, num_labels, seq_len = descriptions_input_ids.size()
 
         descriptions_input_ids = descriptions_input_ids.reshape(batch_size * num_labels, seq_len)
         descriptions_input_mask = descriptions_input_mask.reshape(batch_size * num_labels, seq_len)
@@ -640,12 +640,13 @@ def main(args):
                 random.shuffle(train_batches)
             for step, batch in enumerate(train_batches):
                 num_descriptions = batch[6].size(0) * batch[6].size(1)
+                seq_len = batch[6].size(2)
                 # batch_size, _ = batch[0].size()
                 batch = tuple(t.to(device) for t in batch)
                 input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx = batch
-                descriptions_input_ids = descriptions_input_ids.reshape(num_descriptions, args.max_seq_length)
-                descriptions_input_mask = descriptions_input_mask.reshape(num_descriptions, args.max_seq_length)
-                descriptions_type_ids = descriptions_type_ids.reshape(num_descriptions, args.max_seq_length)
+                descriptions_input_ids = descriptions_input_ids.reshape(num_descriptions, seq_len)
+                descriptions_input_mask = descriptions_input_mask.reshape(num_descriptions, seq_len)
+                descriptions_type_ids = descriptions_type_ids.reshape(num_descriptions, seq_len)
                 descriptions_sub_idx = descriptions_sub_idx.reshape(num_descriptions)
                 descriptions_obj_idx = descriptions_obj_idx.reshape(num_descriptions)
                 loss = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids,
