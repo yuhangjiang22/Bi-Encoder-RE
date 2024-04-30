@@ -246,6 +246,7 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
 
 
         else:
+            descriptions_tokens = []
             for label, description_tokens_list in tokenized_id2description.items():
                 if label == label_id:
                     description_label_id = len(descriptions_input_ids)
@@ -258,7 +259,6 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                     descriptions_type_ids.append(description_type_ids)
                 else:
 
-                    descriptions_tokens = []
                     for description_tokens in description_tokens_list:
                         descriptions_tokens.append(description_tokens)
                         description_input_ids, description_input_mask, description_type_ids = get_description_input(
