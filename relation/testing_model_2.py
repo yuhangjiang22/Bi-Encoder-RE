@@ -135,7 +135,6 @@ class BEFRE(PreTrainedModel):
         # batch_size*num_types x seq_length x hidden_size
         batch_size_times_num_types, des_seq_length, _ = description_sequence_output.size()
         num_types = int(batch_size_times_num_types / batch_size)
-        print(sequence_output.size())
 
         sub_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(sequence_output, sub_idx)])
         obj_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(sequence_output, obj_idx)])
