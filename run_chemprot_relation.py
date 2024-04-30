@@ -136,7 +136,7 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                 special_tokens[w] = ('<' + w + '>').lower()
         return special_tokens[w]
 
-    def get_description_input(description_tokens):
+    def get_description_input(description_tokens, des_max_seq_length=100):
         description_tokens = [CLS] + description_tokens
         description_tokens = [subject if word == '@subject@' else word for word in description_tokens]
         description_tokens = [object if word == '@object@' else word for word in description_tokens]
@@ -152,14 +152,14 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         description_input_ids = tokenizer.convert_tokens_to_ids(description_tokens)
         description_type_ids = [0] * len(description_tokens)
         description_input_mask = [1] * len(description_input_ids)
-        padding = [0] * (max_seq_length - len(description_input_ids))
+        padding = [0] * (des_max_seq_length - len(description_input_ids))
         description_input_ids += padding
         description_input_mask += padding
         description_type_ids += padding
 
-        assert len(description_input_ids) == max_seq_length
-        assert len(description_input_mask) == max_seq_length
-        assert len(description_type_ids) == max_seq_length
+        assert len(description_input_ids) == des_max_seq_length
+        assert len(description_input_mask) == des_max_seq_length
+        assert len(description_type_ids) == des_max_seq_length
 
         return description_input_ids, description_input_mask, description_type_ids
 
