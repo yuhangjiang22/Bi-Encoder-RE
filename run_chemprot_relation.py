@@ -441,12 +441,14 @@ def main(args):
     #     args.add_new_tokens = True
     # else:
     #     RelationModel = BertForRelation
-    if args.train_pure:
-        from relation.testing_model import BEFRE, BEFREConfig
+    if args.soft_prompt:
+        from relation.testing_model_2 import BEFRE, BEFREConfig
     else:
         # from relation.testing_model import BEFRE, BEFREConfig
         from relation.unified_model import BEFRE, BEFREConfig
         # from relation.uni_model import BEFRE, BEFREConfig
+    if args.train_pure:
+        from relation.testing_model import BEFRE, BEFREConfig
 
     setseed(args.seed)
 
@@ -818,6 +820,8 @@ if __name__ == "__main__":
                         help="hidden drop out rate.")
     parser.add_argument('--multi_descriptions', action='store_true',
                         help="Use multi-descriptions or not.")
+    parser.add_argument('--soft_prompt', action='store_true',
+                        help="Train with soft prompts.")
 
     args = parser.parse_args()
     main(args)
