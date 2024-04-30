@@ -136,7 +136,7 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                 special_tokens[w] = ('<' + w + '>').lower()
         return special_tokens[w]
 
-    def get_description_input(description_tokens, des_max_seq_length=200):
+    def get_description_input(description_tokens, des_max_seq_length=100):
         description_tokens = [CLS] + description_tokens
         description_tokens = [subject if word == '@subject@' else word for word in description_tokens]
         description_tokens = [object if word == '@object@' else word for word in description_tokens]
@@ -161,7 +161,7 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         assert len(description_input_mask) == des_max_seq_length
         assert len(description_type_ids) == des_max_seq_length
 
-        return description_input_ids, description_input_mask, description_type_ids, description_tokens
+        return description_input_ids, description_input_mask, description_type_ids
 
     num_tokens = 0
     max_tokens = 0
@@ -232,18 +232,39 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         descriptions_obj_idx = []
 
         if not multiple_descriptions:
-            descriptions_tokens = []
 
             for _, description_tokens_list in tokenized_id2description.items():
 
                 # description_tokens = random.choice(description_tokens_list)
                 description_tokens = description_tokens_list[0]
-                description_input_ids, description_input_mask, description_type_ids, insterted_description_tokens = get_description_input(description_tokens)
-                descriptions_tokens.append(insterted_description_tokens)
+                description_input_ids, description_input_mask, description_type_ids = get_description_input(description_tokens)
 
                 descriptions_input_ids.append(description_input_ids)
                 descriptions_input_mask.append(description_input_mask)
                 descriptions_type_ids.append(description_type_ids)
+
+
+
+        else:
+            for label, description_tokens_list in tokenized_id2description.items():
+                if label == label_id:
+                    description_label_id = len(descriptions_input_ids)
+                    description_tokens = description_tokens_list[0]
+                    description_input_ids, description_input_mask, description_type_ids = get_description_input(
+                        description_tokens)
+
+                    descriptions_input_ids.append(description_input_ids)
+                    descriptions_input_mask.append(description_input_mask)
+                    descriptions_type_ids.append(description_type_ids)
+                else:
+
+                    for description_tokens in description_tokens_list:
+                        description_input_ids, description_input_mask, description_type_ids = get_description_input(
+                            description_tokens)
+
+                        descriptions_input_ids.append(description_input_ids)
+                        descriptions_input_mask.append(description_input_mask)
+                        descriptions_type_ids.append(description_type_ids)
 
 
 
@@ -258,11 +279,11 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                 logger.info("input_ids: %s" % " ".join([str(x) for x in input_ids]))
                 logger.info("input_mask: %s" % " ".join([str(x) for x in input_mask]))
                 logger.info("segment_ids: %s" % " ".join([str(x) for x in segment_ids]))
-                logger.info("description_tokens: %s" % " ".join([str(x) for x in descriptions_tokens[label_id]]))
-                logger.info("description_ids: %s" % " ".join([str(x) for x in descriptions_input_ids[label_id]]))
                 logger.info("label: %s (id = %d)" % (example['relation'], label_id))
                 logger.info("sub_idx, obj_idx: %d, %d" % (sub_idx, obj_idx))
 
+        if multiple_descriptions:
+            label_id = description_label_id
         features.append(
             InputFeatures(input_ids=input_ids,
                           input_mask=input_mask,
