@@ -258,7 +258,9 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                     descriptions_type_ids.append(description_type_ids)
                 else:
 
+                    descriptions_tokens = []
                     for description_tokens in description_tokens_list:
+                        descriptions_tokens.append(description_tokens)
                         description_input_ids, description_input_mask, description_type_ids = get_description_input(
                             description_tokens)
 
@@ -279,6 +281,8 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                 logger.info("input_ids: %s" % " ".join([str(x) for x in input_ids]))
                 logger.info("input_mask: %s" % " ".join([str(x) for x in input_mask]))
                 logger.info("segment_ids: %s" % " ".join([str(x) for x in segment_ids]))
+                logger.info("description_tokens: %s" % " ".join([str(x) for x in descriptions_tokens[label_id]]))
+                logger.info("description_ids: %s" % " ".join([str(x) for x in descriptions_input_ids[label_id]]))
                 logger.info("label: %s (id = %d)" % (example['relation'], label_id))
                 logger.info("sub_idx, obj_idx: %d, %d" % (sub_idx, obj_idx))
 
