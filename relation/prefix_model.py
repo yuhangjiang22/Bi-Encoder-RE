@@ -100,7 +100,8 @@ class BEFRE(PreTrainedModel):
         self.logit_scale = torch.nn.Parameter(torch.ones([]) * np.log(1 / config.init_temperature))
         self.post_init()
         self.num_labels = config.num_labels
-        self.classifier = nn.Linear(hf_config.hidden_size * 2, config.num_labels)
+        # self.classifier = nn.Linear(hf_config.hidden_size * 2, config.num_labels)
+        self.classifier = nn.Linear(hf_config.hidden_size, config.num_labels)
 
         self.input_linear = nn.Linear(hf_config.hidden_size * 2, hf_config.hidden_size)
         self.des_linear = nn.Linear(hf_config.hidden_size * 3, hf_config.hidden_size)
