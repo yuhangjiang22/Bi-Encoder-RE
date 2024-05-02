@@ -666,6 +666,8 @@ def main(args):
         from relation.testing_model_2 import BEFRE, BEFREConfig
         # from relation.unified_model import BEFRE, BEFREConfig
         # from relation.uni_model import BEFRE, BEFREConfig
+    if args.train_pure:
+        from relation.testing_model import BEFRE, BEFREConfig
 
     config = BEFREConfig(
         pretrained_model_name_or_path=args.model,
@@ -1032,6 +1034,8 @@ if __name__ == "__main__":
     parser.add_argument('--train_num_examples', type=int, default=None,
                         help="How many training instances to train")
     parser.add_argument('--train_befre', action='store_true',
+                        help="Train PURE of BEFRE.")
+    parser.add_argument('--train_pure', action='store_true',
                         help="Train PURE of BEFRE.")
     parser.add_argument('--drop_out', type=float, default=0.1,
                         help="hidden drop out rate.")
