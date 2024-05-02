@@ -669,13 +669,6 @@ def main(args):
     if args.train_pure:
         from relation.testing_model import BEFRE, BEFREConfig
 
-    config = BEFREConfig(
-        pretrained_model_name_or_path=args.model,
-        cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE),
-        revision=None,
-        use_auth_token=True,
-        hidden_dropout_prob=args.drop_out,
-    )
     setseed(args.seed)
 
     device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
@@ -722,6 +715,15 @@ def main(args):
     label2id = {label: i for i, label in enumerate(label_list)}
     id2label = {i: label for i, label in enumerate(label_list)}
     num_labels = len(label_list)
+
+    config = BEFREConfig(
+        pretrained_model_name_or_path=args.model,
+        cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE),
+        revision=None,
+        use_auth_token=True,
+        hidden_dropout_prob=args.drop_out,
+        num_labels=num_labels
+    )
 
     tokenizer = AutoTokenizer.from_pretrained(args.model, do_lower_case=args.do_lower_case)
     add_description_words(tokenizer, tokenized_id2description)
@@ -956,7 +958,7 @@ def main(args):
             eval_dataloader = DataLoader(eval_data, batch_size=args.eval_batch_size)
             eval_label_ids = all_label_ids
 
-        model = BEFRE.from_pretrained(args.output_dir)
+        model = BEFRE.from_pretrained(args.output_dir, num_labels=num_labels)
         model.to(device)
         preds, result = evaluate(model=model,
                                  device=device,
