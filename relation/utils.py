@@ -163,8 +163,8 @@ def generate_relation_data(entity_data, use_gold=False, context_window=0):
 
                             sent_samples.append(sample)
 
-                            captured.append([sub.span.text, obj.span.text])
-                            captured.append([obj.span.text, sub.span.text])
+                            captured.append([sub.span, obj.span])
+                            captured.append([obj.span, sub.span])
 
             max_sentsample = max(max_sentsample, len(sent_samples))
             samples += sent_samples
