@@ -17,13 +17,14 @@ from relation.unified_model import BEFRE, BEFREConfig
 
 checkpoint = 'microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract'
 checkpoint_PURE = 'rel_model'
+checkpoint_scibert = 'scibert_scivocab_uncased'
 
 data_files = {}
 
-tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+tokenizer = AutoTokenizer.from_pretrained(checkpoint_scibert)
 
 config = BEFREConfig(
-    pretrained_model_name_or_path=checkpoint,
+    pretrained_model_name_or_path=checkpoint_scibert,
     cache_dir=None,
     use_auth_token=True,
     hidden_dropout_prob=0.1,
@@ -478,10 +479,10 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, e2e_ngo
     return preds, result
 
 
-train_file = 'chemprot/train.json'
+train_file = 'scierc/json/train.json'
 train_dataset, train_examples, train_nrel = generate_relation_data(train_file, use_gold=True, context_window=100)
 
-label_list = ['no_relation'] + task_rel_labels['chemprot_5']
+label_list = ['no_relation'] + task_rel_labels['scierc']
 
 label2id = {label: i for i, label in enumerate(label_list)}
 id2label = {i: label for i, label in enumerate(label_list)}
@@ -528,12 +529,12 @@ train_batches = [batch for batch in train_dataloader]
 batch = train_batches[0]
 
 input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx = batch
-# num_descriptions = descriptions_input_ids.size(0) * descriptions_input_ids.size(1)
-# descriptions_input_ids = descriptions_input_ids.reshape(num_descriptions, seq_len)
-# descriptions_input_mask = descriptions_input_mask.reshape(num_descriptions, seq_len)
-# descriptions_type_ids = descriptions_type_ids.reshape(num_descriptions, seq_len)
-# descriptions_sub_idx = descriptions_sub_idx.reshape(num_descriptions)
-# descriptions_obj_idx = descriptions_obj_idx.reshape(num_descriptions)
+num_descriptions = descriptions_input_ids.size(0) * descriptions_input_ids.size(1)
+descriptions_input_ids = descriptions_input_ids.reshape(num_descriptions, seq_len)
+descriptions_input_mask = descriptions_input_mask.reshape(num_descriptions, seq_len)
+descriptions_type_ids = descriptions_type_ids.reshape(num_descriptions, seq_len)
+descriptions_sub_idx = descriptions_sub_idx.reshape(num_descriptions)
+descriptions_obj_idx = descriptions_obj_idx.reshape(num_descriptions)
 
 results = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids,
                 descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx)
