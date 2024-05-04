@@ -888,6 +888,7 @@ def main(args):
                 descriptions_type_ids = descriptions_type_ids.reshape(num_descriptions, args.max_seq_length)
                 descriptions_sub_idx = descriptions_sub_idx.reshape(num_descriptions)
                 descriptions_obj_idx = descriptions_obj_idx.reshape(num_descriptions)
+                print(descriptions_input_ids.size())
                 loss = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids,
                              descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx,
                              return_dict=True)
