@@ -137,6 +137,7 @@ id2description = {0: ["no relation : there are no relations between @subject@ an
 
 tokenized_id2description = {key: [s.lower().split() for s in value] for key, value in id2description.items()}
 
+
 def add_description_words(tokenizer, tokenized_id2description):
     unk_words = []
     for k, v in tokenized_id2description.items():
@@ -145,6 +146,7 @@ def add_description_words(tokenizer, tokenized_id2description):
                 if w not in tokenizer.vocab:
                     unk_words.append(w)
     tokenizer.add_tokens(unk_words)
+
 
 CLS = "[CLS]"
 SEP = "[SEP]"
@@ -474,10 +476,10 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         if not multiple_descriptions:
 
             for _, description_tokens_list in tokenized_id2description.items():
-
                 # description_tokens = random.choice(description_tokens_list)
                 description_tokens = description_tokens_list[0]
-                description_input_ids, description_input_mask, description_type_ids = get_description_input(description_tokens)
+                description_input_ids, description_input_mask, description_type_ids = get_description_input(
+                    description_tokens)
 
                 descriptions_input_ids.append(description_input_ids)
                 descriptions_input_mask.append(description_input_mask)
@@ -505,9 +507,6 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                         descriptions_input_ids.append(description_input_ids)
                         descriptions_input_mask.append(description_input_mask)
                         descriptions_type_ids.append(description_type_ids)
-
-
-
 
         if num_shown_examples < 20:
             if (ex_index < 5) or (label_id > 0):
@@ -542,6 +541,7 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                                                                        num_fit_examples * 100.0 / len(examples),
                                                                        max_seq_length))
     return features
+
 
 def simple_accuracy(preds, labels):
     return (preds == labels).mean()
@@ -708,7 +708,6 @@ def main(args):
             os.path.join(args.entity_output_dir, args.entity_predictions_test), use_gold=args.eval_with_gold,
             context_window=args.context_window)
 
-
     if not args.do_train and not args.do_eval:
         raise ValueError("At least one of `do_train` or `do_eval` must be True.")
 
@@ -792,8 +791,44 @@ def main(args):
 
         eval_dataloader = DataLoader(eval_data, batch_size=args.eval_batch_size)
         eval_label_ids = all_label_ids
-    with open(os.path.join(args.output_dir, 'special_tokens.json'), 'w') as f:
-        json.dump(special_tokens, f)
+
+        with open(os.path.join(args.output_dir, 'special_tokens.json'), 'w') as f:
+            json.dump(special_tokens, f)
+
+        test_features = convert_examples_to_features(
+            test_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
+            unused_tokens=not (args.add_new_tokens))
+
+        all_input_ids = torch.tensor([f.input_ids for f in test_features], dtype=torch.long)
+        all_input_mask = torch.tensor([f.input_mask for f in test_features], dtype=torch.long)
+        all_segment_ids = torch.tensor([f.segment_ids for f in test_features], dtype=torch.long)
+        all_label_ids = torch.tensor([f.label_id for f in test_features], dtype=torch.long)
+        all_sub_idx = torch.tensor([f.sub_idx for f in test_features], dtype=torch.long)
+        all_obj_idx = torch.tensor([f.obj_idx for f in test_features], dtype=torch.long)
+
+        all_descriptions_input_ids = torch.tensor([f.descriptions_input_ids for f in test_features],
+                                                  dtype=torch.long)
+        all_descriptions_input_mask = torch.tensor([f.descriptions_input_mask for f in test_features],
+                                                   dtype=torch.long)
+        all_descriptions_type_ids = torch.tensor([f.descriptions_type_ids for f in test_features],
+                                                 dtype=torch.long)
+        all_descriptions_sub_idx = torch.tensor([f.descriptions_sub_idx for f in test_features], dtype=torch.long)
+        all_descriptions_obj_idx = torch.tensor([f.descriptions_obj_idx for f in test_features], dtype=torch.long)
+
+        test_data = TensorDataset(all_input_ids,
+                                  all_input_mask,
+                                  all_segment_ids,
+                                  all_label_ids,
+                                  all_sub_idx,
+                                  all_obj_idx,
+                                  all_descriptions_input_ids,
+                                  all_descriptions_input_mask,
+                                  all_descriptions_type_ids,
+                                  all_descriptions_sub_idx,
+                                  all_descriptions_obj_idx)
+
+        test_dataloader = DataLoader(test_data, batch_size=args.eval_batch_size)
+        test_label_ids = all_label_ids
 
     if args.do_train:
         train_features = convert_examples_to_features(
@@ -848,7 +883,7 @@ def main(args):
 
         lr = args.learning_rate
         model = BEFRE(config)
-        if id2label[1] == 'PART-OF': # for scierc dataset only
+        if id2label[1] == 'PART-OF':  # for scierc dataset only
             model.input_encoder.resize_token_embeddings(len(tokenizer))
             model.description_encoder.resize_token_embeddings(len(tokenizer))
         # model = RelationModel.from_pretrained(
@@ -936,6 +971,18 @@ def main(args):
                                         (args.eval_metric, str(lr), epoch, result[args.eval_metric] * 100.0))
                             save_trained_model(args.output_dir, model, tokenizer)
 
+                            preds, result = evaluate(model=model,
+                                                     device=device,
+                                                     eval_dataloader=test_dataloader,
+                                                     eval_label_ids=test_label_ids,
+                                                     num_labels=num_labels,
+                                                     batch_size=args.eval_batch_size,
+                                                     seq_len=args.max_seq_length,
+                                                     e2e_ngold=test_nrel,
+                                                     )
+                            logger.info("Current test %s (lr=%s, epoch=%d): %.2f" %
+                                        (args.eval_metric, str(lr), epoch, result[args.eval_metric] * 100.0))
+
     evaluation_results = {}
     if args.do_eval:
         logger.info(special_tokens)
@@ -981,7 +1028,7 @@ def main(args):
             eval_dataloader = DataLoader(eval_data, batch_size=args.eval_batch_size)
             eval_label_ids = all_label_ids
 
-        model = BEFRE.from_pretrained(args.output_dir, num_labels=num_labels)
+        model = BEFRE.from_pretrained(args.output_dir, num_labels=num_labels, ignore_mismatched_sizes=True)
         model.to(device)
         preds, result = evaluate(model=model,
                                  device=device,

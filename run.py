@@ -21,7 +21,7 @@ checkpoint_scibert = 'scibert_scivocab_uncased'
 
 data_files = {}
 
-tokenizer = AutoTokenizer.from_pretrained(checkpoint_scibert)
+tokenizer = AutoTokenizer.from_pretrained(checkpoint)
 
 config = BEFREConfig(
     pretrained_model_name_or_path=checkpoint_scibert,
