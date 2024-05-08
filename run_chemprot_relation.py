@@ -181,7 +181,7 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                 special_tokens[w] = ('<' + w + '>').lower()
         return special_tokens[w]
 
-    def get_description_input(description_tokens, des_max_seq_length=200):
+    def get_description_input(description_tokens, des_max_seq_length=50):
         description_tokens = [CLS] + description_tokens
         description_tokens = [subject if word == '@subject@' else word for word in description_tokens]
         description_tokens = [object if word == '@object@' else word for word in description_tokens]
