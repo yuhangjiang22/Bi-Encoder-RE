@@ -28,24 +28,37 @@ from shared.const import task_rel_labels, task_ner_labels
 from relation.befre import BEFRE, BEFREConfig
 from relation.unified_model import BEFRE, BEFREConfig
 
-id2description = {0: ["no relation : there are no relations between @subject@ and @object@ ."],
-                  1: ["part of : @subject@ is a component or segment that is integral to the structure or composition "
-                      "of @object@ ."],
-                  2: ["used for : @subject@ is a tool or method applied to enhance or facilitate @object@ ."],
-                  3: ["feature of : @subject@ is a constituent part or characteristic of @object@ , functioning as a "
-                      "distinctive"
-                      "element within @object@ , and falls within the scope or area of expertise defined by the "
-                      "domain of @object@ ."],
-                  4: ["conjunction : @subject@ serves a role or purpose analogous to @object@ , often being used in "
-                      "conjunction"
-                      "with or incorporated into @object@ for complementary or similar functions . "],
-                  5: ["evaluate for : @subject@ is assessed or analyzed specifically to determine its suitability, "
-                      "effectiveness, or performance in relation to @object@ ."],
-                  6: ["hyponym of : @subject@ is a specific instance or category under the broader classification of "
-                      "@object@ , signifying that @subject@ is a subtype or a more specialized form within the general "
-                      "framework of @object@ ."],
-                  7: ["compare : @subject@ is compared in relation to @object@ , highlighting similarities and "
-                      "differences to understand their respective characteristics or performances ."]}
+# id2description = {0: ["no relation : there are no relations between @subject@ and @object@ ."],
+#                   1: ["part of : @subject@ is a component or segment that is integral to the structure or composition "
+#                       "of @object@ ."],
+#                   2: ["used for : @subject@ is a tool or method applied to enhance or facilitate @object@ ."],
+#                   3: ["feature of : @subject@ is a constituent part or characteristic of @object@ , functioning as a "
+#                       "distinctive"
+#                       "element within @object@ , and falls within the scope or area of expertise defined by the "
+#                       "domain of @object@ ."],
+#                   4: ["conjunction : @subject@ serves a role or purpose analogous to @object@ , often being used in "
+#                       "conjunction"
+#                       "with or incorporated into @object@ for complementary or similar functions . "],
+#                   5: ["evaluate for : @subject@ is assessed or analyzed specifically to determine its suitability, "
+#                       "effectiveness, or performance in relation to @object@ ."],
+#                   6: ["hyponym of : @subject@ is a specific instance or category under the broader classification of "
+#                       "@object@ , signifying that @subject@ is a subtype or a more specialized form within the general "
+#                       "framework of @object@ ."],
+#                   7: ["compare : @subject@ is compared in relation to @object@ , highlighting similarities and "
+#                       "differences to understand their respective characteristics or performances ."]}
+
+id2description = {0: ["there are no relations between the compound @subject@ and gene @object@ .",],
+                  1: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+                      "upregulator , activator , or indirect upregulator in its interactions .",],
+                  2: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
+                      "downregulator , inhibitor , or indirect downregulator in its interactions .",],
+                  3: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+                      "agonist , agonist activator , or agonist inhibitor in its interactions .",],
+                  4: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+                      "antagonist in its interactions .",],
+                  5: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
+                      "substrate , product of, or substrate product of in its interactions .",]
+                  }
 
 tokenized_id2description = {key: [s.lower().split() for s in value] for key, value in id2description.items()}
 
