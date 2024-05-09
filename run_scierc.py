@@ -652,9 +652,9 @@ def main(args):
 
         lr = args.learning_rate
         model = BEFRE(config)
-        if id2label[1] == 'PART-OF':  # for scierc dataset only
-            model.input_encoder.resize_token_embeddings(len(tokenizer))
-            model.description_encoder.resize_token_embeddings(len(tokenizer))
+        # if id2label[1] == 'PART-OF':  # for scierc dataset only
+        model.input_encoder.resize_token_embeddings(len(tokenizer))
+        model.description_encoder.resize_token_embeddings(len(tokenizer))
         # model = RelationModel.from_pretrained(
         #     args.model, cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE), num_rel_labels=num_labels)
 
