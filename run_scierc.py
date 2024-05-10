@@ -687,7 +687,6 @@ def main(args):
             if args.train_mode == 'random' or args.train_mode == 'random_sorted':
                 random.shuffle(train_batches)
 
-            tr_loss, nb_tr_examples, nb_tr_steps = 0, 0, 0
             optimizer.zero_grad()
 
             for step, batch in enumerate(train_batches):
