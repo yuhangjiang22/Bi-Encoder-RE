@@ -680,11 +680,16 @@ def main(args):
         tr_loss = 0
         nb_tr_examples = 0
         nb_tr_steps = 0
+        accumulation_steps = 8
         for epoch in range(int(args.num_train_epochs)):
             model.train()
             logger.info("Start epoch #{} (lr = {})...".format(epoch, lr))
             if args.train_mode == 'random' or args.train_mode == 'random_sorted':
                 random.shuffle(train_batches)
+
+            tr_loss, nb_tr_examples, nb_tr_steps = 0, 0, 0
+            optimizer.zero_grad()
+
             for step, batch in enumerate(train_batches):
                 num_descriptions = batch[6].size(0) * batch[6].size(1)
                 # batch_size, _ = batch[0].size()
@@ -702,15 +707,20 @@ def main(args):
                 if n_gpu > 1:
                     loss = loss.mean()
 
+                loss = loss / accumulation_steps
                 loss.backward()
 
-                tr_loss += loss.item()
+                # tr_loss += loss.item()
+                tr_loss += loss.item() * accumulation_steps
                 nb_tr_examples += input_ids.size(0)
                 nb_tr_steps += 1
 
-                optimizer.step()
-                scheduler.step()
-                optimizer.zero_grad()
+                if (step + 1) % accumulation_steps == 0:
+
+                    optimizer.step()
+                    scheduler.step()
+                    optimizer.zero_grad()
+
                 global_step += 1
 
                 if (step + 1) % eval_step == 0:
@@ -751,6 +761,7 @@ def main(args):
                                                      )
                             logger.info("Current test %s (lr=%s, epoch=%d): %.2f" %
                                         (args.eval_metric, str(lr), epoch, result[args.eval_metric] * 100.0))
+                            model.train()
 
 
 if __name__ == "__main__":
