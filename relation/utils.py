@@ -143,8 +143,8 @@ def generate_relation_data(entity_data, use_gold=False, context_window=0):
                     if sub.label in scierc_entity_types and obj.label in scierc_entity_types:
                         if [sub.span, obj.span] not in captured:
                             label = gold_rel.get((sub.span, obj.span), 'no_relation')
-                            if label == 'no_relation':
-                                label = gold_rel.get((obj.span, sub.span), 'no_relation')
+                            # if label == 'no_relation':
+                            #     label = gold_rel.get((obj.span, sub.span), 'no_relation')
                             sample = {}
                             sample['docid'] = doc._doc_key
                             sample['id'] = '%s@%d::(%d,%d)-(%d,%d)' % (
@@ -164,7 +164,7 @@ def generate_relation_data(entity_data, use_gold=False, context_window=0):
                             sent_samples.append(sample)
 
                             captured.append([sub.span, obj.span])
-                            captured.append([obj.span, sub.span])
+                            # captured.append([obj.span, sub.span])
 
             max_sentsample = max(max_sentsample, len(sent_samples))
             samples += sent_samples
