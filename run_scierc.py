@@ -748,6 +748,7 @@ def main(args):
                                                      seq_len=args.max_seq_length,
                                                      e2e_ngold=test_nrel,
                                                      )
+                            model.train()
                             logger.info("Current test %s (lr=%s, epoch=%d): %.2f" %
                                         (args.eval_metric, str(lr), epoch, result[args.eval_metric] * 100.0))
 
