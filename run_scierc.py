@@ -47,18 +47,24 @@ id2description = {0: ["no relation : there are no relations between @subject@ an
                   7: ["compare : @subject@ is compared in relation to @object@ , highlighting similarities and "
                       "differences to understand their respective characteristics or performances ."]}
 
-# id2description = {0: ["there are no relations between the compound @subject@ and gene @object@ .",],
-#                   1: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-#                       "upregulator , activator , or indirect upregulator in its interactions .",],
-#                   2: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
-#                       "downregulator , inhibitor , or indirect downregulator in its interactions .",],
-#                   3: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-#                       "agonist , agonist activator , or agonist inhibitor in its interactions .",],
-#                   4: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-#                       "antagonist in its interactions .",],
-#                   5: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
-#                       "substrate , product of, or substrate product of in its interactions .",]
-#                   }
+id2description = {0: ["no relation : there are no relations between @subject@ and @object@ ."],
+                  1: ["agent - artifact : the @subject@ , who can be a user , owner , inventor , or manufacturer , "
+                      "has a specific role"
+                      "in relation to the @object@ , which is a tangible item or creation associated with "
+                      " @subject@ ."],
+                  2: ["organization - affiliation : the  @subject@ has a defined association , such as "
+                      "employment , founding , ownership , student-alum status , sports affiliation , "
+                      "or investor-shareholder role , with the @object@ ."],
+                  3: ["gen - affiliation : the @subject@ has a specific geopolitical connection to the @object@ , "
+                      "such as citizenship, residency, ethnicity, or religious affiliation ."],
+                  4: ["physical - located : the @subject@ , which can be a person, organization, or artifact, "
+                      "is physically situated within or at the location of the @object@ ."],
+                  5: ["personal - social : the @subject@ has a specific social or personal connection with the @object@"
+                      " , such as a family relationship, business partnership, friendship, or other personal "
+                      "affiliation ."],
+                  6: ["part - whole :  the @subject@ is a component or segment of the @object@ , indicating that the "
+                      "part is an integral or constituent piece of the larger whole ."]}
+
 
 tokenized_id2description = {key: [s.lower().split() for s in value] for key, value in id2description.items()}
 
