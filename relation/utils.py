@@ -144,7 +144,7 @@ def generate_relation_data(entity_data, use_gold=False, context_window=0):
                         label = gold_rel.get((sub.span, obj.span), 'no_relation')
                         if label == 'no_relation':
                             continue
-                        if label == 'Others':
+                        if label == 'Other':
                             label = 'no_relation'
 
                         sample = {}
