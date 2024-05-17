@@ -4,7 +4,8 @@ task_ner_labels = {
     'scierc': ['Method', 'OtherScientificTerm', 'Task', 'Generic', 'Material', 'Metric'],
     'chemprot': ['CHEMICAL', 'GENE'],
     'chemprot_5': ['CHEMICAL', 'GENE'],
-    'biored': ['DiseaseOrPhenotypicFeature', 'SequenceVariant', 'GeneOrGeneProduct', 'ChemicalEntity']
+    'biored': ['DiseaseOrPhenotypicFeature', 'SequenceVariant', 'GeneOrGeneProduct', 'ChemicalEntity'],
+    'semeval': ['obj', 'sub']
 }
 
 task_rel_labels = {
@@ -17,7 +18,9 @@ task_rel_labels = {
                  'ANTAGONIST',
                  'SUBSTRATE', 'PRODUCT-OF', 'SUBSTRATE_PRODUCT-OF'],
     'chemprot_5': ['CPR:3', 'CPR:4', 'CPR:5', 'CPR:6', 'CPR:9'],
-    'biored': ['Positive_Correlation', 'Negative_Correlation', 'Association', 'Bind', 'Drug_Interaction', 'Cotreatment', 'Comparison', 'Conversion']
+    'biored': ['Positive_Correlation', 'Negative_Correlation', 'Association', 'Bind', 'Drug_Interaction', 'Cotreatment', 'Comparison', 'Conversion'],
+    'semeval': ['Cause-Effect', 'Instrument-Agency', 'Product-Producer', 'Content-Container', 'Entity-Origin', 'Entity-Destination',
+                'Component-Whole', 'Member-Collection', 'Message-Topic']
 }
 
 # task_id2descriptions = {
@@ -90,15 +93,6 @@ task_rel_labels = {
 #                   12: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a product of in its interactions . "],
 #                   13: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a substrate product of in its interactions . "],},
 #
-#     'biored': {
-#         'disease-chemical': {
-#             0: ['there are no relations existing between the entity $subject$ and the entity $object$ .'],
-#             1: [''],
-#         }
-#
-#     }
-#
-# }
 
 def get_labelmap(label_list):
     label2id = {}

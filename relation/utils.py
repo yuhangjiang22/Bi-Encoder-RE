@@ -33,7 +33,7 @@ def generate_relation_data(entity_data, use_gold=False, context_window=0):
                            ['SequenceVariant', 'SequenceVariant'],
                            ['GeneOrGeneProduct', 'ChemicalEntity'],
                            ['GeneOrGeneProduct', 'GeneOrGeneProduct']]
-    scierc_entity_types = ['Method', 'OtherScientificTerm', 'Task', 'Generic', 'Material', 'Metric']
+    semeval_entity_types = ['sub', 'obj']
     # biored_entity_types = ['DiseaseOrPhenotypicFeature', 'SequenceVariant', 'GeneOrGeneProduct', 'ChemicalEntity']
     logger.info('Generate relation data from %s' % (entity_data))
     data = Dataset(entity_data)
@@ -139,6 +139,33 @@ def generate_relation_data(entity_data, use_gold=False, context_window=0):
 
                             captured.append([sub.span.text, obj.span.text])
                             captured.append([obj.span.text, sub.span.text])
+
+                    elif sub.label in semeval_entity_types and obj.label in semeval_entity_types:
+                        label = gold_rel.get((sub.span, obj.span), 'no_relation')
+                        if label == 'no_relation':
+                            continue
+                        if label == 'Others':
+                            label = 'no_relation'
+
+                        sample = {}
+                        sample['docid'] = doc._doc_key
+                        sample['id'] = '%s@%d::(%d,%d)-(%d,%d)' % (
+                            doc._doc_key, sent.sentence_ix, sub.span.start_doc, sub.span.end_doc, obj.span.start_doc,
+                            obj.span.end_doc)
+                        sample['relation'] = label
+                        sample['subj_start'] = sub.span.start_sent + sent_start
+                        sample['subj_end'] = sub.span.end_sent + sent_start
+                        sample['subj_type'] = sub.label
+                        sample['obj_start'] = obj.span.start_sent + sent_start
+                        sample['obj_end'] = obj.span.end_sent + sent_start
+                        sample['obj_type'] = obj.label
+                        sample['token'] = tokens
+                        sample['sent_start'] = sent_start
+                        sample['sent_end'] = sent_end
+
+                        sent_samples.append(sample)
+
+
                     else:
                     # if sub.label in scierc_entity_types and obj.label in scierc_entity_types:
                     #     if [sub.span, obj.span] not in captured:
