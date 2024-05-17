@@ -820,7 +820,7 @@ if __name__ == "__main__":
                         help="The prediction filename for the relation model")
 
     parser.add_argument('--task', type=str, default=None, required=True,
-                        choices=['ace04', 'ace05', 'scierc', 'chemprot_5'])
+                        choices=['ace04', 'ace05', 'scierc', 'chemprot_5', 'semeval'])
     parser.add_argument('--context_window', type=int, default=0)
 
     parser.add_argument('--add_new_tokens', action='store_true',
