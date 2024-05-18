@@ -176,7 +176,8 @@ def generate_relation_data(entity_data, use_gold=False, context_window=0):
                             if label in ['CONJUNCTION', 'COMPARE'] or rev_label in ['CONJUNCTION', 'COMPARE']:
                                 captured.append([sub.span, obj.span])
                                 captured.append([obj.span, sub.span])
-                                label = rev_label
+                                if rev_label in ['CONJUNCTION', 'COMPARE']:
+                                    label = rev_label
                             sample = {}
                             sample['docid'] = doc._doc_key
                             sample['id'] = '%s@%d::(%d,%d)-(%d,%d)' % (
