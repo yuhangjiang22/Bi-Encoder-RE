@@ -65,16 +65,16 @@ id2description = {0: ["no relation : there are no relations between @subject@ an
 #                   6: ["part - whole :  the @subject@ is a component or segment of the @object@ , indicating that the "
 #                       "part is an integral or constituent piece of the larger whole ."]}
 
-id2description = {0: ["no relation : there are no relations between @subject@ and @object@ ."],
-                  1: ["Cause-Effect : the @subject@ leads to the effect @object@ ."],
-                  2: ["Instrument-Agency : the @object@ uses the @subject@ instrument ."],
-                  3: ["Product-Producer : the @object@ causes the @subject@ to exist ."],
-                  4: ["Content-Container : the @subject@ is physically stored in the @object@ ."],
-                  5: ["Entity-Origin : the @subject@ is coming or is derived from the @object@ ."],
-                  6: ["Entity-Destination : the @subject@ is moving towards the destination @object@ ."],
-                  7: ["Component-Whole : the @subject@ is a component of the larger whole @object@ ."],
-                  8: ["Member-Collection : the member @subject@ forms a nonfunctional part of the collection @object@ ."],
-                  9: ["Message-Topic : the message @subject@ , written or spoken , is about the topic @object@ ."]}
+# id2description = {0: ["no relation : there are no relations between @subject@ and @object@ ."],
+#                   1: ["Cause-Effect : the @subject@ leads to the effect @object@ ."],
+#                   2: ["Instrument-Agency : the @object@ uses the @subject@ instrument ."],
+#                   3: ["Product-Producer : the @object@ causes the @subject@ to exist ."],
+#                   4: ["Content-Container : the @subject@ is physically stored in the @object@ ."],
+#                   5: ["Entity-Origin : the @subject@ is coming or is derived from the @object@ ."],
+#                   6: ["Entity-Destination : the @subject@ is moving towards the destination @object@ ."],
+#                   7: ["Component-Whole : the @subject@ is a component of the larger whole @object@ ."],
+#                   8: ["Member-Collection : the member @subject@ forms a nonfunctional part of the collection @object@ ."],
+#                   9: ["Message-Topic : the message @subject@ , written or spoken , is about the topic @object@ ."]}
 
 
 tokenized_id2description = {key: [s.lower().split() for s in value] for key, value in id2description.items()}
