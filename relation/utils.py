@@ -146,15 +146,16 @@ def generate_relation_data(entity_data, use_gold=False, context_window=0):
                         if [sub.span, obj.span] not in captured:
                             label = gold_rel.get((sub.span, obj.span), 'no_relation')
                             rev_label = ''
-                            if label == 'no_relation':
-                                rev_label = gold_rel.get((obj.span, sub.span), 'no_relation')
-                                # if rev_label != 'no_relation':
-                                #     continue
-                            if label in ['CONJUNCTION', 'COMPARE'] or rev_label in ['CONJUNCTION', 'COMPARE']:
-                                captured.append([sub.span, obj.span])
-                                captured.append([obj.span, sub.span])
-                                if rev_label in ['CONJUNCTION', 'COMPARE']:
-                                    label = rev_label
+                            # for symmetric relation labels
+                            # if label == 'no_relation':
+                            #     rev_label = gold_rel.get((obj.span, sub.span), 'no_relation')
+                            #     # if rev_label != 'no_relation':
+                            #     #     continue
+                            # if label in ['CONJUNCTION', 'COMPARE'] or rev_label in ['CONJUNCTION', 'COMPARE']:
+                            #     captured.append([sub.span, obj.span])
+                            #     captured.append([obj.span, sub.span])
+                            #     if rev_label in ['CONJUNCTION', 'COMPARE']:
+                            #         label = rev_label
                             sample = {}
                             sample['docid'] = doc._doc_key
                             sample['id'] = '%s@%d::(%d,%d)-(%d,%d)' % (
