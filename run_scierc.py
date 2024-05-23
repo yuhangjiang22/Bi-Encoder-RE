@@ -524,7 +524,8 @@ def main(args):
         revision=None,
         use_auth_token=True,
         hidden_dropout_prob=args.drop_out,
-        num_labels=num_labels
+        num_labels=num_labels,
+        alpha=args.alpha,
     )
 
     tokenizer = AutoTokenizer.from_pretrained(args.model, do_lower_case=args.do_lower_case)
@@ -835,6 +836,8 @@ if __name__ == "__main__":
                         help="Use multi-descriptions or not.")
     parser.add_argument('--soft_prompt', action='store_true',
                         help="Train with soft prompts.")
+    parser.add_argument('--alpha', type=float, default=0.5,
+                        help="alpha value for loss function.")
 
     args = parser.parse_args()
     main(args)

@@ -33,6 +33,7 @@ class BEFREConfig(PretrainedConfig):
         linear_size=128,
         init_temperature=0.07,
         num_labels=6,
+        alpha=0.5,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -45,6 +46,7 @@ class BEFREConfig(PretrainedConfig):
         self.linear_size = linear_size
         self.init_temperature = init_temperature
         self.num_labels = num_labels
+        self.alpha = alpha
 
 class BEFRE(PreTrainedModel):
 
@@ -66,6 +68,7 @@ class BEFRE(PreTrainedModel):
         self.classifier = nn.Linear(hf_config.hidden_size, config.num_labels)
         self.input_linear = nn.Linear(hf_config.hidden_size * 2, hf_config.hidden_size)
         self.des_linear = nn.Linear(hf_config.hidden_size * 3, hf_config.hidden_size)
+        self.alpha = config.alpha
 
         self.input_encoder = AutoModel.from_pretrained(
             config.pretrained_model_name_or_path,
@@ -178,7 +181,7 @@ class BEFRE(PreTrainedModel):
             CTloss = contrastive_loss(scores, labels)
             loss_fct = CrossEntropyLoss()
             CEloss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
-            loss = 0.2 * CEloss + 0.8 * CTloss
+            loss = self.alpha * CEloss + (1 - self.alpha) * CTloss
             return loss
         else:
             return scores
