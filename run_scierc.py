@@ -460,12 +460,12 @@ def main(args):
     #     args.add_new_tokens = True
     # else:
     #     RelationModel = BertForRelation
-    if args.train_befre:
-        from relation.befre import BEFRE, BEFREConfig
-    else:
-        # from relation.testing_model import BEFRE, BEFREConfig
-        # from relation.testing_model_2 import BEFRE, BEFREConfig
-        from relation.unified_model import BEFRE, BEFREConfig
+    if args.train_single:
+        from relation.single_model import BEFRE, BEFREConfig
+    # else:
+    #     # from relation.testing_model import BEFRE, BEFREConfig
+    #     # from relation.testing_model_2 import BEFRE, BEFREConfig
+    #     from relation.unified_model import BEFRE, BEFREConfig
         # from relation.uni_model import BEFRE, BEFREConfig
     if args.soft_prompt:
         from relation.testing_model_2 import BEFRE, BEFREConfig
@@ -826,7 +826,7 @@ if __name__ == "__main__":
                         help="Whether to add new tokens as marker tokens instead of using [unusedX] tokens.")
     parser.add_argument('--train_num_examples', type=int, default=None,
                         help="How many training instances to train")
-    parser.add_argument('--train_befre', action='store_true',
+    parser.add_argument('--train_single', action='store_true',
                         help="Train PURE of BEFRE.")
     parser.add_argument('--train_pure', action='store_true',
                         help="Train PURE of BEFRE.")
