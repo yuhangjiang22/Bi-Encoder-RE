@@ -57,11 +57,13 @@ class BEFRE(PreTrainedModel):
         self.hf_config = hf_config
         self.config.pruned_heads = hf_config.pruned_heads
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        self.layer_norm = BertLayerNorm(hf_config.hidden_size * 2)
+        self.layer_norm = BertLayerNorm(hf_config.hidden_size)
         self.logit_scale = torch.nn.Parameter(torch.ones([]) * np.log(1 / config.init_temperature))
         self.post_init()
         self.num_labels = config.num_labels
-        self.classifier = nn.Linear(hf_config.hidden_size * 2, config.num_labels)
+        self.classifier = nn.Linear(hf_config.hidden_size, config.num_labels)
+        self.input_linear = nn.Linear(hf_config.hidden_size * 2, hf_config.hidden_size)
+        self.des_linear = nn.Linear(hf_config.hidden_size * 3, hf_config.hidden_size)
         self.alpha = config.alpha
 
         self.input_encoder = AutoModel.from_pretrained(
