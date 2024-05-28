@@ -766,7 +766,7 @@ def main(args):
                                                      e2e_ngold=test_nrel,
                                                      )
 
-                            print_pred_json(test_dataloader, test_examples, preds, id2label,
+                            print_pred_json(test_dataset, test_examples, preds, id2label,
                                             os.path.join(args.output_dir, args.prediction_file))
 
                             model.train()
