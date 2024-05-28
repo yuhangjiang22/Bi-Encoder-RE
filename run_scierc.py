@@ -765,6 +765,10 @@ def main(args):
                                                      seq_len=args.max_seq_length,
                                                      e2e_ngold=test_nrel,
                                                      )
+
+                            print_pred_json(test_dataloader, test_examples, preds, id2label,
+                                            os.path.join(args.output_dir, args.prediction_file))
+
                             model.train()
                             logger.info("Current test %s (lr=%s, epoch=%d): %.2f" %
                                         (args.eval_metric, str(lr), epoch, result[args.eval_metric] * 100.0))

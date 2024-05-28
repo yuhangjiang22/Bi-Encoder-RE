@@ -56,51 +56,51 @@ from relation.unified_model import BEFRE, BEFREConfig
 #                   12: ["product of : the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a product of in its interactions . "],
 #                   13: ["substrate product of : the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a substrate product of in its interactions . "],}
 
-id2description = {0: ["no relation , @subject@ , @object@ .",],
-                  1: ["upregulator , @subject@ , @object@ .",],
-                  2: ["activator , @subject@ , @object@ ."],
-                  3: ["indirect upregulator , @subject@ , @object@ . "],
-                  4: ["downregulator , @subject@ , @object@ .",],
-                  5: ["inhibitor , @subject@ , @object@ . "],
-                  6: ["indirect downregulator , @subject@ , @object@ . "],
-                  7: ["agonist , @subject@ , @object@ .",],
-                  8: ["agonist activator , @subject@ , @object@ . "],
-                  9: ["agonist inhibitor , @subject@ , @object@ . "],
+# id2description = {0: ["no relation , @subject@ , @object@ .",],
+#                   1: ["upregulator , @subject@ , @object@ .",],
+#                   2: ["activator , @subject@ , @object@ ."],
+#                   3: ["indirect upregulator , @subject@ , @object@ . "],
+#                   4: ["downregulator , @subject@ , @object@ .",],
+#                   5: ["inhibitor , @subject@ , @object@ . "],
+#                   6: ["indirect downregulator , @subject@ , @object@ . "],
+#                   7: ["agonist , @subject@ , @object@ .",],
+#                   8: ["agonist activator , @subject@ , @object@ . "],
+#                   9: ["agonist inhibitor , @subject@ , @object@ . "],
+#
+#                   10: ["antagonist , @subject@ , @object@ .",],
+#
+#                   11: ["substrate , @subject@ , @object@ .",],
+#                   12: ["product of , @subject@ , @object@ . "],
+#                   13: ["substrate product of , @subject@ , @object@ . "],}
 
-                  10: ["antagonist , @subject@ , @object@ .",],
+id2description = {0: [" there are no relations between the compound @subject@ and gene @object@ .",],
+                  1: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+                      "upregulator in its interactions . ",
+                      ],
+                  2: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an activator in its interactions . "],
+                  3: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an indirect upregulator in its interactions . "],
 
-                  11: ["substrate , @subject@ , @object@ .",],
-                  12: ["product of , @subject@ , @object@ . "],
-                  13: ["substrate product of , @subject@ , @object@ . "],}
+                  4: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
+                      "downregulator in its interactions .",
+                      ],
+                  5: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an inhibitor in its interactions . "],
+                  6: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an indirect downregulator in its interactions . "],
 
-# id2description = {0: [" there are no relations between the compound @subject@ and gene @object@ .",],
-#                   1: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-#                       "upregulator in its interactions . ",
-#                       ],
-#                   2: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an activator in its interactions . "],
-#                   3: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an indirect upregulator in its interactions . "],
-#
-#                   4: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
-#                       "downregulator in its interactions .",
-#                       ],
-#                   5: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an inhibitor in its interactions . "],
-#                   6: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an indirect downregulator in its interactions . "],
-#
-#                   7: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-#                       "agonist in its interactions .",
-#                       ],
-#                   8: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an agonist activator in its interactions . "],
-#                   9: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an agonist inhibitor in its interactions . "],
-#
-#                   10: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-#                       "antagonist in its interactions .",
-#                       ],
-#
-#                   11: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
-#                       "substrate in its interactions .",
-#                       ],
-#                   12: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a product of in its interactions . "],
-#                   13: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a substrate product of in its interactions . "],}
+                  7: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+                      "agonist in its interactions .",
+                      ],
+                  8: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an agonist activator in its interactions . "],
+                  9: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an agonist inhibitor in its interactions . "],
+
+                  10: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+                      "antagonist in its interactions .",
+                      ],
+
+                  11: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
+                      "substrate in its interactions .",
+                      ],
+                  12: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a product of in its interactions . "],
+                  13: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a substrate product of in its interactions . "],}
 
 
 tokenized_id2description = {key: [s.lower().split() for s in value] for key, value in id2description.items()}
