@@ -770,8 +770,13 @@ def main(args):
                                             os.path.join(args.output_dir, args.prediction_file))
 
                             model.train()
+                            logger.info("Current test precision (lr=%s, epoch=%d): %.2f" %
+                                        (str(lr), epoch, result['precision'] * 100.0))
+                            logger.info("Current test recall (lr=%s, epoch=%d): %.2f" %
+                                        (str(lr), epoch, result['recall'] * 100.0))
                             logger.info("Current test %s (lr=%s, epoch=%d): %.2f" %
                                         (args.eval_metric, str(lr), epoch, result[args.eval_metric] * 100.0))
+
 
 
 if __name__ == "__main__":
