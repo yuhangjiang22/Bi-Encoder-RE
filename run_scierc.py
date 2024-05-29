@@ -766,8 +766,6 @@ def main(args):
                                                      e2e_ngold=test_nrel,
                                                      )
                             model.train()
-                            print('p', result['precision'])
-                            print('r', result['recall'])
                             logger.info("Current test %s (lr=%s, epoch=%d): %.2f" %
                                         (args.eval_metric, str(lr), epoch, result[args.eval_metric] * 100.0))
 

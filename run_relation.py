@@ -28,16 +28,16 @@ from shared.const import task_rel_labels, task_ner_labels
 from relation.befre import BEFRE, BEFREConfig
 from relation.unified_model import BEFRE, BEFREConfig
 
-id2description = {0: ["no relation : there are no relations between the compound @subject@ and gene @object@ .",
+id2description = {0: ["there are no relations between the compound @subject@ and gene @object@ .",
                       "the compound @subject@ and gene @object@ has no relations ."],
-                  1: ["CPR:3 : the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+                  1: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
                       "upregulator , activator , or indirect upregulator in its interactions .",
                       "@subject@ initiates or enhances the activity of @object@ through direct or indirect means . an "
                       "upregulator ,activator , or indirect upregulator serves as the mechanism that increases the "
                       "function ,"
                       "expression , or activity of the @object@"
                       ],
-                  2: ["CPR:4 : the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
+                  2: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
                       "downregulator , inhibitor , or indirect downregulator in its interactions .",
                       "@subject@ interacts with the gene @object@ , resulting in a decrease in the gene's "
                       "activity or expression . This interaction can occur through direct inhibition , acting as a "
@@ -46,7 +46,7 @@ id2description = {0: ["no relation : there are no relations between the compound
                       "understanding genetic regulation and can have significant implications in fields like "
                       "pharmacology and gene therapy ."
                       ],
-                  3: ["CPR:5 : the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+                  3: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
                       "agonist , agonist activator , or agonist inhibitor in its interactions .",
                       "@subject@ interacts with the gene @object@ in a manner that modulates its activity positively ( "
                       "as an agonist or agonist activator ) or negatively ( as an agonist inhibitor ) . An agonist "
@@ -55,7 +55,7 @@ id2description = {0: ["no relation : there are no relations between the compound
                       "inhibitor would paradoxically bind in a manner that initially mimics an agonist's action but "
                       "ultimately inhibits the gene's activity or its downstream effects ."
                       ],
-                  4: ["CPR:6 : the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
+                  4: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
                       "antagonist in its interactions .",
                       "@subject@ interacts with the gene @object@ by acting as an antagonist . This means that the "
                       "compound blocks or diminishes the gene's normal activity or the activity of the protein product "
@@ -63,7 +63,7 @@ id2description = {0: ["no relation : there are no relations between the compound
                       "pathways and have wide-ranging implications in therapeutic interventions , where they can be "
                       "used to modulate the effects of genes involved in disease processes ."
                       ],
-                  5: ["CPR:9 : the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
+                  5: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
                       "substrate , product of, or substrate product of in its interactions .",
                       "@subject@ engages with the gene @object@ in a manner where it acts as a substrate , is a product"
                       "of, or both a substrate and product within the gene's associated biochemical pathways ."
@@ -455,8 +455,8 @@ def main(args):
     #     args.add_new_tokens = True
     # else:
     #     RelationModel = BertForRelation
-    if args.train_befre:
-        from relation.befre import BEFRE, BEFREConfig
+    if args.single_model:
+        from relation.single_model import BEFRE, BEFREConfig
     else:
         # from relation.testing_model import BEFRE, BEFREConfig
         from relation.testing_model_2 import BEFRE, BEFREConfig
@@ -835,8 +835,8 @@ if __name__ == "__main__":
                         help="Whether to add new tokens as marker tokens instead of using [unusedX] tokens.")
     parser.add_argument('--train_num_examples', type=int, default=None,
                         help="How many training instances to train")
-    parser.add_argument('--train_befre', action='store_true',
-                        help="Train PURE of BEFRE.")
+    parser.add_argument('--single_model', action='store_true',
+                        help="Train single model.")
     parser.add_argument('--train_pure', action='store_true',
                         help="Train PURE of BEFRE.")
     parser.add_argument('--drop_out', type=float, default=0.1,
