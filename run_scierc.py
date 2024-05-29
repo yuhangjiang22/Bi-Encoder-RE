@@ -756,7 +756,7 @@ def main(args):
                                         (args.eval_metric, str(lr), epoch, result[args.eval_metric] * 100.0))
                             save_trained_model(args.output_dir, model, tokenizer)
 
-                            preds, result = evaluate(model=model,
+                            test_preds, result = evaluate(model=model,
                                                      device=device,
                                                      eval_dataloader=test_dataloader,
                                                      eval_label_ids=test_label_ids,
@@ -771,7 +771,7 @@ def main(args):
                             logger.info("Current test %s (lr=%s, epoch=%d): %.2f" %
                                         (args.eval_metric, str(lr), epoch, result[args.eval_metric] * 100.0))
 
-    print_pred_json(test_dataset, test_examples, preds, id2label,
+    print_pred_json(test_dataset, test_examples, test_preds, id2label,
                     os.path.join(args.output_dir, args.prediction_file))
 
 
