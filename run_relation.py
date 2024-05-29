@@ -455,7 +455,7 @@ def main(args):
     #     args.add_new_tokens = True
     # else:
     #     RelationModel = BertForRelation
-    if args.single_model:
+    if args.train_single:
         from relation.single_model import BEFRE, BEFREConfig
     else:
         # from relation.testing_model import BEFRE, BEFREConfig
@@ -518,7 +518,8 @@ def main(args):
         revision=None,
         use_auth_token=True,
         hidden_dropout_prob=args.drop_out,
-        num_labels=num_labels
+        num_labels=num_labels,
+        alpha=args.alpha,
     )
 
     tokenizer = AutoTokenizer.from_pretrained(args.model, do_lower_case=args.do_lower_case)
@@ -835,7 +836,7 @@ if __name__ == "__main__":
                         help="Whether to add new tokens as marker tokens instead of using [unusedX] tokens.")
     parser.add_argument('--train_num_examples', type=int, default=None,
                         help="How many training instances to train")
-    parser.add_argument('--single_model', action='store_true',
+    parser.add_argument('--train_single', action='store_true',
                         help="Train single model.")
     parser.add_argument('--train_pure', action='store_true',
                         help="Train PURE of BEFRE.")
@@ -843,6 +844,8 @@ if __name__ == "__main__":
                         help="hidden drop out rate.")
     parser.add_argument('--multi_descriptions', action='store_true',
                         help="Use multi-descriptions or not.")
+    parser.add_argument('--alpha', type=float, default=0.5,
+                        help="alpha value for loss function.")
 
     args = parser.parse_args()
     main(args)
