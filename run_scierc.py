@@ -765,10 +765,6 @@ def main(args):
                                                      seq_len=args.max_seq_length,
                                                      e2e_ngold=test_nrel,
                                                      )
-
-                            print_pred_json(test_dataset, test_examples, preds, id2label,
-                                            os.path.join(args.output_dir, args.prediction_file))
-
                             model.train()
                             logger.info("Current test precision (lr=%s, epoch=%d): %.2f" %
                                         (str(lr), epoch, result['precision'] * 100.0))
@@ -776,6 +772,8 @@ def main(args):
                                         (str(lr), epoch, result['recall'] * 100.0))
                             logger.info("Current test %s (lr=%s, epoch=%d): %.2f" %
                                         (args.eval_metric, str(lr), epoch, result[args.eval_metric] * 100.0))
+                            print_pred_json(test_dataset, test_examples, preds, id2label,
+                                            os.path.join(args.output_dir, args.prediction_file))
 
 
 
