@@ -354,7 +354,7 @@ def compute_f1(preds, labels, e2e_ngold):
         if (pred != 0) and (label != 0) and (pred == label):
             n_correct += 1
     if n_correct == 0:
-        return {'precision': 0.0, 'recall': 0.0, 'f1': 0.0}
+        return {'precision': 0.0, 'recall': 0.0, 'f1': 0.0, 'task_f1': 0.0}
     else:
         prec = n_correct * 1.0 / n_pred
         recall = n_correct * 1.0 / n_gold
