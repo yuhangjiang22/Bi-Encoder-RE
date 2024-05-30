@@ -37,8 +37,8 @@ id2description = {0: ["no relation : there are no relations between the @subject
                       "by the domain of the @object@ ."],
                   4: ["conjunction : the @subject@ serves a role or purpose analogous to the @object@ , often being used in "
                       "conjunction with or incorporated into the @object@ for complementary or similar functions . "],
-                  5: ["evaluate for : the @subject@ is assessed or analyzed specifically to determine its suitability, "
-                      "effectiveness, or performance in relation to the @object@ ."],
+                  5: ["evaluate for : the @object@ is assessed or analyzed specifically to determine its suitability , "
+                      "effectiveness , or performance in relation to the @subject@ ."],
                   6: ["hyponym of : the @subject@ is a specific instance or category under the broader classification of "
                       "@object@ , signifying that the @subject@ is a subtype or a more specialized form within the general "
                       "framework of the @object@ ."],
