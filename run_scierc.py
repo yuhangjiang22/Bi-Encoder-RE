@@ -74,20 +74,20 @@ from relation.unified_model import BEFRE, BEFREConfig
 #                   8: ["Member-Collection : the member @subject@ forms a nonfunctional part of the collection @object@ ."],
 #                   9: ["Message-Topic : the message @subject@ , written or spoken , is about the topic @object@ ."]}
 
-id2description = {0: ["@subject@, @object@"],
-                  1: ["@subject@, @object@"],
-                  2: ["@subject@, @object@"],
-                  3: ["@subject@, @object@"],
-                  4: ["@subject@, @object@"],
-                  5: ["@subject@, @object@"],
-                  6: ["@subject@, @object@"],
-                  7: ["@subject@, @object@"],
-                  8: ["@subject@, @object@"],
-                  9: ["@subject@, @object@"],
-                  10: ["@subject@, @object@"],
-                  11: ["@subject@, @object@"],
-                  12: ["@subject@, @object@"],
-                  13: ["@subject@, @object@"]}
+id2description = {0: ["@subject@ , @object@"],
+                  1: ["@subject@ , @object@"],
+                  2: ["@subject@ , @object@"],
+                  3: ["@subject@ , @object@"],
+                  4: ["@subject@ , @object@"],
+                  5: ["@subject@ , @object@"],
+                  6: ["@subject@ , @object@"],
+                  7: ["@subject@ , @object@"],
+                  8: ["@subject@ , @object@"],
+                  9: ["@subject@ , @object@"],
+                  10: ["@subject@ , @object@"],
+                  11: ["@subject@ , @object@"],
+                  12: ["@subject@ , @object@"],
+                  13: ["@subject@ , @object@"]}
 
 
 tokenized_id2description = {key: [s.lower().split() for s in value] for key, value in id2description.items()}
