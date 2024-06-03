@@ -478,12 +478,12 @@ def main(args):
     if (args.do_eval and args.do_train) or (args.do_eval and not (args.eval_test)):
         eval_dataset, eval_examples, eval_nrel = generate_relation_data(
             os.path.join(args.entity_output_dir, args.entity_predictions_dev), use_gold=args.eval_with_gold,
-            context_window=0)
+            context_window=args.context_window)
     # test set
     if args.eval_test:
         test_dataset, test_examples, test_nrel = generate_relation_data(
             os.path.join(args.entity_output_dir, args.entity_predictions_test), use_gold=args.eval_with_gold,
-            context_window=0)
+            context_window=args.context_window)
 
 
     if not args.do_train and not args.do_eval:
