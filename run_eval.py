@@ -403,12 +403,104 @@ def compute_f1(preds, labels, e2e_ngold):
                 'n_correct': n_correct, 'n_pred': n_pred, 'n_gold': e2e_ngold, 'task_ngold': n_gold}
 
 
+# def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_size, seq_len, e2e_ngold=None):
+#     model.eval()
+#     # eval_loss = 0
+#     nb_eval_steps = 0
+#     preds = []
+#     reps = torch.tensor([]).to(device)
+#     for input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx in eval_dataloader:
+#         input_ids = input_ids.to(device)
+#         input_mask = input_mask.to(device)
+#         segment_ids = segment_ids.to(device)
+#         label_ids = label_ids.to(device)
+#         sub_idx = sub_idx.to(device)
+#         obj_idx = obj_idx.to(device)
+#
+#         batch_size, num_labels, _ = descriptions_input_ids.size()
+#
+#         descriptions_input_ids = descriptions_input_ids.reshape(batch_size * num_labels, seq_len)
+#         descriptions_input_mask = descriptions_input_mask.reshape(batch_size * num_labels, seq_len)
+#         descriptions_type_ids = descriptions_type_ids.reshape(batch_size * num_labels, seq_len)
+#         descriptions_sub_idx = descriptions_sub_idx.reshape(batch_size * num_labels)
+#         descriptions_obj_idx = descriptions_obj_idx.reshape(batch_size * num_labels)
+#         descriptions_input_ids = descriptions_input_ids.to(device)
+#         descriptions_input_mask = descriptions_input_mask.to(device)
+#         descriptions_type_ids = descriptions_type_ids.to(device)
+#         descriptions_sub_idx = descriptions_sub_idx.to(device)
+#         descriptions_obj_idx = descriptions_obj_idx.to(device)
+#
+#         with torch.no_grad():
+#             scores, rep = model(input_ids,
+#                            input_mask,
+#                            segment_ids,
+#                            labels=None,
+#                            sub_idx=sub_idx,
+#                            obj_idx=obj_idx,
+#                            descriptions_input_ids=descriptions_input_ids,
+#                            descriptions_input_mask=descriptions_input_mask,
+#                            descriptions_type_ids=descriptions_type_ids,
+#                            descriptions_sub_idx=descriptions_sub_idx,
+#                            descriptions_obj_idx=descriptions_obj_idx,
+#                            return_dict=True)
+#
+#         reps = torch.cat((reps, rep), dim=0)
+#         nb_eval_steps += 1
+#         if len(preds) == 0:
+#             preds.append(scores.detach().cpu().numpy())
+#         else:
+#             preds[0] = np.append(
+#                 preds[0], scores.detach().cpu().numpy(), axis=0)
+#
+#     # eval_loss = eval_loss / nb_eval_steps
+#     # scores = preds[0]
+#     preds = np.argmax(preds[0], axis=1)
+#     print('preds: ', preds)
+#     result = compute_f1(preds, eval_label_ids.numpy(), e2e_ngold=e2e_ngold)
+#     result['accuracy'] = simple_accuracy(preds, eval_label_ids.numpy())
+#     # result['eval_loss'] = eval_loss
+#     reps = reps.detach().cpu().numpy()
+#     labels = eval_label_ids.numpy()
+#     pre_labels = preds
+#
+#     tsne = TSNE(n_components=2, random_state=0)  # n_components=2 for 2D visualization
+#     tsne_results = tsne.fit_transform(reps)
+#     # Plotting the results
+#     plt.figure(figsize=(10, 8))
+#     colors = ['red', 'green', 'blue', 'cyan', 'magenta', 'yellow']  # Colors for labels 0 to 5
+#     for i in range(6):  # Loop over the labels
+#         mask = labels == i
+#         plt.scatter(tsne_results[mask, 0], tsne_results[mask, 1], c=colors[i], label=f'Label {i}', alpha=0.5)
+#
+#     plt.legend()
+#     plt.title('t-SNE Visualization of the Tensor Data')
+#     plt.xlabel('t-SNE Component 1')
+#     plt.ylabel('t-SNE Component 2')
+#     plt.savefig(args.output_dir + '/tsne_visualization_gold.png')
+#
+#     tsne = TSNE(n_components=2, random_state=0)  # n_components=2 for 2D visualization
+#     tsne_results = tsne.fit_transform(reps)
+#     # Plotting the results
+#     plt.figure(figsize=(10, 8))
+#     colors = ['red', 'green', 'blue', 'cyan', 'magenta', 'yellow']  # Colors for labels 0 to 5
+#
+#     for i in range(6):  # Loop over the labels
+#         mask = pre_labels == i
+#         plt.scatter(tsne_results[mask, 0], tsne_results[mask, 1], c=colors[i], label=f'Label {i}', alpha=0.5)
+#
+#     plt.legend()
+#     plt.title('t-SNE Visualization of the Tensor Data')
+#     plt.xlabel('t-SNE Component 1')
+#     plt.ylabel('t-SNE Component 2')
+#     plt.savefig(args.output_dir + '/tsne_visualization_pred.png')
+#
+#     return preds, result
+
 def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_size, seq_len, e2e_ngold=None):
     model.eval()
     # eval_loss = 0
     nb_eval_steps = 0
     preds = []
-    reps = torch.tensor([]).to(device)
     for input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx in eval_dataloader:
         input_ids = input_ids.to(device)
         input_mask = input_mask.to(device)
@@ -431,7 +523,7 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
         descriptions_obj_idx = descriptions_obj_idx.to(device)
 
         with torch.no_grad():
-            scores, rep = model(input_ids,
+            scores = model(input_ids,
                            input_mask,
                            segment_ids,
                            labels=None,
@@ -444,7 +536,9 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
                            descriptions_obj_idx=descriptions_obj_idx,
                            return_dict=True)
 
-        reps = torch.cat((reps, rep), dim=0)
+        # loss_fct = CrossEntropyLoss()
+        # tmp_eval_loss = loss_fct(logits.view(-1, num_labels), label_ids.view(-1))
+        # eval_loss += tmp_eval_loss.mean().item()
         nb_eval_steps += 1
         if len(preds) == 0:
             preds.append(scores.detach().cpu().numpy())
@@ -455,44 +549,9 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
     # eval_loss = eval_loss / nb_eval_steps
     # scores = preds[0]
     preds = np.argmax(preds[0], axis=1)
-    print('preds: ', preds)
     result = compute_f1(preds, eval_label_ids.numpy(), e2e_ngold=e2e_ngold)
     result['accuracy'] = simple_accuracy(preds, eval_label_ids.numpy())
     # result['eval_loss'] = eval_loss
-    reps = reps.detach().cpu().numpy()
-    labels = eval_label_ids.numpy()
-    pre_labels = preds
-
-    tsne = TSNE(n_components=2, random_state=0)  # n_components=2 for 2D visualization
-    tsne_results = tsne.fit_transform(reps)
-    # Plotting the results
-    plt.figure(figsize=(10, 8))
-    colors = ['red', 'green', 'blue', 'cyan', 'magenta', 'yellow']  # Colors for labels 0 to 5
-    for i in range(6):  # Loop over the labels
-        mask = labels == i
-        plt.scatter(tsne_results[mask, 0], tsne_results[mask, 1], c=colors[i], label=f'Label {i}', alpha=0.5)
-
-    plt.legend()
-    plt.title('t-SNE Visualization of the Tensor Data')
-    plt.xlabel('t-SNE Component 1')
-    plt.ylabel('t-SNE Component 2')
-    plt.savefig(args.output_dir + '/tsne_visualization_gold.png')
-
-    tsne = TSNE(n_components=2, random_state=0)  # n_components=2 for 2D visualization
-    tsne_results = tsne.fit_transform(reps)
-    # Plotting the results
-    plt.figure(figsize=(10, 8))
-    colors = ['red', 'green', 'blue', 'cyan', 'magenta', 'yellow']  # Colors for labels 0 to 5
-
-    for i in range(6):  # Loop over the labels
-        mask = pre_labels == i
-        plt.scatter(tsne_results[mask, 0], tsne_results[mask, 1], c=colors[i], label=f'Label {i}', alpha=0.5)
-
-    plt.legend()
-    plt.title('t-SNE Visualization of the Tensor Data')
-    plt.xlabel('t-SNE Component 1')
-    plt.ylabel('t-SNE Component 2')
-    plt.savefig(args.output_dir + '/tsne_visualization_pred.png')
 
     return preds, result
 
