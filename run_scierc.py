@@ -178,8 +178,9 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                               (sublist if isinstance(sublist, list) else [sublist])]
         description_tokens.append(SEP)
 
-        des_sub_idx = description_tokens.index(SUBJECT_START_NER)
-        des_obj_idx = description_tokens.index(OBJECT_START_NER)
+        # des_sub_idx = description_tokens.index(SUBJECT_START_NER)
+        # des_obj_idx = description_tokens.index(OBJECT_START_NER)
+        des_sub_idx, des_obj_idx = 0, 0
         descriptions_sub_idx.append(des_sub_idx)
         descriptions_obj_idx.append(des_obj_idx)
 
