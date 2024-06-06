@@ -63,7 +63,8 @@ class BEFRE(PreTrainedModel):
         self.logit_scale = torch.nn.Parameter(torch.ones([]) * np.log(1 / config.init_temperature))
         self.post_init()
         self.num_labels = config.num_labels
-        self.classifier = nn.Linear(hf_config.hidden_size * 2, config.num_labels)
+        # self.classifier = nn.Linear(hf_config.hidden_size * 2, config.num_labels)
+        self.classifier = nn.Linear(hf_config.hidden_size, config.num_labels)
 
         self.input_encoder = AutoModel.from_pretrained(
             config.pretrained_model_name_or_path,
@@ -134,9 +135,10 @@ class BEFRE(PreTrainedModel):
         # batch_size_times_num_types, des_seq_length, _ = description_sequence_output.size()
         # num_types = int(batch_size_times_num_types / batch_size)
 
-        sub_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(sequence_output, sub_idx)])
-        obj_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(sequence_output, obj_idx)])
-        rep = torch.cat((sub_output, obj_output), dim=1)
+        # sub_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(sequence_output, sub_idx)])
+        # obj_output = torch.cat([a[i].unsqueeze(0) for a, i in zip(sequence_output, obj_idx)])
+        # rep = torch.cat((sub_output, obj_output), dim=1)
+        rep = torch.cat([a[0].unsqueeze(0) for a in sequence_output])
         rep = self.layer_norm(rep)
 
         # batch_size x hidden_size*2

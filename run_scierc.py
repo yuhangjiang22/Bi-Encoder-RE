@@ -222,18 +222,18 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         for i, token in enumerate(example['token']):
             if i == example['subj_start']:
                 sub_idx = len(tokens)
-                tokens.append(SUBJECT_START_NER)
+                # tokens.append(SUBJECT_START_NER)
             if i == example['obj_start']:
                 obj_idx = len(tokens)
-                tokens.append(OBJECT_START_NER)
+                # tokens.append(OBJECT_START_NER)
             for sub_token in tokenizer.tokenize(token):
                 tokens.append(sub_token)
             if i == example['subj_end']:
                 sub_idx_end = len(tokens)
-                tokens.append(SUBJECT_END_NER)
+                # tokens.append(SUBJECT_END_NER)
             if i == example['obj_end']:
                 obj_idx_end = len(tokens)
-                tokens.append(OBJECT_END_NER)
+                # tokens.append(OBJECT_END_NER)
         tokens.append(SEP)
 
         subject = tokens[sub_idx:sub_idx_end + 1]
