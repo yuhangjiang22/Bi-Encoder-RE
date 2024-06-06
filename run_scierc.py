@@ -207,17 +207,17 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
             logger.info("Writing example %d of %d" % (ex_index, len(examples)))
 
         tokens = [CLS]
-        SUBJECT_START = get_special_token("SUBJ_START")
-        SUBJECT_END = get_special_token("SUBJ_END")
-        OBJECT_START = get_special_token("OBJ_START")
-        OBJECT_END = get_special_token("OBJ_END")
+        SUBJECT_START_NER = get_special_token("SUBJ_START")
+        SUBJECT_END_NER = get_special_token("SUBJ_END")
+        OBJECT_START_NER = get_special_token("OBJ_START")
+        OBJECT_END_NER = get_special_token("OBJ_END")
         SUBJECT_NER = get_special_token("SUBJ=%s" % example['subj_type'])
         OBJECT_NER = get_special_token("OBJ=%s" % example['obj_type'])
 
-        SUBJECT_START_NER = get_special_token("SUBJ_START=%s" % example['subj_type'])
-        SUBJECT_END_NER = get_special_token("SUBJ_END=%s" % example['subj_type'])
-        OBJECT_START_NER = get_special_token("OBJ_START=%s" % example['obj_type'])
-        OBJECT_END_NER = get_special_token("OBJ_END=%s" % example['obj_type'])
+        # SUBJECT_START_NER = get_special_token("SUBJ_START=%s" % example['subj_type'])
+        # SUBJECT_END_NER = get_special_token("SUBJ_END=%s" % example['subj_type'])
+        # OBJECT_START_NER = get_special_token("OBJ_START=%s" % example['obj_type'])
+        # OBJECT_END_NER = get_special_token("OBJ_END=%s" % example['obj_type'])
 
         for i, token in enumerate(example['token']):
             if i == example['subj_start']:
