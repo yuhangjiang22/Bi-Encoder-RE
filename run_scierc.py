@@ -165,7 +165,7 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         if w not in special_tokens:
             if unused_tokens:
                 # special_tokens[w] = "[unused%d]" % (len(special_tokens) + 1)
-                special_tokens[w] = "[UNK]"
+                special_tokens[w] = "[unused%d]" % (len(special_tokens) + 1)
             else:
                 special_tokens[w] = ('<' + w + '>').lower()
         return special_tokens[w]
