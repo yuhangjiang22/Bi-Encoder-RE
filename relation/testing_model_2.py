@@ -34,6 +34,7 @@ class BEFREConfig(PretrainedConfig):
         init_temperature=0.07,
         num_labels=6,
         alpha=0.5,
+        tokenizer_len=None,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -47,6 +48,7 @@ class BEFREConfig(PretrainedConfig):
         self.init_temperature = init_temperature
         self.num_labels = num_labels
         self.alpha = alpha
+        self.tokenizer_len = tokenizer_len
 
 class BEFRE(PreTrainedModel):
 
@@ -69,6 +71,7 @@ class BEFRE(PreTrainedModel):
         self.input_linear = nn.Linear(hf_config.hidden_size * 2, hf_config.hidden_size)
         self.des_linear = nn.Linear(hf_config.hidden_size * 3, hf_config.hidden_size)
         self.alpha = config.alpha
+        self.tokenizer_len = config.tokenizer_len
 
         self.input_encoder = AutoModel.from_pretrained(
             config.pretrained_model_name_or_path,
@@ -80,6 +83,10 @@ class BEFRE(PreTrainedModel):
             config=hf_config,
             add_pooling_layer=False
         )
+        if self.tokenizer_len:
+            self.input_encoder.resize_token_embeddings(self.tokenizer_len)
+            self.description_encoder.resize_token_embeddings(self.tokenizer_len)
+
 
     def _init_weights(self, module):
         """Initialize the weights"""
