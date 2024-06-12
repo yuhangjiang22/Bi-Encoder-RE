@@ -142,18 +142,18 @@ def generate_relation_data(entity_data, use_gold=False, context_window=0):
 
 
                     # else:
-                    if sub.label in scierc_entity_types and obj.label in scierc_entity_types:
+                    elif sub.label in scierc_entity_types and obj.label in scierc_entity_types:
                         if [sub.span, obj.span] not in captured:
                             label = gold_rel.get((sub.span, obj.span), 'no_relation')
-                            # rev_label = ''
-                            # # for symmetric relation labels, we only train and eval these instances once
-                            # if label == 'no_relation':
-                            #     rev_label = gold_rel.get((obj.span, sub.span), 'no_relation')
-                            # if label in ['CONJUNCTION', 'COMPARE'] or rev_label in ['CONJUNCTION', 'COMPARE']:
-                            #     captured.append([sub.span, obj.span])
-                            #     captured.append([obj.span, sub.span])
-                            #     if rev_label in ['CONJUNCTION', 'COMPARE']:
-                            #         label = rev_label
+                            rev_label = ''
+                            # for symmetric relation labels, we only train and eval these instances once
+                            if label == 'no_relation':
+                                rev_label = gold_rel.get((obj.span, sub.span), 'no_relation')
+                            if label in ['CONJUNCTION', 'COMPARE'] or rev_label in ['CONJUNCTION', 'COMPARE']:
+                                captured.append([sub.span, obj.span])
+                                captured.append([obj.span, sub.span])
+                                if rev_label in ['CONJUNCTION', 'COMPARE']:
+                                    label = rev_label
                             sample = {}
                             sample['docid'] = doc._doc_key
                             sample['id'] = '%s@%d::(%d,%d)-(%d,%d)' % (
@@ -174,6 +174,25 @@ def generate_relation_data(entity_data, use_gold=False, context_window=0):
 
                         # captured.append([sub.span, obj.span])
                         # captured.append([obj.span, sub.span])
+                    else:
+                        label = gold_rel.get((sub.span, obj.span), 'no_relation')
+                        sample = {}
+                        sample['docid'] = doc._doc_key
+                        sample['id'] = '%s@%d::(%d,%d)-(%d,%d)' % (
+                            doc._doc_key, sent.sentence_ix, sub.span.start_doc, sub.span.end_doc, obj.span.start_doc,
+                            obj.span.end_doc)
+                        sample['relation'] = label
+                        sample['subj_start'] = sub.span.start_sent + sent_start
+                        sample['subj_end'] = sub.span.end_sent + sent_start
+                        sample['subj_type'] = sub.label
+                        sample['obj_start'] = obj.span.start_sent + sent_start
+                        sample['obj_end'] = obj.span.end_sent + sent_start
+                        sample['obj_type'] = obj.label
+                        sample['token'] = tokens
+                        sample['sent_start'] = sent_start
+                        sample['sent_end'] = sent_end
+
+                        sent_samples.append(sample)
 
             max_sentsample = max(max_sentsample, len(sent_samples))
             samples += sent_samples
