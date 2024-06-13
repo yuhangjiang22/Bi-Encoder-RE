@@ -650,6 +650,10 @@ def main(args):
         eval_step = max(1, len(train_batches) // args.eval_per_epoch)
 
         lr = args.learning_rate
+
+        if 'PubMedBERT' not in config.pretrained_model_name_or_path:
+            config.tokenizer_len = len(tokenizer)
+
         model = BEFRE(config)
 
         model.to(device)
