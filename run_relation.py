@@ -133,7 +133,7 @@ def add_marker_tokens(tokenizer, ner_labels):
 
 
 def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, special_tokens,
-                                 tokenized_id2description, unused_tokens=False, multiple_descriptions=False):
+                                 tokenized_id2description, unused_tokens=False, baseline=False):
     """
     Loads a data file into a list of `InputBatch`s.
     unused_tokens: whether use [unused1] [unused2] as special tokens
@@ -215,6 +215,9 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
 
         subject = tokens[sub_idx:sub_idx_end + 1]
         object = tokens[obj_idx:obj_idx_end + 1]
+        if baseline:
+            subject = ['']
+            object = ['']
 
         num_tokens += len(tokens)
         max_tokens = max(max_tokens, len(tokens))
@@ -248,42 +251,13 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
         descriptions_sub_idx = []
         descriptions_obj_idx = []
 
-        if not multiple_descriptions:
+        for _, description_tokens_list in tokenized_id2description.items():
 
-            for _, description_tokens_list in tokenized_id2description.items():
-
-                # description_tokens = random.choice(description_tokens_list)
-                description_tokens = description_tokens_list[0]
-                description_input_ids, description_input_mask, description_type_ids = get_description_input(description_tokens)
-
-                descriptions_input_ids.append(description_input_ids)
-                descriptions_input_mask.append(description_input_mask)
-                descriptions_type_ids.append(description_type_ids)
-
-
-
-        else:
-            for label, description_tokens_list in tokenized_id2description.items():
-                if label == label_id:
-                    description_label_id = len(descriptions_input_ids)
-                    description_tokens = description_tokens_list[0]
-                    description_input_ids, description_input_mask, description_type_ids = get_description_input(
-                        description_tokens)
-
-                    descriptions_input_ids.append(description_input_ids)
-                    descriptions_input_mask.append(description_input_mask)
-                    descriptions_type_ids.append(description_type_ids)
-                else:
-
-                    for description_tokens in description_tokens_list:
-                        description_input_ids, description_input_mask, description_type_ids = get_description_input(
-                            description_tokens)
-
-                        descriptions_input_ids.append(description_input_ids)
-                        descriptions_input_mask.append(description_input_mask)
-                        descriptions_type_ids.append(description_type_ids)
-
-
+            description_tokens = description_tokens_list[0]
+            description_input_ids, description_input_mask, description_type_ids = get_description_input(description_tokens)
+            descriptions_input_ids.append(description_input_ids)
+            descriptions_input_mask.append(description_input_mask)
+            descriptions_type_ids.append(description_type_ids)
 
 
         if num_shown_examples < 20:
@@ -298,9 +272,6 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                 logger.info("segment_ids: %s" % " ".join([str(x) for x in segment_ids]))
                 logger.info("label: %s (id = %d)" % (example['relation'], label_id))
                 logger.info("sub_idx, obj_idx: %d, %d" % (sub_idx, obj_idx))
-
-        if multiple_descriptions:
-            label_id = description_label_id
         features.append(
             InputFeatures(input_ids=input_ids,
                           input_mask=input_mask,
@@ -464,6 +435,8 @@ def main(args):
         # from relation.uni_model import BEFRE, BEFREConfig
     if args.train_pure:
         from relation.testing_model import BEFRE, BEFREConfig
+    if args.baseline:
+        from relation.testing_model_3 import BEFRE, BEFREConfig
 
     setseed(args.seed)
 
@@ -536,7 +509,7 @@ def main(args):
     if args.do_eval and (args.do_train or not (args.eval_test)):
         eval_features = convert_examples_to_features(
             eval_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
-            unused_tokens=not (args.add_new_tokens))
+            unused_tokens=not (args.add_new_tokens), baseline=args.baseline)
         logger.info("***** Dev *****")
         logger.info("  Num examples = %d", len(eval_examples))
         logger.info("  Batch size = %d", args.eval_batch_size)
@@ -576,7 +549,7 @@ def main(args):
     if args.do_train:
         train_features = convert_examples_to_features(
             train_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
-            unused_tokens=not (args.add_new_tokens), multiple_descriptions=args.multi_descriptions)
+            unused_tokens=not (args.add_new_tokens), multiple_descriptions=args.multi_descriptions, baseline=args.baseline)
         if args.train_mode == 'sorted' or args.train_mode == 'random_sorted':
             train_features = sorted(train_features, key=lambda f: np.sum(f.input_mask))
         else:
@@ -722,7 +695,7 @@ def main(args):
             eval_examples = test_examples
             eval_features = convert_examples_to_features(
                 test_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
-                unused_tokens=not (args.add_new_tokens))
+                unused_tokens=not (args.add_new_tokens), baseline=args.baseline)
             eval_nrel = test_nrel
             logger.info(special_tokens)
             logger.info("***** Test *****")
@@ -846,6 +819,8 @@ if __name__ == "__main__":
                         help="Use multi-descriptions or not.")
     parser.add_argument('--soft_prompt', action='store_true',
                         help="Train with soft prompts.")
+    parser.add_argument('--baseline', action='store_true',
+                        help="Use instance adaptation or not")
     parser.add_argument('--alpha', type=float, default=0.5,
                         help="alpha value for loss function.")
 
