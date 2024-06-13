@@ -602,12 +602,11 @@ def main(args):
         eval_step = max(1, len(train_batches) // args.eval_per_epoch)
 
         lr = args.learning_rate
+
+        if 'PubMedBERT' not in config.pretrained_model_name_or_path:
+            config.tokenizer_len = len(tokenizer)
+
         model = BEFRE(config)
-        if id2label[1] == 'PART-OF': # for scierc dataset only
-            model.input_encoder.resize_token_embeddings(len(tokenizer))
-            model.description_encoder.resize_token_embeddings(len(tokenizer))
-        # model = RelationModel.from_pretrained(
-        #     args.model, cache_dir=str(PYTORCH_PRETRAINED_BERT_CACHE), num_rel_labels=num_labels)
 
         model.to(device)
         if n_gpu > 1:
