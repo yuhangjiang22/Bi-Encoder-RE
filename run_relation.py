@@ -12,93 +12,14 @@ import sys
 
 import numpy as np
 import torch
-from torch.utils.data import DataLoader, TensorDataset
-# from collections import Counter
-#
-# from torch.nn import CrossEntropyLoss
-
-from transformers.file_utils import PYTORCH_PRETRAINED_BERT_CACHE, WEIGHTS_NAME, CONFIG_NAME
-# from relation.models import BertForRelation, AlbertForRelation
+from transformers.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
 from transformers import AutoTokenizer
 from transformers import AdamW, get_linear_schedule_with_warmup
 
 from relation.utils import generate_relation_data, decode_sample_id
 from shared.const import task_rel_labels, task_ner_labels
-# from relation.config import BEFREConfig
-from relation.befre import BEFRE, BEFREConfig
-from relation.unified_model import BEFRE, BEFREConfig
+from shared.descriptions import descriptions
 
-id2description = {0: ["there are no relations between the compound @subject@ and gene @object@ .",
-                      "the compound @subject@ and gene @object@ has no relations ."],
-                  1: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-                      "upregulator , activator , or indirect upregulator in its interactions .",
-                      "@subject@ initiates or enhances the activity of @object@ through direct or indirect means . an "
-                      "upregulator ,activator , or indirect upregulator serves as the mechanism that increases the "
-                      "function ,"
-                      "expression , or activity of the @object@"
-                      ],
-                  2: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
-                      "downregulator , inhibitor , or indirect downregulator in its interactions .",
-                      "@subject@ interacts with the gene @object@ , resulting in a decrease in the gene's "
-                      "activity or expression . This interaction can occur through direct inhibition , acting as a "
-                      "downregulator , or through indirect means , where the compound causes a reduction in the gene's "
-                      "function or expression without directly binding to it . Such mechanisms are crucial in "
-                      "understanding genetic regulation and can have significant implications in fields like "
-                      "pharmacology and gene therapy ."
-                      ],
-                  3: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-                      "agonist , agonist activator , or agonist inhibitor in its interactions .",
-                      "@subject@ interacts with the gene @object@ in a manner that modulates its activity positively ( "
-                      "as an agonist or agonist activator ) or negatively ( as an agonist inhibitor ) . An agonist "
-                      "interaction typically increases the gene's activity or the activity of proteins expressed by "
-                      "the gene , whereas an agonist activator enhances this effect further . Conversely , an agonist "
-                      "inhibitor would paradoxically bind in a manner that initially mimics an agonist's action but "
-                      "ultimately inhibits the gene's activity or its downstream effects ."
-                      ],
-                  4: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-                      "antagonist in its interactions .",
-                      "@subject@ interacts with the gene @object@ by acting as an antagonist . This means that the "
-                      "compound blocks or diminishes the gene's normal activity or the activity of the protein product "
-                      "expressed by the gene . Antagonist interactions are significant in the regulation of biological "
-                      "pathways and have wide-ranging implications in therapeutic interventions , where they can be "
-                      "used to modulate the effects of genes involved in disease processes ."
-                      ],
-                  5: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
-                      "substrate , product of, or substrate product of in its interactions .",
-                      "@subject@ engages with the gene @object@ in a manner where it acts as a substrate , is a product"
-                      "of, or both a substrate and product within the gene's associated biochemical pathways ."
-                      ]}
-
-id2description = {0: [" there are no relations between the compound @subject@ and gene @object@ .",],
-                  1: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-                      "upregulator in its interactions . ",
-                      ],
-                  2: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an activator in its interactions . "],
-                  3: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an indirect upregulator in its interactions . "],
-
-                  4: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
-                      "downregulator in its interactions .",
-                      ],
-                  5: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an inhibitor in its interactions . "],
-                  6: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an indirect downregulator in its interactions . "],
-
-                  7: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-                      "agonist in its interactions .",
-                      ],
-                  8: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an agonist activator in its interactions . "],
-                  9: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an agonist inhibitor in its interactions . "],
-
-                  10: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as an "
-                      "antagonist in its interactions .",
-                      ],
-
-                  11: ["the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a "
-                      "substrate in its interactions .",
-                      ],
-                  12: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a product of in its interactions . "],
-                  13: [" the compound @subject@ has been identified to engage with the gene @object@ , manifesting as a substrate product of in its interactions . "],}
-
-tokenized_id2description = {key: [s.lower().split() for s in value] for key, value in id2description.items()}
 
 def add_description_words(tokenizer, tokenized_id2description):
     unk_words = []
@@ -454,18 +375,10 @@ def save_trained_model(output_dir, model, tokenizer):
 
 
 def main(args):
-    # if 'albert' in args.model:
-    #     RelationModel = AlbertForRelation
-    #     args.add_new_tokens = True
-    # else:
-    #     RelationModel = BertForRelation
     if args.train_single:
         from relation.single_model import BEFRE, BEFREConfig
     if args.soft_prompt:
-        # from relation.testing_model import BEFRE, BEFREConfig
         from relation.testing_model_2 import BEFRE, BEFREConfig
-        # from relation.unified_model import BEFRE, BEFREConfig
-        # from relation.uni_model import BEFRE, BEFREConfig
     if args.train_pure:
         from relation.testing_model import BEFRE, BEFREConfig
     if args.baseline:
@@ -527,6 +440,8 @@ def main(args):
         num_labels=num_labels,
         alpha=args.alpha,
     )
+    id2description = descriptions[args.task]
+    tokenized_id2description = {key: [s.lower().split() for s in value] for key, value in id2description.items()}
 
     tokenizer = AutoTokenizer.from_pretrained(args.model, do_lower_case=args.do_lower_case)
     add_description_words(tokenizer, tokenized_id2description)

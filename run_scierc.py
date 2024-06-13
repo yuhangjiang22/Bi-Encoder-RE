@@ -28,40 +28,40 @@ from shared.const import task_rel_labels, task_ner_labels
 from relation.befre import BEFRE, BEFREConfig
 from relation.unified_model import BEFRE, BEFREConfig
 
-# id2description = {0: ["no relation : there are no relations between the @subject@ and the @object@ ."],
-#                   1: ["part of : the @subject@ is a component or segment that is integral to the structure or composition "
-#                       "of the @object@ ."],
-#                   2: ["used for : the @subject@ is a tool or method applied to enhance or facilitate the @object@ ."],
-#                   3: ["feature of : the @subject@ is a constituent part or characteristic of the @object@ , functioning as a "
-#                       "distinctive element within the @object@ , or falls within the scope or area of expertise defined "
-#                       "by the domain of the @object@ ."],
-#                   4: ["conjunction : the @subject@ serves a role or purpose analogous to the @object@ , often being used in "
-#                       "conjunction with or incorporated into the @object@ for complementary or similar functions . "],
-#                   5: ["evaluate for : the @object@ is assessed or analyzed specifically to determine its suitability , "
-#                       "effectiveness , or performance in relation to the @subject@ ."],
-#                   6: ["hyponym of : the @subject@ is a specific instance or category under the broader classification of "
-#                       "@object@ , signifying that the @subject@ is a subtype or a more specialized form within the general "
-#                       "framework of the @object@ ."],
-#                   7: ["compare : the @subject@ is compared in relation to the @object@ , highlighting similarities and "
-#                       "differences to understand their respective characteristics or performances ."]}
+id2description = {0: ["no relation : there are no relations between the @subject@ and the @object@ ."],
+                  1: ["part of : the @subject@ is a component or segment that is integral to the structure or composition "
+                      "of the @object@ ."],
+                  2: ["used for : the @subject@ is a tool or method applied to enhance or facilitate the @object@ ."],
+                  3: ["feature of : the @subject@ is a constituent part or characteristic of the @object@ , functioning as a "
+                      "distinctive element within the @object@ , or falls within the scope or area of expertise defined "
+                      "by the domain of the @object@ ."],
+                  4: ["conjunction : the @subject@ serves a role or purpose analogous to the @object@ , often being used in "
+                      "conjunction with or incorporated into the @object@ for complementary or similar functions . "],
+                  5: ["evaluate for : the @object@ is assessed or analyzed specifically to determine its suitability , "
+                      "effectiveness , or performance in relation to the @subject@ ."],
+                  6: ["hyponym of : the @subject@ is a specific instance or category under the broader classification of "
+                      "@object@ , signifying that the @subject@ is a subtype or a more specialized form within the general "
+                      "framework of the @object@ ."],
+                  7: ["compare : the @subject@ is compared in relation to the @object@ , highlighting similarities and "
+                      "differences to understand their respective characteristics or performances ."]}
 
-id2description = {0: ["no relation : there are no relations between @subject@ and @object@ ."],
-                  1: ["agent - artifact : the @subject@ , who can be a user , owner , inventor , or manufacturer , "
-                      "has a specific role"
-                      "in relation to the @object@ , which is a tangible item or creation associated with "
-                      " @subject@ ."],
-                  2: ["organization - affiliation : the  @subject@ has a defined association , such as "
-                      "employment , founding , ownership , student-alum status , sports affiliation , "
-                      "or investor-shareholder role , with the @object@ ."],
-                  3: ["gen - affiliation : the @subject@ has a specific geopolitical connection to the @object@ , "
-                      "such as citizenship, residency, ethnicity, or religious affiliation ."],
-                  4: ["physical - located : the @subject@ , which can be a person, organization, or artifact, "
-                      "is physically situated within or at the location of the @object@ ."],
-                  5: ["personal - social : the @subject@ has a specific social or personal connection with the @object@"
-                      " , such as a family relationship, business partnership, friendship, or other personal "
-                      "affiliation ."],
-                  6: ["part - whole :  the @subject@ is a component or segment of the @object@ , indicating that the "
-                      "part is an integral or constituent piece of the larger whole ."]}
+# id2description = {0: ["no relation : there are no relations between @subject@ and @object@ ."],
+#                   1: ["agent - artifact : the @subject@ , who can be a user , owner , inventor , or manufacturer , "
+#                       "has a specific role"
+#                       "in relation to the @object@ , which is a tangible item or creation associated with "
+#                       " @subject@ ."],
+#                   2: ["organization - affiliation : the  @subject@ has a defined association , such as "
+#                       "employment , founding , ownership , student-alum status , sports affiliation , "
+#                       "or investor-shareholder role , with the @object@ ."],
+#                   3: ["gen - affiliation : the @subject@ has a specific geopolitical connection to the @object@ , "
+#                       "such as citizenship, residency, ethnicity, or religious affiliation ."],
+#                   4: ["physical - located : the @subject@ , which can be a person, organization, or artifact, "
+#                       "is physically situated within or at the location of the @object@ ."],
+#                   5: ["personal - social : the @subject@ has a specific social or personal connection with the @object@"
+#                       " , such as a family relationship, business partnership, friendship, or other personal "
+#                       "affiliation ."],
+#                   6: ["part - whole :  the @subject@ is a component or segment of the @object@ , indicating that the "
+#                       "part is an integral or constituent piece of the larger whole ."]}
 
 # id2description = {0: ["no relation : there are no relations between @subject@ and @object@ ."],
 #                   1: ["Cause-Effect : the @subject@ leads to the effect @object@ ."],
