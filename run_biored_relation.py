@@ -13,20 +13,12 @@ import sys
 import numpy as np
 import torch
 from torch.utils.data import DataLoader, TensorDataset
-# from collections import Counter
-#
-# from torch.nn import CrossEntropyLoss
-
-from transformers.file_utils import PYTORCH_PRETRAINED_BERT_CACHE, WEIGHTS_NAME, CONFIG_NAME
-# from relation.models import BertForRelation, AlbertForRelation
+from transformers.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
 from transformers import AutoTokenizer
 from transformers import AdamW, get_linear_schedule_with_warmup
 
 from relation.utils import generate_relation_data, decode_sample_id
 from shared.const import task_rel_labels, task_ner_labels
-# from relation.config import BEFREConfig
-from relation.befre import BEFRE, BEFREConfig
-from relation.unified_model import BEFRE, BEFREConfig
 
 # id2description = {
 #     'ChemicalEntity-DiseaseOrPhenotypicFeature': {
@@ -475,7 +467,6 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
 
         for _, description_tokens_list in task_tokenized_id2description.items():
 
-            # description_tokens = random.choice(description_tokens_list)
             description_tokens = description_tokens_list[0]
             description_input_ids, description_input_mask, description_type_ids = get_description_input(description_tokens)
 
