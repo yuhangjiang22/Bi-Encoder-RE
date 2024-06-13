@@ -717,6 +717,8 @@ def main(args):
                             best_result = result
                             logger.info("!!! Best dev %s (lr=%s, epoch=%d): %.2f" %
                                         (args.eval_metric, str(lr), epoch, result[args.eval_metric] * 100.0))
+                            logger.info("More details: P: %.2f, R: %.2f" %
+                                        (result['precision'] * 100.0, result['recall'] * 100.0))
                             save_trained_model(args.output_dir, model, tokenizer)
 
     evaluation_results = {}
