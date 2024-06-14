@@ -369,7 +369,7 @@ def decode_sample_id(sample_id):
     return doc_sent, sub, obj
 
 
-def generate_relation_data(entity_data, context_window=0, task=None):
+def generate_relation_data(entity_data, use_gold=True, context_window=0, task=None):
     """
     Prepare data for the relation model
     If training: set use_gold = True
@@ -395,7 +395,7 @@ def generate_relation_data(entity_data, context_window=0, task=None):
             nner += len(sent.ner)
             nrel += len(sent.relations)
 
-            sent_ner = sent.predicted_ner
+            sent_ner = sent.ner
 
             gold_ner = {}
             for ner in sent.ner:
