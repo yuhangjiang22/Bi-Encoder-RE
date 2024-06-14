@@ -69,7 +69,7 @@ def simple_accuracy(preds, labels):
     return (preds == labels).mean()
 
 
-def compute_f1(preds, labels, e2e_ngold):
+def compute_f1(preds, labels):
     n_gold = n_pred = n_correct = 0
     for pred, label in zip(preds, labels):
         if pred != 0:
@@ -87,19 +87,12 @@ def compute_f1(preds, labels, e2e_ngold):
             f1 = 2.0 * prec * recall / (prec + recall)
         else:
             f1 = 0.0
-
-        if e2e_ngold is not None:
-            e2e_recall = n_correct * 1.0 / e2e_ngold
-            e2e_f1 = 2.0 * prec * e2e_recall / (prec + e2e_recall)
-        else:
-            e2e_recall = e2e_f1 = 0.0
-        return {'precision': prec, 'recall': e2e_recall, 'f1': e2e_f1, 'task_recall': recall, 'task_f1': f1,
-                'n_correct': n_correct, 'n_pred': n_pred, 'n_gold': e2e_ngold, 'task_ngold': n_gold}
+        return {'precision': prec, 'recall': recall, 'f1': f1,
+                'n_correct': n_correct, 'n_pred': n_pred, 'n_gold': n_gold}
 
 
-def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_size, seq_len, e2e_ngold=None):
+def evaluate(model, device, eval_dataloader, eval_label_ids, seq_len):
     model.eval()
-    # eval_loss = 0
     nb_eval_steps = 0
     preds = []
     for input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx in eval_dataloader:
@@ -137,9 +130,6 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
                            descriptions_obj_idx=descriptions_obj_idx,
                            return_dict=True)
 
-        # loss_fct = CrossEntropyLoss()
-        # tmp_eval_loss = loss_fct(logits.view(-1, num_labels), label_ids.view(-1))
-        # eval_loss += tmp_eval_loss.mean().item()
         nb_eval_steps += 1
         if len(preds) == 0:
             preds.append(scores.detach().cpu().numpy())
@@ -147,12 +137,9 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
             preds[0] = np.append(
                 preds[0], scores.detach().cpu().numpy(), axis=0)
 
-    # eval_loss = eval_loss / nb_eval_steps
-    # scores = preds[0]
     preds = np.argmax(preds[0], axis=1)
-    result = compute_f1(preds, eval_label_ids.numpy(), e2e_ngold=e2e_ngold)
+    result = compute_f1(preds, eval_label_ids.numpy())
     result['accuracy'] = simple_accuracy(preds, eval_label_ids.numpy())
-    # result['eval_loss'] = eval_loss
 
     return preds, result
 
@@ -443,10 +430,7 @@ def main(args):
                                                  device=device,
                                                  eval_dataloader=eval_dataloader,
                                                  eval_label_ids=eval_label_ids,
-                                                 num_labels=num_labels,
-                                                 batch_size=args.eval_batch_size,
                                                  seq_len=args.max_seq_length,
-                                                 e2e_ngold=eval_nrel,
                                                  )
                         model.train()
                         result['global_step'] = global_step
@@ -510,10 +494,7 @@ def main(args):
                                  device=device,
                                  eval_dataloader=eval_dataloader,
                                  eval_label_ids=eval_label_ids,
-                                 num_labels=num_labels,
-                                 batch_size=args.eval_batch_size,
                                  seq_len=args.max_seq_length,
-                                 e2e_ngold=eval_nrel,
                                  )
 
         logger.info('*** Evaluation Results ***')
