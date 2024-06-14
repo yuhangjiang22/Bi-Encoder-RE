@@ -212,6 +212,8 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
     Loads a data file into a list of `InputBatch`s.
     unused_tokens: whether use [unused1] [unused2] as special tokens
     """
+    CLS = "[CLS]"
+    SEP = "[SEP]"
 
     def get_special_token(w):
         if w not in special_tokens:
@@ -367,7 +369,7 @@ def decode_sample_id(sample_id):
     return doc_sent, sub, obj
 
 
-def generate_relation_data(entity_data, use_gold=False, context_window=0, task=None):
+def generate_relation_data(entity_data, context_window=0, task=None):
     """
     Prepare data for the relation model
     If training: set use_gold = True
@@ -392,10 +394,8 @@ def generate_relation_data(entity_data, use_gold=False, context_window=0, task=N
 
             nner += len(sent.ner)
             nrel += len(sent.relations)
-            if use_gold:
-                sent_ner = sent.ner
-            else:
-                sent_ner = sent.predicted_ner
+
+            sent_ner = sent.predicted_ner
 
             gold_ner = {}
             for ner in sent.ner:

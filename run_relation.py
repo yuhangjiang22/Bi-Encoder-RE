@@ -19,6 +19,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from relation.utils import generate_relation_data, decode_sample_id, convert_examples_to_features, convert_biored_examples_to_features
 from shared.const import task_rel_labels, task_ner_labels
 from shared.descriptions import descriptions
+from relation.model import BEFRE, BEFREConfig
 
 
 
@@ -181,13 +182,6 @@ def save_trained_model(output_dir, model, tokenizer):
 
 
 def main(args):
-    if args.train_single:
-        from relation.single_model import BEFRE, BEFREConfig
-    if args.soft_prompt:
-        from relation.model import BEFRE, BEFREConfig
-    if args.train_pure:
-        from relation.testing_model import BEFRE, BEFREConfig
-
 
     setseed(args.seed)
 
@@ -201,12 +195,12 @@ def main(args):
     # dev set
     if (args.do_eval and args.do_train) or (args.do_eval and not (args.eval_test)):
         eval_dataset, eval_examples, eval_nrel = generate_relation_data(
-            os.path.join(args.entity_output_dir, args.entity_predictions_dev), use_gold=args.eval_with_gold,
+            os.path.join(args.file_dir, args.dev_file),
             context_window=args.context_window, task=args.task)
     # test set
     if args.eval_test:
         test_dataset, test_examples, test_nrel = generate_relation_data(
-            os.path.join(args.entity_output_dir, args.entity_predictions_test), use_gold=args.eval_with_gold,
+            os.path.join(args.file_dir, args.test_file),
             context_window=args.context_window, task=args.task)
 
 
@@ -450,7 +444,6 @@ def main(args):
             eval_features = convert_function(
                 test_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
                 unused_tokens=not (args.add_new_tokens))
-            eval_nrel = test_nrel
             logger.info(special_tokens)
             logger.info("***** Test *****")
             logger.info("  Num examples = %d", len(test_examples))
@@ -521,8 +514,6 @@ if __name__ == "__main__":
     parser.add_argument("--do_eval", action='store_true', help="Whether to run eval on the dev set.")
     parser.add_argument("--do_lower_case", action='store_true', help="Set this flag if you are using an uncased model.")
     parser.add_argument("--eval_test", action="store_true", help="Whether to evaluate on final test set.")
-    parser.add_argument("--eval_with_gold", action="store_true",
-                        help="Whether to evaluate the relation model with gold entities provided.")
     parser.add_argument("--train_batch_size", default=32, type=int,
                         help="Total batch size for training.")
     parser.add_argument("--eval_batch_size", default=8, type=int,
@@ -540,35 +531,25 @@ if __name__ == "__main__":
     parser.add_argument('--seed', type=int, default=0,
                         help="random seed for initialization")
     parser.add_argument("--bertadam", action="store_true", help="If bertadam, then set correct_bias = False")
-
-    parser.add_argument("--entity_output_dir", type=str, default=None,
+    parser.add_argument("--file_dir", type=str, default=None,
                         help="The directory of the prediction files of the entity model")
-    parser.add_argument("--entity_predictions_dev", type=str, default="dev.json",
+    parser.add_argument("--dev_file", type=str, default="dev.json",
                         help="The entity prediction file of the dev set")
-    parser.add_argument("--entity_predictions_test", type=str, default="test.json",
+    parser.add_argument("--test_file", type=str, default="test.json",
                         help="The entity prediction file of the test set")
-
     parser.add_argument("--prediction_file", type=str, default="predictions.json",
                         help="The prediction filename for the relation model")
-
     parser.add_argument('--task', type=str, default=None, required=True,
                         choices=['scierc', 'chemprot', 'chemprot_5', 'biored'])
     parser.add_argument('--context_window', type=int, default=0)
-
     parser.add_argument('--add_new_tokens', action='store_true',
                         help="Whether to add new tokens as marker tokens instead of using [unusedX] tokens.")
     parser.add_argument('--train_num_examples', type=int, default=None,
-                        help="How many training instances to train")
-    parser.add_argument('--train_single', action='store_true',
-                        help="Train single model.")
+                        help="Number of training instances.")
     parser.add_argument('--train_pure', action='store_true',
                         help="Train PURE of BEFRE.")
     parser.add_argument('--drop_out', type=float, default=0.1,
                         help="hidden drop out rate.")
-    parser.add_argument('--multi_descriptions', action='store_true',
-                        help="Use multi-descriptions or not.")
-    parser.add_argument('--soft_prompt', action='store_true',
-                        help="Train with soft prompts.")
     parser.add_argument('--alpha', type=float, default=0.5,
                         help="alpha value for loss function.")
 
