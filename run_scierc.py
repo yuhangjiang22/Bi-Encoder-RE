@@ -484,7 +484,7 @@ def main(args):
     #     from relation.unified_model import BEFRE, BEFREConfig
         # from relation.uni_model import BEFRE, BEFREConfig
     if args.soft_prompt:
-        from relation.testing_model_2 import BEFRE, BEFREConfig
+        from relation.model import BEFRE, BEFREConfig
     if args.train_pure:
         from relation.testing_model import BEFRE, BEFREConfig
 

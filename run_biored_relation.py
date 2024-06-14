@@ -331,8 +331,8 @@ def add_marker_tokens(tokenizer, ner_labels):
     tokenizer.add_tokens(new_tokens)
     logger.info('# vocab after adding markers: %d' % len(tokenizer))
 
-def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, special_tokens,
-                                 tokenized_id2description, unused_tokens=False, baseline=False):
+def convert_biored_examples_to_features(examples, label2id, max_seq_length, tokenizer, special_tokens,
+                                 tokenized_id2description, unused_tokens=False):
     """
     Loads a data file into a list of `InputBatch`s.
     unused_tokens: whether use [unused1] [unused2] as special tokens
@@ -362,21 +362,17 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
                                   (sublist if isinstance(sublist, list) else [sublist])]
             description_tokens.append(SEP)
 
-            if not baseline:
-                des_sub_idx = description_tokens.index(SUBJECT_START_NER)
-                des_obj_idx = description_tokens.index(OBJECT_START_NER)
-                descriptions_sub_idx.append(des_sub_idx)
-                descriptions_obj_idx.append(des_obj_idx)
-            else:
-                descriptions_sub_idx.append(0)
-                descriptions_obj_idx.append(0)
+            des_sub_idx = description_tokens.index(SUBJECT_START_NER)
+            des_obj_idx = description_tokens.index(OBJECT_START_NER)
+            descriptions_sub_idx.append(des_sub_idx)
+            descriptions_obj_idx.append(des_obj_idx)
 
             description_input_ids = tokenizer.convert_tokens_to_ids(description_tokens)
             description_type_ids = [0] * len(description_tokens)
             description_input_mask = [1] * len(description_input_ids)
-        # for empty descriptions since some tasks do not have certain relations.
-        else:
 
+        # for empty descriptions, some tasks do not have certain relations in biored.
+        else:
             description_input_ids = [0]
             description_input_mask = [0]
             description_type_ids = [0]
@@ -429,9 +425,7 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
 
         subject = tokens[sub_idx:sub_idx_end + 1]
         object = tokens[obj_idx:obj_idx_end + 1]
-        if baseline:
-            subject = ['']
-            object = ['']
+
 
         num_tokens += len(tokens)
         max_tokens = max(max_tokens, len(tokens))
@@ -644,15 +638,13 @@ def main(args):
     # else:
     #     RelationModel = BertForRelation
     if args.soft_prompt:
-        from relation.testing_model_2 import BEFRE, BEFREConfig
+        from relation.model import BEFRE, BEFREConfig
     else:
         # from relation.testing_model_2 import BEFRE, BEFREConfig
         from relation.unified_model import BEFRE, BEFREConfig
         # from relation.uni_model import BEFRE, BEFREConfig
     if args.train_pure:
         from relation.testing_model import BEFRE, BEFREConfig
-    if args.baseline:
-        from relation.testing_model_3 import BEFRE, BEFREConfig
 
     setseed(args.seed)
 
@@ -719,9 +711,9 @@ def main(args):
         special_tokens = {}
 
     if args.do_eval and (args.do_train or not (args.eval_test)):
-        eval_features = convert_examples_to_features(
+        eval_features = convert_biored_examples_to_features(
             eval_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
-            unused_tokens=not (args.add_new_tokens), baseline=args.baseline)
+            unused_tokens=not (args.add_new_tokens))
         logger.info("***** Dev *****")
         logger.info("  Num examples = %d", len(eval_examples))
         logger.info("  Batch size = %d", args.eval_batch_size)
@@ -759,9 +751,9 @@ def main(args):
         json.dump(special_tokens, f)
 
     if args.do_train:
-        train_features = convert_examples_to_features(
+        train_features = convert_biored_examples_to_features(
             train_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
-            unused_tokens=not (args.add_new_tokens), baseline=args.baseline)
+            unused_tokens=not (args.add_new_tokens))
         if args.train_mode == 'sorted' or args.train_mode == 'random_sorted':
             train_features = sorted(train_features, key=lambda f: np.sum(f.input_mask))
         else:
@@ -912,9 +904,9 @@ def main(args):
         if args.eval_test:
             eval_dataset = test_dataset
             eval_examples = test_examples
-            eval_features = convert_examples_to_features(
+            eval_features = convert_biored_examples_to_features(
                 test_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
-                unused_tokens=not (args.add_new_tokens), baseline=args.baseline)
+                unused_tokens=not (args.add_new_tokens))
             eval_nrel = test_nrel
             logger.info(special_tokens)
             logger.info("***** Test *****")
@@ -1038,8 +1030,6 @@ if __name__ == "__main__":
                         help="hidden drop out rate.")
     parser.add_argument('--alpha', type=float, default=0.5,
                         help="Alpha value for loss function.")
-    parser.add_argument('--baseline', action='store_true',
-                        help="Use instance adaptation or not")
 
     args = parser.parse_args()
     main(args)

@@ -481,7 +481,7 @@ def main(args):
     # else:
     #     RelationModel = BertForRelation
     if args.soft_prompt:
-        from relation.testing_model_2 import BEFRE, BEFREConfig
+        from relation.model import BEFRE, BEFREConfig
     else:
         # from relation.testing_model import BEFRE, BEFREConfig
         from relation.unified_model import BEFRE, BEFREConfig

@@ -82,7 +82,130 @@ descriptions = {
                       "substrate , product of, or substrate product of in its interactions .",
                       "@subject@ engages with the gene @object@ in a manner where it acts as a substrate , is a product"
                       "of, or both a substrate and product within the gene's associated biochemical pathways ."
-                      ]}
+                      ]},
+    'biored': {
+    'ChemicalEntity-DiseaseOrPhenotypicFeature': {
+        0: ['there are no relations between the drug @ChemicalEntity@ and disease @DiseaseOrPhenotypicFeature@ .',],
+        1: ['the drug @ChemicalEntity@ may induce the disease @DiseaseOrPhenotypicFeature@ , increase its risk, '
+            'or the levels may'
+            'correlate with disease risk .'],
+        2: ['the drug @ChemicalEntity@ is able to treat the disease @DiseaseOrPhenotypicFeature@ or decrease its '
+            'susceptibility .'],
+        3: ['the drug @ChemicalEntity@ is found to affect the disease @DiseaseOrPhenotypicFeature@ but not clearly '
+            'identified as'
+            'positive or negative correlations . '],
+        4: [''],
+        5: [''],
+        6: [''],
+        7: [''],
+        8: [''],
+    },
+    'GeneOrGeneProduct-DiseaseOrPhenotypicFeature': {
+        0: ['there are no relations between the disease @DiseaseOrPhenotypicFeature@ and gene @GeneOrGeneProduct@ .',],
+        1: ['overexpression or side effects of the gene @GeneOrGeneProduct@ may cause the disease '
+            '@DiseaseOrPhenotypicFeature@ .'],
+        2: ['the proteins from the gene @GeneOrGeneProduct@ used as drugs may treat the disease '
+            '@DiseaseOrPhenotypicFeature@ or the absence may'
+            'cause diseases .'],
+        3: ['the functional gene @GeneOrGeneProduct@ prevents disease @DiseaseOrPhenotypicFeature@ or other '
+            'association relationships .' ],
+        4: [''],
+        5: [''],
+        6: [''],
+        7: [''],
+        8: [''],
+    },
+    'SequenceVariant-DiseaseOrPhenotypicFeature': {
+        0: ['there are no relations between the disease @DiseaseOrPhenotypicFeature@ and variant @SequenceVariant@ .',],
+        1: ['the variant @SequenceVariant@ may increase disease @DiseaseOrPhenotypicFeature@ risk, contribute to '
+            'disease susceptibility,'
+            'or cause protein deficiencies leading to diseases .'],
+        2: ['the variant @SequenceVariant@ may increase disease @DiseaseOrPhenotypicFeature@ risk .'],
+        3: ['the variant @SequenceVariant@ associated with the disease @DiseaseOrPhenotypicFeature@ prevalence and '
+            'which that cannot be'
+            'categorized as causing the disease . '],
+        4: [''],
+        5: [''],
+        6: [''],
+        7: [''],
+        8: [''],
+    },
+    'GeneOrGeneProduct-GeneOrGeneProduct': {
+        0: ['there are no relations between the gene @GeneOrGeneProduct@ and gene @GeneOrGeneProduct@ .'],
+        1: ['the gene @GeneOrGeneProduct@ and gene @GeneOrGeneProduct@ may show positive correlations in expression '
+            'or regulatory functions .'],
+        2: ['the gene @GeneOrGeneProduct@ and gene @GeneOrGeneProduct@ may show negative correlations in expression '
+            'or regulatory functions .'],
+        3: ['associations between gene @GeneOrGeneProduct@ and gene @GeneOrGeneProduct@ that cannot be categorized '
+            'differently .'],
+        4: ['there are physical interactions between proteins from gene @GeneOrGeneProduct@ and gene '
+            '@GeneOrGeneProduct@ , including protein'
+            'binding at gene promoters .'],
+        5: [''],
+        6: [''],
+        7: [''],
+        8: [''],
+    },
+    'GeneOrGeneProduct-ChemicalEntity': {
+        0: ['there are no relations between the drug @ChemicalEntity@ and gene @GeneOrGeneProduct@ .'],
+        1: ['the drug @ChemicalEntity@ may cause higher expression of gene @GeneOrGeneProduct@ or gene variants may '
+            'trigger'
+            'chemical adverse effects .'],
+        2: ['the drug @ChemicalEntity@ may cause lower expression of gene @GeneOrGeneProduct@ or gene variants may '
+            'confer'
+            'resistance to chemicals .'],
+        3: ['there are non-specific associations and binding interactions between the drug @ChemicalEntity@ and gene '
+            '@GeneOrGeneProduct@ promoters .'],
+        4: ['there are relations between the gene @GeneOrGeneProduct@ and the drug @ChemicalEntity@ such that the '
+            'drug binds the'
+            'promoter of a gene, or the protein from the gene is the drug receptor .'],
+        5: [''],
+        6: [''],
+        7: [''],
+        8: [''],
+    },
+    'ChemicalEntity-ChemicalEntity': {
+        0: ['there are no relations between the drug @ChemicalEntity@ and drug @ChemicalEntity@ .'],
+        1: ['the drug @ChemicalEntity@ may increase the sensitivity or effectiveness of drug @ChemicalEntity@ or vice '
+            'versa .'],
+        2: ['the drug @ChemicalEntity@ may decrease the sensitivity or side effects of drug @ChemicalEntity@ or vice '
+            'versa .'],
+        3: ['there are chemical conversions or non-specific associations between drug @ChemicalEntity@ and drug '
+            '@ChemicalEntity@ .'],
+        4: [''],
+        5: ['there are pharmacodynamic interactions between the drug @ChemicalEntity@ and drug @ChemicalEntity@ .'],
+        6: ['the drug combination therapy using both drug @ChemicalEntity@ and drug @ChemicalEntity@ .'],
+        7: ['there is a comparison relation between drug @ChemicalEntity@ and drug @ChemicalEntity@ .'],
+        8: ['the drug @ChemicalEntity@ may convert to drug @ChemicalEntity@ or vice versa .'],
+    },
+    'ChemicalEntity-SequenceVariant': {
+        0: ['there are no relations between the drug @ChemicalEntity@ and variant @SequenceVariant@ .'],
+        1: ['the drug @ChemicalEntity@ may cause higher expression of a gene variant @SequenceVariant@ or increase '
+            'sensitivity due to a variant .'],
+        2: ['the drug @ChemicalEntity@ may decrease gene expression due to the variant @SequenceVariant@ or the '
+            'variant may'
+            'confer resistance .'],
+        3: ['there are association relationships not defined between the variant @SequenceVariant@ and the drug '
+            '@ChemicalEntity@ , like variant on chemical binding sites .'],
+        4: [''],
+        5: [''],
+        6: [''],
+        7: [''],
+        8: [''],
+
+    },
+    'SequenceVariant-SequenceVariant': {
+        0: ['there are no relations between the variant @SequenceVariant@ and variant @SequenceVariant@ .'],
+        1: [''],
+        2: [''],
+        3: ['there is a association relation between the variant @SequenceVariant@ and variant @SequenceVariant@ .'],
+        4: [''],
+        5: [''],
+        6: [''],
+        7: [''],
+        8: [''],
+    }},
+
 
 
 }

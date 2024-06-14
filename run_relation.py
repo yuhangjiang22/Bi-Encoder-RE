@@ -16,7 +16,7 @@ from transformers.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
 from transformers import AutoTokenizer
 from transformers import AdamW, get_linear_schedule_with_warmup
 from torch.utils.data import DataLoader, TensorDataset
-from relation.utils import generate_relation_data, decode_sample_id
+from relation.utils import generate_relation_data, decode_sample_id, convert_examples_to_features, convert_biored_examples_to_features
 from shared.const import task_rel_labels, task_ner_labels
 from shared.descriptions import descriptions
 
@@ -40,34 +40,6 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s - %(message)s
 logger = logging.getLogger(__name__)
 
 
-class InputFeatures(object):
-    """A single set of features of data."""
-
-    def __init__(self,
-                 input_ids,
-                 input_mask,
-                 segment_ids,
-                 label_id,
-                 sub_idx,
-                 obj_idx,
-                 descriptions_input_ids,
-                 descriptions_input_mask,
-                 descriptions_type_ids,
-                 descriptions_sub_idx,
-                 descriptions_obj_idx):
-        self.input_ids = input_ids
-        self.input_mask = input_mask
-        self.segment_ids = segment_ids
-        self.label_id = label_id
-        self.sub_idx = sub_idx
-        self.obj_idx = obj_idx
-        self.descriptions_input_ids = descriptions_input_ids
-        self.descriptions_input_mask = descriptions_input_mask
-        self.descriptions_type_ids = descriptions_type_ids
-        self.descriptions_sub_idx = descriptions_sub_idx
-        self.descriptions_obj_idx = descriptions_obj_idx
-
-
 def add_marker_tokens(tokenizer, ner_labels):
     new_tokens = ['<SUBJ_START>', '<SUBJ_END>', '<OBJ_START>', '<OBJ_END>']
     for label in ner_labels:
@@ -83,168 +55,6 @@ def add_marker_tokens(tokenizer, ner_labels):
     logger.info('# vocab after adding markers: %d' % len(tokenizer))
 
 
-def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, special_tokens,
-                                 tokenized_id2description, unused_tokens=False, baseline=False):
-    """
-    Loads a data file into a list of `InputBatch`s.
-    unused_tokens: whether use [unused1] [unused2] as special tokens
-    """
-
-    def get_special_token(w):
-        if w not in special_tokens:
-            if unused_tokens:
-                special_tokens[w] = "[unused%d]" % (len(special_tokens) + 1)
-            else:
-                special_tokens[w] = ('<' + w + '>').lower()
-        return special_tokens[w]
-
-    def get_description_input(description_tokens):
-        description_tokens = [CLS] + description_tokens
-        description_tokens = [subject if word == '@subject@' else word for word in description_tokens]
-        description_tokens = [object if word == '@object@' else word for word in description_tokens]
-        description_tokens = [item for sublist in description_tokens for item in
-                              (sublist if isinstance(sublist, list) else [sublist])]
-        description_tokens.append(SEP)
-
-        if not baseline:
-            des_sub_idx = description_tokens.index(SUBJECT_START_NER)
-            des_obj_idx = description_tokens.index(OBJECT_START_NER)
-            descriptions_sub_idx.append(des_sub_idx)
-            descriptions_obj_idx.append(des_obj_idx)
-        else:
-            descriptions_sub_idx.append(0)
-            descriptions_obj_idx.append(0)
-
-        description_input_ids = tokenizer.convert_tokens_to_ids(description_tokens)
-        description_type_ids = [0] * len(description_tokens)
-        description_input_mask = [1] * len(description_input_ids)
-        padding = [0] * (max_seq_length - len(description_input_ids))
-        description_input_ids += padding
-        description_input_mask += padding
-        description_type_ids += padding
-
-        assert len(description_input_ids) == max_seq_length
-        assert len(description_input_mask) == max_seq_length
-        assert len(description_type_ids) == max_seq_length
-
-        return description_input_ids, description_input_mask, description_type_ids
-
-    num_tokens = 0
-    max_tokens = 0
-    num_fit_examples = 0
-    num_shown_examples = 0
-    features = []
-    for (ex_index, example) in enumerate(examples):
-        if ex_index % 10000 == 0:
-            logger.info("Writing example %d of %d" % (ex_index, len(examples)))
-
-        tokens = [CLS]
-        SUBJECT_START = get_special_token("SUBJ_START")
-        SUBJECT_END = get_special_token("SUBJ_END")
-        OBJECT_START = get_special_token("OBJ_START")
-        OBJECT_END = get_special_token("OBJ_END")
-        SUBJECT_NER = get_special_token("SUBJ=%s" % example['subj_type'])
-        OBJECT_NER = get_special_token("OBJ=%s" % example['obj_type'])
-
-        SUBJECT_START_NER = get_special_token("SUBJ_START=%s" % example['subj_type'])
-        SUBJECT_END_NER = get_special_token("SUBJ_END=%s" % example['subj_type'])
-        OBJECT_START_NER = get_special_token("OBJ_START=%s" % example['obj_type'])
-        OBJECT_END_NER = get_special_token("OBJ_END=%s" % example['obj_type'])
-
-        for i, token in enumerate(example['token']):
-            if i == example['subj_start']:
-                sub_idx = len(tokens)
-                tokens.append(SUBJECT_START_NER)
-            if i == example['obj_start']:
-                obj_idx = len(tokens)
-                tokens.append(OBJECT_START_NER)
-            for sub_token in tokenizer.tokenize(token):
-                tokens.append(sub_token)
-            if i == example['subj_end']:
-                sub_idx_end = len(tokens)
-                tokens.append(SUBJECT_END_NER)
-            if i == example['obj_end']:
-                obj_idx_end = len(tokens)
-                tokens.append(OBJECT_END_NER)
-        tokens.append(SEP)
-
-        subject = tokens[sub_idx:sub_idx_end + 1]
-        object = tokens[obj_idx:obj_idx_end + 1]
-        if baseline:
-            subject = ['']
-            object = ['']
-
-        num_tokens += len(tokens)
-        max_tokens = max(max_tokens, len(tokens))
-
-        if len(tokens) > max_seq_length:
-            tokens = tokens[:max_seq_length]
-            if sub_idx >= max_seq_length:
-                sub_idx = 0
-            if obj_idx >= max_seq_length:
-                obj_idx = 0
-
-        else:
-            num_fit_examples += 1
-
-        segment_ids = [0] * len(tokens)
-        input_ids = tokenizer.convert_tokens_to_ids(tokens)
-        input_mask = [1] * len(input_ids)
-        padding = [0] * (max_seq_length - len(input_ids))
-        input_ids += padding
-        input_mask += padding
-        segment_ids += padding
-        label_id = label2id[example['relation']]
-
-        assert len(input_ids) == max_seq_length
-        assert len(input_mask) == max_seq_length
-        assert len(segment_ids) == max_seq_length
-
-        descriptions_input_ids = []
-        descriptions_input_mask = []
-        descriptions_type_ids = []
-        descriptions_sub_idx = []
-        descriptions_obj_idx = []
-
-        for _, description_tokens_list in tokenized_id2description.items():
-
-            description_tokens = description_tokens_list[0]
-            description_input_ids, description_input_mask, description_type_ids = get_description_input(description_tokens)
-            descriptions_input_ids.append(description_input_ids)
-            descriptions_input_mask.append(description_input_mask)
-            descriptions_type_ids.append(description_type_ids)
-
-
-        if num_shown_examples < 20:
-            if (ex_index < 5) or (label_id > 0):
-                num_shown_examples += 1
-                logger.info("*** Example ***")
-                logger.info("guid: %s" % (example['id']))
-                logger.info("tokens: %s" % " ".join(
-                    [str(x) for x in tokens]))
-                logger.info("input_ids: %s" % " ".join([str(x) for x in input_ids]))
-                logger.info("input_mask: %s" % " ".join([str(x) for x in input_mask]))
-                logger.info("segment_ids: %s" % " ".join([str(x) for x in segment_ids]))
-                logger.info("label: %s (id = %d)" % (example['relation'], label_id))
-                logger.info("sub_idx, obj_idx: %d, %d" % (sub_idx, obj_idx))
-        features.append(
-            InputFeatures(input_ids=input_ids,
-                          input_mask=input_mask,
-                          segment_ids=segment_ids,
-                          label_id=label_id,
-                          sub_idx=sub_idx,
-                          obj_idx=obj_idx,
-                          descriptions_input_ids=descriptions_input_ids,
-                          descriptions_input_mask=descriptions_input_mask,
-                          descriptions_type_ids=descriptions_type_ids,
-                          descriptions_sub_idx=descriptions_sub_idx,
-                          descriptions_obj_idx=descriptions_obj_idx))
-    logger.info("Average #tokens: %.2f" % (num_tokens * 1.0 / len(examples)))
-    logger.info("Max #tokens: %d" % max_tokens)
-    logger.info("%d (%.2f %%) examples can fit max_seq_length = %d" % (num_fit_examples,
-                                                                       num_fit_examples * 100.0 / len(examples),
-                                                                       max_seq_length))
-    return features
 
 def simple_accuracy(preds, labels):
     return (preds == labels).mean()
@@ -379,11 +189,10 @@ def main(args):
     if args.train_single:
         from relation.single_model import BEFRE, BEFREConfig
     if args.soft_prompt:
-        from relation.testing_model_2 import BEFRE, BEFREConfig
+        from relation.model import BEFRE, BEFREConfig
     if args.train_pure:
         from relation.testing_model import BEFRE, BEFREConfig
-    if args.baseline:
-        from relation.testing_model_3 import BEFRE, BEFREConfig
+
 
     setseed(args.seed)
 
@@ -393,17 +202,17 @@ def main(args):
     # train set
     if args.do_train:
         train_dataset, train_examples, train_nrel = generate_relation_data(args.train_file, use_gold=True,
-                                                                           context_window=args.context_window)
+                                                                           context_window=args.context_window, task=args.task)
     # dev set
     if (args.do_eval and args.do_train) or (args.do_eval and not (args.eval_test)):
         eval_dataset, eval_examples, eval_nrel = generate_relation_data(
             os.path.join(args.entity_output_dir, args.entity_predictions_dev), use_gold=args.eval_with_gold,
-            context_window=args.context_window)
+            context_window=args.context_window, task=args.task)
     # test set
     if args.eval_test:
         test_dataset, test_examples, test_nrel = generate_relation_data(
             os.path.join(args.entity_output_dir, args.entity_predictions_test), use_gold=args.eval_with_gold,
-            context_window=0)
+            context_window=args.context_window, task=args.task)
 
 
     if not args.do_train and not args.do_eval:
@@ -442,7 +251,14 @@ def main(args):
         alpha=args.alpha,
     )
     id2description = descriptions[args.task]
-    tokenized_id2description = {key: [s.lower().split() for s in value] for key, value in id2description.items()}
+
+    if args.task != 'biored':
+        tokenized_id2description = {key: [s.lower().split() for s in value] for key, value in id2description.items()}
+        convert_function = convert_examples_to_features
+    else:
+        tokenized_id2description = {pair: {key: [s.lower().split() for s in value] for key, value in dic.items()} for
+                                    pair, dic in id2description.items()}
+        convert_function = convert_biored_examples_to_features
 
     tokenizer = AutoTokenizer.from_pretrained(args.model, do_lower_case=args.do_lower_case)
     add_description_words(tokenizer, tokenized_id2description)
@@ -456,9 +272,9 @@ def main(args):
         special_tokens = {}
 
     if args.do_eval and (args.do_train or not (args.eval_test)):
-        eval_features = convert_examples_to_features(
+        eval_features = convert_function(
             eval_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
-            unused_tokens=not (args.add_new_tokens), baseline=args.baseline)
+            unused_tokens=not (args.add_new_tokens))
         logger.info("***** Dev *****")
         logger.info("  Num examples = %d", len(eval_examples))
         logger.info("  Batch size = %d", args.eval_batch_size)
@@ -496,9 +312,9 @@ def main(args):
         json.dump(special_tokens, f)
 
     if args.do_train:
-        train_features = convert_examples_to_features(
+        train_features = convert_function(
             train_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
-            unused_tokens=not (args.add_new_tokens), baseline=args.baseline)
+            unused_tokens=not (args.add_new_tokens))
         if args.train_mode == 'sorted' or args.train_mode == 'random_sorted':
             train_features = sorted(train_features, key=lambda f: np.sum(f.input_mask))
         else:
@@ -635,15 +451,14 @@ def main(args):
                                         (args.eval_metric, str(lr), epoch, result[args.eval_metric] * 100.0))
                             save_trained_model(args.output_dir, model, tokenizer)
 
-    evaluation_results = {}
     if args.do_eval:
         logger.info(special_tokens)
         if args.eval_test:
             eval_dataset = test_dataset
             eval_examples = test_examples
-            eval_features = convert_examples_to_features(
+            eval_features = convert_function(
                 test_examples, label2id, args.max_seq_length, tokenizer, special_tokens, tokenized_id2description,
-                unused_tokens=not (args.add_new_tokens), baseline=args.baseline)
+                unused_tokens=not (args.add_new_tokens))
             eval_nrel = test_nrel
             logger.info(special_tokens)
             logger.info("***** Test *****")
@@ -767,8 +582,6 @@ if __name__ == "__main__":
                         help="Use multi-descriptions or not.")
     parser.add_argument('--soft_prompt', action='store_true',
                         help="Train with soft prompts.")
-    parser.add_argument('--baseline', action='store_true',
-                        help="Use instance adaptation or not")
     parser.add_argument('--alpha', type=float, default=0.5,
                         help="alpha value for loss function.")
 
