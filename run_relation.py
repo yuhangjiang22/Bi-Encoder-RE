@@ -23,13 +23,22 @@ from shared.descriptions import descriptions
 
 
 def add_description_words(tokenizer, tokenized_id2description):
+
+    def add_words(d):
+        if type(d) == dict:
+            for k,v in d.items():
+                add_words(v)
+        else:
+            for wds in d:
+                for w in wds:
+                    if w not in tokenizer.vocab:
+                        unk_words.append(w)
+
     unk_words = []
-    for k, v in tokenized_id2description.items():
-        for wds in v:
-            for w in wds:
-                if w not in tokenizer.vocab:
-                    unk_words.append(w)
+    add_words(tokenized_id2description)
     tokenizer.add_tokens(unk_words)
+
+
 
 CLS = "[CLS]"
 SEP = "[SEP]"
