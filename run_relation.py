@@ -91,7 +91,7 @@ def compute_f1(preds, labels):
                 'n_correct': n_correct, 'n_pred': n_pred, 'n_gold': n_gold}
 
 
-def evaluate(model, device, eval_dataloader, eval_label_ids, seq_len):
+def evaluate(model, device, eval_dataloader, eval_label_ids):
     model.eval()
     nb_eval_steps = 0
     preds = []
@@ -103,11 +103,10 @@ def evaluate(model, device, eval_dataloader, eval_label_ids, seq_len):
         sub_idx = sub_idx.to(device)
         obj_idx = obj_idx.to(device)
 
-        batch_size, num_labels, _ = descriptions_input_ids.size()
-
-        descriptions_input_ids = descriptions_input_ids.reshape(batch_size * num_labels, seq_len)
-        descriptions_input_mask = descriptions_input_mask.reshape(batch_size * num_labels, seq_len)
-        descriptions_type_ids = descriptions_type_ids.reshape(batch_size * num_labels, seq_len)
+        batch_size, num_labels, des_seq_length = descriptions_input_ids.size()
+        descriptions_input_ids = descriptions_input_ids.reshape(batch_size * num_labels, des_seq_length)
+        descriptions_input_mask = descriptions_input_mask.reshape(batch_size * num_labels, des_seq_length)
+        descriptions_type_ids = descriptions_type_ids.reshape(batch_size * num_labels, des_seq_length)
         descriptions_sub_idx = descriptions_sub_idx.reshape(batch_size * num_labels)
         descriptions_obj_idx = descriptions_obj_idx.reshape(batch_size * num_labels)
         descriptions_input_ids = descriptions_input_ids.to(device)
@@ -430,7 +429,6 @@ def main(args):
                                                  device=device,
                                                  eval_dataloader=eval_dataloader,
                                                  eval_label_ids=eval_label_ids,
-                                                 seq_len=args.max_seq_length,
                                                  )
                         model.train()
                         result['global_step'] = global_step
@@ -494,7 +492,6 @@ def main(args):
                                  device=device,
                                  eval_dataloader=eval_dataloader,
                                  eval_label_ids=eval_label_ids,
-                                 seq_len=args.max_seq_length,
                                  )
 
         logger.info('*** Evaluation Results ***')
