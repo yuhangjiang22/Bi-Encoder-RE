@@ -393,15 +393,15 @@ def main(args):
             if args.train_mode == 'random' or args.train_mode == 'random_sorted':
                 random.shuffle(train_batches)
             for step, batch in enumerate(train_batches):
-                num_descriptions = batch[6].size(0) * batch[6].size(1)
                 # batch_size, _ = batch[0].size()
                 batch = tuple(t.to(device) for t in batch)
                 input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids, descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx = batch
-                descriptions_input_ids = descriptions_input_ids.reshape(num_descriptions, args.max_seq_length)
-                descriptions_input_mask = descriptions_input_mask.reshape(num_descriptions, args.max_seq_length)
-                descriptions_type_ids = descriptions_type_ids.reshape(num_descriptions, args.max_seq_length)
-                descriptions_sub_idx = descriptions_sub_idx.reshape(num_descriptions)
-                descriptions_obj_idx = descriptions_obj_idx.reshape(num_descriptions)
+                batch_size, num_labels, des_seq_length = descriptions_input_ids.size()
+                descriptions_input_ids = descriptions_input_ids.reshape(batch_size * num_labels, des_seq_length)
+                descriptions_input_mask = descriptions_input_mask.reshape(batch_size * num_labels, des_seq_length)
+                descriptions_type_ids = descriptions_type_ids.reshape(batch_size * num_labels, des_seq_length)
+                descriptions_sub_idx = descriptions_sub_idx.reshape(batch_size * num_labels)
+                descriptions_obj_idx = descriptions_obj_idx.reshape(batch_size * num_labels)
                 print(descriptions_input_ids.size(), descriptions_input_mask.size(), descriptions_type_ids.size())
                 loss = model(input_ids, input_mask, segment_ids, label_ids, sub_idx, obj_idx, descriptions_input_ids,
                              descriptions_input_mask, descriptions_type_ids, descriptions_sub_idx, descriptions_obj_idx,
