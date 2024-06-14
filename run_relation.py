@@ -190,8 +190,7 @@ def main(args):
 
     # train set
     if args.do_train:
-        train_dataset, train_examples, train_nrel = generate_relation_data(args.train_file, use_gold=True,
-                                                                           context_window=args.context_window, task=args.task)
+        train_dataset, train_examples, train_nrel = generate_relation_data(args.train_file, context_window=args.context_window, task=args.task)
     # dev set
     if (args.do_eval and args.do_train) or (args.do_eval and not (args.eval_test)):
         eval_dataset, eval_examples, eval_nrel = generate_relation_data(
