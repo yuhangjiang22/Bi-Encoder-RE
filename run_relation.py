@@ -252,9 +252,6 @@ def main(args):
     if args.add_new_tokens:
         add_marker_tokens(tokenizer, task_ner_labels[args.task])
 
-    if 'PubMedBERT' not in config.pretrained_model_name_or_path:
-        config.tokenizer_len = len(tokenizer)
-
     if os.path.exists(os.path.join(args.output_dir, 'special_tokens.json')):
         with open(os.path.join(args.output_dir, 'special_tokens.json'), 'r') as f:
             special_tokens = json.load(f)
@@ -353,6 +350,9 @@ def main(args):
         eval_step = max(1, len(train_batches) // args.eval_per_epoch)
 
         lr = args.learning_rate
+
+        if 'PubMedBERT' not in config.pretrained_model_name_or_path:
+            config.tokenizer_len = len(tokenizer)
 
         model = BEFRE(config)
 
