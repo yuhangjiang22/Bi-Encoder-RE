@@ -5,7 +5,6 @@ from shared.data_structures import Dataset
 logger = logging.getLogger('root')
 
 class InputFeatures(object):
-    """A single set of features of data."""
 
     def __init__(self,
                  input_ids,
@@ -369,7 +368,7 @@ def decode_sample_id(sample_id):
     return doc_sent, sub, obj
 
 
-def generate_relation_data(entity_data, use_gold=True, context_window=0, task=None):
+def generate_relation_data(entity_data, context_window=0, task=None):
     """
     Prepare data for the relation model
     If training: set use_gold = True
