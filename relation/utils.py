@@ -481,8 +481,8 @@ def generate_relation_data(entity_data, context_window=0, task=None):
 
                                 sent_samples.append(sample)
 
-                                captured.append([sub.span.text, obj.span.text])
-                                captured.append([obj.span.text, sub.span.text])
+                                # captured.append([sub.span.text, obj.span.text])
+                                # captured.append([obj.span.text, sub.span.text])
 
                     if task == 'scierc':
                         if [sub.span, obj.span] not in captured:

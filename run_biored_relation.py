@@ -179,7 +179,7 @@ id2description = {
     'SequenceVariant-DiseaseOrPhenotypicFeature': {
         0: ['there are no relations between the disease @DiseaseOrPhenotypicFeature@ and variant @SequenceVariant@ .',],
         1: ['the variant @SequenceVariant@ may increase disease @DiseaseOrPhenotypicFeature@ risk, contribute to '
-            'disease susceptibility ,'
+            'disease susceptibility,'
             'or cause protein deficiencies leading to diseases .'],
         2: ['the variant @SequenceVariant@ may increase disease @DiseaseOrPhenotypicFeature@ risk .'],
         3: ['the variant @SequenceVariant@ associated with the disease @DiseaseOrPhenotypicFeature@ prevalence and '
