@@ -515,6 +515,8 @@ def generate_relation_data(entity_data, context_window=0, task=None):
                             sent_samples.append(sample)
                     if not task:
                         label = gold_rel.get((sub.span, obj.span), 'no_relation')
+                        if label == 'Other':
+                            label = 'no_relation'
                         sample = {}
                         sample['docid'] = doc._doc_key
                         sample['id'] = '%s@%d::(%d,%d)-(%d,%d)' % (
