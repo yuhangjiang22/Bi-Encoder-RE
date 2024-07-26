@@ -387,6 +387,7 @@ def generate_relation_data(entity_data, context_window=0, task=None):
     nner, nrel = 0, 0
     max_sentsample = 0
     samples = []
+    num_null = 0
     for doc in data:
         for i, sent in enumerate(doc):
             sent_samples = []
@@ -491,7 +492,9 @@ def generate_relation_data(entity_data, context_window=0, task=None):
                             if label == 'no_relation':
                                 label = gold_rel.get((obj.span, sub.span), 'no_relation')
                                 if label == 'no_relation':
-                                    continue
+                                    num_null += 1
+                                    if num_null == 20000:
+                                        continue
                             sample = {}
                             sample['docid'] = doc._doc_key
                             sample['id'] = '%s@%d::(%d,%d)-(%d,%d)' % (
