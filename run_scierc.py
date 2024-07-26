@@ -804,7 +804,7 @@ if __name__ == "__main__":
     parser.add_argument("--model", default=None, type=str, required=True)
     parser.add_argument("--output_dir", default=None, type=str, required=True,
                         help="The output directory where the model predictions and checkpoints will be written.")
-    parser.add_argument("--eval_per_epoch", default=10, type=int,
+    parser.add_argument("--eval_per_epoch", default=2, type=int,
                         help="How many times it evaluates on dev set per epoch")
     parser.add_argument("--max_seq_length", default=128, type=int,
                         help="The maximum total input sequence length after WordPiece tokenization. \n"
