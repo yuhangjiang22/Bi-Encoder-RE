@@ -480,7 +480,7 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, e2e_ngo
 
 
 train_file = 'scierc/json/train.json'
-train_dataset, train_examples, train_nrel = generate_relation_data(train_file, use_gold=True, context_window=100)
+train_dataset, train_examples, train_nrel = generate_relation_data(train_file, context_window=100)
 
 label_list = ['no_relation'] + task_rel_labels['scierc']
 

@@ -28,22 +28,22 @@ from shared.const import task_rel_labels, task_ner_labels
 from relation.befre import BEFRE, BEFREConfig
 from relation.unified_model import BEFRE, BEFREConfig
 
-id2description = {0: ["no relation : there are no relations between the @subject@ and the @object@ ."],
-                  1: ["part of : the @subject@ is a component or segment that is integral to the structure or composition "
-                      "of the @object@ ."],
-                  2: ["used for : the @subject@ is a tool or method applied to enhance or facilitate the @object@ ."],
-                  3: ["feature of : the @subject@ is a constituent part or characteristic of the @object@ , functioning as a "
-                      "distinctive element within the @object@ , or falls within the scope or area of expertise defined "
-                      "by the domain of the @object@ ."],
-                  4: ["conjunction : the @subject@ serves a role or purpose analogous to the @object@ , often being used in "
-                      "conjunction with or incorporated into the @object@ for complementary or similar functions . "],
-                  5: ["evaluate for : the @object@ is assessed or analyzed specifically to determine its suitability , "
-                      "effectiveness , or performance in relation to the @subject@ ."],
-                  6: ["hyponym of : the @subject@ is a specific instance or category under the broader classification of "
-                      "@object@ , signifying that the @subject@ is a subtype or a more specialized form within the general "
-                      "framework of the @object@ ."],
-                  7: ["compare : the @subject@ is compared in relation to the @object@ , highlighting similarities and "
-                      "differences to understand their respective characteristics or performances ."]}
+# id2description = {0: ["no relation : there are no relations between the @subject@ and the @object@ ."],
+#                   1: ["part of : the @subject@ is a component or segment that is integral to the structure or composition "
+#                       "of the @object@ ."],
+#                   2: ["used for : the @subject@ is a tool or method applied to enhance or facilitate the @object@ ."],
+#                   3: ["feature of : the @subject@ is a constituent part or characteristic of the @object@ , functioning as a "
+#                       "distinctive element within the @object@ , or falls within the scope or area of expertise defined "
+#                       "by the domain of the @object@ ."],
+#                   4: ["conjunction : the @subject@ serves a role or purpose analogous to the @object@ , often being used in "
+#                       "conjunction with or incorporated into the @object@ for complementary or similar functions . "],
+#                   5: ["evaluate for : the @object@ is assessed or analyzed specifically to determine its suitability , "
+#                       "effectiveness , or performance in relation to the @subject@ ."],
+#                   6: ["hyponym of : the @subject@ is a specific instance or category under the broader classification of "
+#                       "@object@ , signifying that the @subject@ is a subtype or a more specialized form within the general "
+#                       "framework of the @object@ ."],
+#                   7: ["compare : the @subject@ is compared in relation to the @object@ , highlighting similarities and "
+#                       "differences to understand their respective characteristics or performances ."]}
 
 # id2description = {0: ["no relation : there are no relations between @subject@ and @object@ ."],
 #                   1: ["agent - artifact : the @subject@ , who can be a user , owner , inventor , or manufacturer , "
@@ -63,16 +63,16 @@ id2description = {0: ["no relation : there are no relations between the @subject
 #                   6: ["part - whole :  the @subject@ is a component or segment of the @object@ , indicating that the "
 #                       "part is an integral or constituent piece of the larger whole ."]}
 
-# id2description = {0: ["no relation : there are no relations between @subject@ and @object@ ."],
-#                   1: ["Cause-Effect : the @subject@ leads to the effect @object@ ."],
-#                   2: ["Instrument-Agency : the @object@ uses the @subject@ instrument ."],
-#                   3: ["Product-Producer : the @object@ causes the @subject@ to exist ."],
-#                   4: ["Content-Container : the @subject@ is physically stored in the @object@ ."],
-#                   5: ["Entity-Origin : the @subject@ is coming or is derived from the @object@ ."],
-#                   6: ["Entity-Destination : the @subject@ is moving towards the destination @object@ ."],
-#                   7: ["Component-Whole : the @subject@ is a component of the larger whole @object@ ."],
-#                   8: ["Member-Collection : the member @subject@ forms a nonfunctional part of the collection @object@ ."],
-#                   9: ["Message-Topic : the message @subject@ , written or spoken , is about the topic @object@ ."]}
+id2description = {0: ["no relation : there are no relations between @subject@ and @object@ ."],
+                  1: ["cause - effect : the @subject@ leads to the effect @object@ ."],
+                  2: ["instrument - agency : the @object@ uses the @subject@ instrument ."],
+                  3: ["product - producer : the @object@ causes the @subject@ to exist ."],
+                  4: ["content - container : the @subject@ is physically stored in the @object@ ."],
+                  5: ["entity - origin : the @subject@ is coming or is derived from the @object@ ."],
+                  6: ["entity - destination : the @subject@ is moving towards the destination @object@ ."],
+                  7: ["component - whole : the @subject@ is a component of the larger whole @object@ ."],
+                  8: ["member - collection : the member @subject@ forms a nonfunctional part of the collection @object@ ."],
+                  9: ["message - topic : the message @subject@ , written or spoken , is about the topic @object@ ."]}
 
 # id2description = {0: ["@subject@ , @object@"],
 #                   1: ["@subject@ , @object@"],
