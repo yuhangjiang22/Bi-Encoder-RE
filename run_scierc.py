@@ -495,17 +495,17 @@ def main(args):
 
     # train set
     if args.do_train:
-        train_dataset, train_examples, train_nrel = generate_relation_data(args.train_file, use_gold=True,
+        train_dataset, train_examples, train_nrel = generate_relation_data(args.train_file,
                                                                            context_window=args.context_window)
     # dev set
     if (args.do_eval and args.do_train) or (args.do_eval and not (args.eval_test)):
         eval_dataset, eval_examples, eval_nrel = generate_relation_data(
-            os.path.join(args.entity_output_dir, args.entity_predictions_dev), use_gold=args.eval_with_gold,
+            os.path.join(args.entity_output_dir, args.entity_predictions_dev),
             context_window=args.context_window)
     # test set
     if args.eval_test:
         test_dataset, test_examples, test_nrel = generate_relation_data(
-            os.path.join(args.entity_output_dir, args.entity_predictions_test), use_gold=args.eval_with_gold,
+            os.path.join(args.entity_output_dir, args.entity_predictions_test),
             context_window=args.context_window)
 
     if not args.do_train and not args.do_eval:
