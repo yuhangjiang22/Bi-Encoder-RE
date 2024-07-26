@@ -5,7 +5,8 @@ task_ner_labels = {
     'chemprot': ['CHEMICAL', 'GENE'],
     'chemprot_5': ['CHEMICAL', 'GENE'],
     'biored': ['DiseaseOrPhenotypicFeature', 'SequenceVariant', 'GeneOrGeneProduct', 'ChemicalEntity'],
-    'semeval': ['obj', 'sub']
+    'semeval': ['obj', 'sub'],
+    'ddi': ["DRUG", "BRAND", "GROUP", "DRUG_N"]
 }
 
 task_rel_labels = {
@@ -20,7 +21,8 @@ task_rel_labels = {
     'chemprot_5': ['CPR:3', 'CPR:4', 'CPR:5', 'CPR:6', 'CPR:9'],
     'biored': ['Positive_Correlation', 'Negative_Correlation', 'Association', 'Bind', 'Drug_Interaction', 'Cotreatment', 'Comparison', 'Conversion'],
     'semeval': ['Cause-Effect', 'Instrument-Agency', 'Product-Producer', 'Content-Container', 'Entity-Origin', 'Entity-Destination',
-                'Component-Whole', 'Member-Collection', 'Message-Topic']
+                'Component-Whole', 'Member-Collection', 'Message-Topic'],
+    'ddi': ['EFFECT', 'INT', 'MECHANISM', 'ADVISE']
 }
 
 # task_id2descriptions = {
