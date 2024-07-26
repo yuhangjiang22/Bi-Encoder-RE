@@ -66,6 +66,7 @@ class BEFRE(PreTrainedModel):
         self.post_init()
         self.num_labels = config.num_labels
         self.classifier = nn.Linear(hf_config.hidden_size * 2, config.num_labels)
+        self.tokenizer_len = config.tokenizer_len
 
         self.input_encoder = AutoModel.from_pretrained(
             config.pretrained_model_name_or_path,
