@@ -502,17 +502,17 @@ def main(args):
     # train set
     if args.do_train:
         train_dataset, train_examples, train_nrel = generate_relation_data(args.train_file,
-                                                                           context_window=args.context_window)
+                                                                           context_window=args.context_window, task=args.task)
     # dev set
     if (args.do_eval and args.do_train) or (args.do_eval and not (args.eval_test)):
         eval_dataset, eval_examples, eval_nrel = generate_relation_data(
             os.path.join(args.entity_output_dir, args.entity_predictions_dev),
-            context_window=args.context_window)
+            context_window=args.context_window, task=args.task)
     # test set
     if args.eval_test:
         test_dataset, test_examples, test_nrel = generate_relation_data(
             os.path.join(args.entity_output_dir, args.entity_predictions_test),
-            context_window=args.context_window)
+            context_window=args.context_window, task=args.task)
 
     if not args.do_train and not args.do_eval:
         raise ValueError("At least one of `do_train` or `do_eval` must be True.")
