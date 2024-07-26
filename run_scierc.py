@@ -677,7 +677,7 @@ def main(args):
         train_dataloader = DataLoader(train_data, batch_size=args.train_batch_size)
         train_batches = [batch for batch in train_dataloader]
         if args.train_num_examples:
-            train_batches = train_batches[:args.train_num_examples]
+            train_batches = random.sample(train_batches, args.train_num_examples)
 
         num_train_optimization_steps = len(train_dataloader) * args.num_train_epochs
 
