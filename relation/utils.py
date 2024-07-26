@@ -493,7 +493,7 @@ def generate_relation_data(entity_data, context_window=0, task=None):
                                 label = gold_rel.get((obj.span, sub.span), 'no_relation')
                                 if label == 'no_relation':
                                     num_null += 1
-                                    if num_null == 20000:
+                                    if num_null > 20000:
                                         continue
                             sample = {}
                             sample['docid'] = doc._doc_key
