@@ -548,6 +548,7 @@ def main(args):
     add_description_words(tokenizer, tokenized_id2description)
     if args.add_new_tokens:
         add_marker_tokens(tokenizer, task_ner_labels[args.task])
+    config.tokenizer_len = len(tokenizer)
 
     if os.path.exists(os.path.join(args.output_dir, 'special_tokens.json')):
         with open(os.path.join(args.output_dir, 'special_tokens.json'), 'r') as f:
