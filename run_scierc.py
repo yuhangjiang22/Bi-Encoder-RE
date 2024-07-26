@@ -503,6 +503,9 @@ def main(args):
     if args.do_train:
         train_dataset, train_examples, train_nrel = generate_relation_data(args.train_file,
                                                                            context_window=args.context_window, task=args.task)
+
+        if args.train_num_examples:
+            train_examples = random.sample(train_examples, args.train_num_examples)
     # dev set
     if (args.do_eval and args.do_train) or (args.do_eval and not (args.eval_test)):
         eval_dataset, eval_examples, eval_nrel = generate_relation_data(
@@ -676,8 +679,6 @@ def main(args):
 
         train_dataloader = DataLoader(train_data, batch_size=args.train_batch_size)
         train_batches = [batch for batch in train_dataloader]
-        if args.train_num_examples:
-            train_batches = random.sample(train_batches, args.train_num_examples)
 
         num_train_optimization_steps = len(train_dataloader) * args.num_train_epochs
 
