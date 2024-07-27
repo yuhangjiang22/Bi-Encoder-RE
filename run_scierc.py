@@ -74,11 +74,11 @@ id2description = {0: ["no relation : there are no relations between @subject@ an
                   8: ["member - collection : the member @subject@ forms a nonfunctional part of the collection @object@ ."],
                   9: ["message - topic : the message @subject@ , written or spoken , is about the topic @object@ ."]}
 
-id2description = {0: ["no relation : there are no relations between @subject@ and @object@ ."],
-                  1: ["effect : clinical effect of the interaction , @subject@ may enhance or reduce the therapeutic effect of @object@ ."],
-                  2: ["int : a general interaction that doesn't fit into the other categories but still represents a meaningful relationship between @subject@ and @object@ . "],
-                  3: ["mechanism : the interaction at the biochemical or pharmacological level , @subject@ may inhibit the metabolism of @object@ ."],
-                  4: ["advice : recommendations or advice given regarding the co-administration of drugs , a recommendation to avoid co-administration or to adjust @subject@ and @object@ ."]}
+# id2description = {0: ["no relation : there are no relations between @subject@ and @object@ ."],
+#                   1: ["effect : clinical effect of the interaction , @subject@ may enhance or reduce the therapeutic effect of @object@ ."],
+#                   2: ["int : a general interaction that doesn't fit into the other categories but still represents a meaningful relationship between @subject@ and @object@ . "],
+#                   3: ["mechanism : the interaction at the biochemical or pharmacological level , @subject@ may inhibit the metabolism of @object@ ."],
+#                   4: ["advice : recommendations or advice given regarding the co-administration of drugs , a recommendation to avoid co-administration or to adjust @subject@ and @object@ ."]}
 
 # id2description = {0: ["@subject@ , @object@"],
 #                   1: ["@subject@ , @object@"],
