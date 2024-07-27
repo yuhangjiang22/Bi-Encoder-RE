@@ -546,7 +546,7 @@ def generate_relation_data(entity_data, context_window=0, task=None):
                             sample['sent_end'] = sent_end
 
                             sent_samples.append(sample)
-                    if task=='semeval' and [sub.span, obj.span] not in captured:
+                    if task=='semeval' and [sub.span.text, obj.span.text] not in captured:
                         label = gold_rel.get((sub.span, obj.span), 'no_relation')
                         if label == 'Other':
                             label = 'no_relation'
