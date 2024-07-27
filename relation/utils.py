@@ -550,6 +550,10 @@ def generate_relation_data(entity_data, context_window=0, task=None):
                         label = gold_rel.get((sub.span, obj.span), 'no_relation')
                         if label == 'Other':
                             label = 'no_relation'
+                        if label == 'no_relation':
+                            label = gold_rel.get((obj.span, sub.span), 'no_relation')
+                        if label == 'Other':
+                            label = 'no_relation'
                         sample = {}
                         sample['docid'] = doc._doc_key
                         sample['id'] = '%s@%d::(%d,%d)-(%d,%d)' % (
@@ -567,6 +571,8 @@ def generate_relation_data(entity_data, context_window=0, task=None):
                         sample['sent_end'] = sent_end
 
                         sent_samples.append(sample)
+                        captured.append([sub.span.text, obj.span.text])
+                        captured.append([obj.span.text, sub.span.text])
 
             max_sentsample = max(max_sentsample, len(sent_samples))
             samples += sent_samples
