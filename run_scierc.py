@@ -435,6 +435,10 @@ def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_s
     result = compute_f1(preds, eval_label_ids.numpy(), e2e_ngold=e2e_ngold)
     result['accuracy'] = simple_accuracy(preds, eval_label_ids.numpy())
     # result['eval_loss'] = eval_loss
+    if True:
+        logger.info("***** Eval results *****")
+        for key in sorted(result.keys()):
+            logger.info("  %s = %s", key, str(result[key]))
 
     return preds, result
 
