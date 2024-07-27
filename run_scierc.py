@@ -350,8 +350,9 @@ def convert_examples_to_features(examples, label2id, max_seq_length, tokenizer, 
 def simple_accuracy(preds, labels):
     return (preds == labels).mean()
 
-
+from sklearn.metrics import f1_score
 def compute_f1(preds, labels, e2e_ngold):
+    macro_f1 = f1_score(labels, preds, average='macro')
     n_gold = n_pred = n_correct = 0
     for pred, label in zip(preds, labels):
         if pred != 0:
@@ -361,7 +362,7 @@ def compute_f1(preds, labels, e2e_ngold):
         if (pred != 0) and (label != 0) and (pred == label):
             n_correct += 1
     if n_correct == 0:
-        return {'precision': 0.0, 'recall': 0.0, 'f1': 0.0, 'task_f1': 0.0}
+        return {'precision': 0.0, 'recall': 0.0, 'f1': 0.0, 'task_f1': 0.0, 'macro_f1': 0.0}
     else:
         prec = n_correct * 1.0 / n_pred
         recall = n_correct * 1.0 / n_gold
@@ -376,7 +377,7 @@ def compute_f1(preds, labels, e2e_ngold):
         else:
             e2e_recall = e2e_f1 = 0.0
         return {'precision': prec, 'recall': e2e_recall, 'f1': e2e_f1, 'task_recall': recall, 'task_f1': f1,
-                'n_correct': n_correct, 'n_pred': n_pred, 'n_gold': e2e_ngold, 'task_ngold': n_gold}
+                'n_correct': n_correct, 'n_pred': n_pred, 'n_gold': e2e_ngold, 'task_ngold': n_gold, 'macro_f1': macro_f1}
 
 
 def evaluate(model, device, eval_dataloader, num_labels, eval_label_ids, batch_size, seq_len, e2e_ngold=None):
