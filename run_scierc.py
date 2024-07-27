@@ -504,8 +504,7 @@ def main(args):
         train_dataset, train_examples, train_nrel = generate_relation_data(args.train_file,
                                                                            context_window=args.context_window, task=args.task)
 
-        if args.train_num_examples:
-            train_examples = random.sample(train_examples, args.train_num_examples)
+
     # dev set
     if (args.do_eval and args.do_train) or (args.do_eval and not (args.eval_test)):
         eval_dataset, eval_examples, eval_nrel = generate_relation_data(
