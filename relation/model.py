@@ -198,7 +198,7 @@ class BEFRE2(PreTrainedModel):
     config_class = BEFREConfig
 
     def __init__(self, config):
-        super(BEFRE, self).__init__(config)
+        super(BEFRE2, self).__init__(config)
 
         hf_config = AutoConfig.from_pretrained(
             pretrained_model_name_or_path=config.pretrained_model_name_or_path,
