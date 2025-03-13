@@ -18,7 +18,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from relation.utils import generate_relation_data, decode_sample_id, convert_examples_to_features, convert_biored_examples_to_features
 from shared.const import task_rel_labels, task_ner_labels
 from shared.descriptions import descriptions
-from relation.model import BEFRE, BEFREConfig, DualEncoder
+from relation.model import BEFRE, BEFREConfig, DualEncoder, BEFRE2
 
 
 
@@ -354,7 +354,7 @@ def main(args):
         if 'PubMedBERT' not in config.pretrained_model_name_or_path:
             config.tokenizer_len = len(tokenizer)
 
-        model = DualEncoder(config)
+        model = BEFRE2(config)
 
         model.to(device)
         if n_gpu > 1:
@@ -477,7 +477,7 @@ def main(args):
             eval_dataloader = DataLoader(eval_data, batch_size=args.eval_batch_size)
             eval_label_ids = all_label_ids
 
-        model = DualEncoder.from_pretrained(args.output_dir, num_labels=num_labels)
+        model = BEFRE2.from_pretrained(args.output_dir, num_labels=num_labels)
         model.to(device)
         preds, result = evaluate(model=model,
                                  device=device,
