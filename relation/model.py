@@ -342,8 +342,8 @@ class BEFRE2(PreTrainedModel):
 
         if labels is not None:
             loss_fct = nn.CrossEntropyLoss()
-            combined_loss = loss_fct(predictors.view(-1), labels.view(-1))
-            input_loss = loss_fct(logits.view(-1), labels.view(-1))
+            combined_loss = loss_fct(predictors.view(-1, self.num_labels), labels.view(-1))
+            input_loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
             return (combined_loss + input_loss) / 2
         else:
             return predictors
