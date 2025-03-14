@@ -233,6 +233,8 @@ class BEFRE2(PreTrainedModel):
             config=hf_config,
             add_pooling_layer=False
         )
+        for param in self.description_encoder.parameters():
+            param.requires_grad = False
         if self.tokenizer_len:
             self.input_encoder.resize_token_embeddings(self.tokenizer_len)
             self.description_encoder.resize_token_embeddings(self.tokenizer_len)
