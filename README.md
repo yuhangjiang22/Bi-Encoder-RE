@@ -1,6 +1,6 @@
 # Relation Extraction with Instance-Adapted Predicate Descriptions
 
-This repo contains PyTorch code for our method, which employs a dual-encoder architecture with instance-adaptation techniques for relation extraction.
+Implementation for our RE approach, which employs a dual-encoder architecture with instance-adaptation techniques.
 
 ## Setup
 
@@ -23,9 +23,9 @@ python run_relation.py \
     --do_lower_case \
     --context_window=100 \
     --max_seq_length=250 \
-    --file_dir "Bi-Encoder-RE/chemprot" \
+    --file_dir {file_folder} \
     --test_file "test.json" \
-    --output_dir "chemprt_5_model"
+    --output_dir {output_di}>
 ```
 
 ## Train/evaluate our model
