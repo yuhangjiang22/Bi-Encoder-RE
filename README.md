@@ -13,7 +13,7 @@ pip install -r requirements.txt
 ### Access to relation models
 Please use the [link](https://drive.google.com/drive/folders/1VIIQkCkuokjkg766PE-Pn_gpCMnBqy90?usp=share_link) to download pre-trained models.
 
-## Run the pre-trained relation model
+## Run relation models
 
 ```
 python run_relation.py \
