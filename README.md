@@ -28,7 +28,7 @@ python run_relation.py \
     --output_dir {output_di}>
 ```
 
-## Train/evaluate our model
+## Train relation models
 ```
 python 'run_relation.py' \
     --task {task} \
