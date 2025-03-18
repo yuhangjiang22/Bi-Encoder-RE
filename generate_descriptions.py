@@ -62,7 +62,7 @@ def dump_dict_to_py_file(dictionary, filename):
 
 if __name__ == "__main__":
     openai_key = '<openai_key>'
-    generate_descriptions = {}
+    generated_descriptions = {}
     for task in datasets:
         generated_descriptions[task] = generate_description(task, openai_key)
     # dump to .py file for easy read.
