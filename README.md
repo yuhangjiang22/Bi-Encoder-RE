@@ -45,7 +45,7 @@ python 'run_relation.py' \
     --context_window={context_window} \
     --max_seq_length={max_length} \
     --drop_out={drop_out} \
-    --seed=2024 \
+    --seed={seed} \
     --file_dir {file_dir} \
     --dev_file {dev_file} \
     --test_file {test_file}
