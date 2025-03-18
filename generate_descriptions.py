@@ -64,6 +64,6 @@ if __name__ == "__main__":
     openai_key = '<openai_key>'
     generate_descriptions = {}
     for task in datasets:
-        generate_descriptions[task] = generate_description(task, openai_key)
+        generated_descriptions[task] = generate_description(task, openai_key)
     # dump to .py file for easy read.
-    dump_dict_to_py_file(generate_descriptions, 'shared/generated_descriptions.py')
+    dump_dict_to_py_file(generated_descriptions, 'shared/generated_descriptions.py')
