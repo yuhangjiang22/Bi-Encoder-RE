@@ -1,5 +1,5 @@
 """
-This code is based on DYGIE++'s codebase
+This code is based on PURE
 """
 import json
 import copy
