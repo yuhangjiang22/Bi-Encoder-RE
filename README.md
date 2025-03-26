@@ -21,11 +21,11 @@ python run_relation.py \
     --do_eval --eval_test \
     --model microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract \
     --do_lower_case \
-    --context_window=100 \
-    --max_seq_length=250 \
+    --context_window={context_window} \
+    --max_seq_length={max_length} \
     --file_dir {file_folder} \
     --test_file "test.json" \
-    --output_dir {output_di}>
+    --output_dir {output_dir}>
 ```
 
 ## Train relation models
