@@ -17,9 +17,9 @@ Please use the [link](https://drive.google.com/drive/folders/1VIIQkCkuokjkg766PE
 
 ```
 python run_relation.py \
-    --task chemprot_5 \
+    --task {task} \
     --do_eval --eval_test \
-    --model microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract \
+    --model {model_path} \
     --do_lower_case \
     --context_window={context_window} \
     --max_seq_length={max_length} \
