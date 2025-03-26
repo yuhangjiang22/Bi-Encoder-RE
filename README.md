@@ -25,7 +25,7 @@ python run_relation.py \
     --max_seq_length={max_length} \
     --file_dir {file_folder} \
     --test_file "test.json" \
-    --output_dir {output_dir}>
+    --output_dir {output_dir}
 ```
 
 ## Train relation models
