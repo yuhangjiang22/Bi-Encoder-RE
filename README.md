@@ -10,6 +10,9 @@ Please install all the dependency packages using the following command:
 pip install -r requirements.txt
 ```
 
+### Decrypt datasets
+We encrypted all datasets and provided with private keys. Use `decrypt.py` to decrypt each dataset saparately.
+
 ### Access to relation models
 Please use the [link](https://drive.google.com/drive/folders/1VIIQkCkuokjkg766PE-Pn_gpCMnBqy90?usp=share_link) to download pre-trained models.
 
